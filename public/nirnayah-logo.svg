@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 220" fill="none">
+  <!-- Blue N left stroke (left vertical bar) -->
+  <polygon points="18,20 48,20 48,180 18,180" fill="#1a3a8f"/>
+  <!-- Blue N diagonal stroke -->
+  <polygon points="48,20 78,20 152,160 122,160" fill="#1a3a8f"/>
+  <!-- Blue N right stroke (right vertical bar) -->
+  <polygon points="152,20 182,20 182,180 152,180" fill="#1a3a8f"/>
+
+  <!-- Orange flame / brush stroke overlaying the diagonal -->
+  <path d="M 135,10
+           C 155,5 175,18 178,40
+           C 182,65 168,85 155,105
+           C 142,125 128,140 122,160
+           C 118,172 120,185 115,190
+           C 108,198 98,195 95,188
+           C 90,178 96,165 102,150
+           C 110,130 125,112 132,90
+           C 140,65 138,38 135,10 Z"
+        fill="url(#flameGrad)" opacity="0.95"/>
+
+  <!-- Flame highlight -->
+  <path d="M 148,15
+           C 162,22 170,42 165,65
+           C 160,88 148,105 140,125
+           C 135,140 133,155 130,165
+           C 127,155 128,140 133,122
+           C 140,100 152,82 155,58
+           C 158,38 155,22 148,15 Z"
+        fill="url(#flameHighlight)" opacity="0.7"/>
+
+  <defs>
+    <linearGradient id="flameGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#ff8c00"/>
+      <stop offset="50%"  stop-color="#ff6200"/>
+      <stop offset="100%" stop-color="#e63900"/>
+    </linearGradient>
+    <linearGradient id="flameHighlight" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%"   stop-color="#ffb347"/>
+      <stop offset="100%" stop-color="#ff7700"/>
+    </linearGradient>
+  </defs>
+</svg>
