@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glassmorphism Analytics Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #1a0a0a, #0d0d0d, #1a1a2e);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Glassmorphism Card Base */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            box-shadow:
+                0 4px 24px rgba(0,0,0,0.5),
+                inset 0 1px 0 rgba(255,255,255,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-4px);
+            box-shadow:
+                0 8px 32px rgba(0,0,0,0.6),
+                inset 0 1px 0 rgba(255,255,255,0.15);
+        }
+
+        /* Top Section Grid */
+        .top-section {
+            display: grid;
+            grid-template-columns: 60% 40%;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Hero Card */
+        .hero-card {
+            position: relative;
+            padding: 3rem;
+            min-height: 500px;
+            overflow: hidden;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .hero-header {
+            margin-bottom: 2rem;
+        }
+
+        .hero-subtitle {
+            font-size: 0.875rem;
+            color: rgba(255,255,255,0.5);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .hero-title {
+            font-size: 3rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 2rem;
+        }
+
+        .cta-button {
+            background: transparent;
+            border: 2px solid rgba(255,255,255,0.8);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 3rem;
+        }
+
+        .cta-button:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: white;
+        }
+
+        .hero-image {
+            position: absolute;
+            right: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 300px;
+            height: 400px;
+            object-fit: cover;
+            border-radius: 20px;
+            z-index: 1;
+        }
+
+        .stats-row {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            margin-top: auto;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.5);
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .stat-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .stats-arrow {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            margin-left: 1rem;
+        }
+
+        /* Right Cards */
+        .right-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .right-card {
+            padding: 2rem;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .live-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #4ade80;
+            font-size: 0.875rem;
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: #4ade80;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .chart-container {
+            height: 120px;
+            margin-bottom: 1rem;
+        }
+
+        /* Sales Card */
+        .sales-content {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .sales-info {
+            flex: 1;
+        }
+
+        .sales-amount {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .sales-label {
+            color: rgba(255,255,255,0.5);
+            font-size: 0.875rem;
+        }
+
+        .sales-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            color: #4ade80;
+            font-size: 0.875rem;
+        }
+
+        .sales-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+
+        /* Bottom Section */
+        .bottom-section {
+            margin-top: 3rem;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .dropdown-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .dropdown-btn:hover {
+            background: rgba(255,255,255,0.08);
+        }
+
+        /* Table */
+        .videos-table {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .video-row {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            padding: 1.5rem;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .video-row:hover {
+            background: rgba(255,255,255,0.04);
+            border-color: rgba(255,255,255,0.1);
+            transform: translateY(-2px);
+        }
+
+        .video-thumbnail {
+            width: 80px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .video-info {
+            flex: 1;
+        }
+
+        .video-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .video-tag {
+            background: rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.7);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .video-chart {
+            width: 120px;
+            height: 40px;
+        }
+
+        .video-duration {
+            color: rgba(255,255,255,0.5);
+            font-size: 0.875rem;
+            min-width: 80px;
+            text-align: right;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .top-section {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .hero-image {
+                display: none;
+            }
+
+            .hero-title {
+                font-size: 2.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .hero-card {
+                padding: 2rem;
+                min-height: 400px;
+            }
+
+            .hero-title {
+                font-size: 2rem;
+            }
+
+            .stats-row {
+                flex-wrap: wrap;
+                gap: 1.5rem;
+            }
+
+            .video-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .video-chart {
+                width: 100%;
+                height: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Top Section -->
+        <div class="top-section">
+            <!-- Hero Card -->
+            <div class="glass-card hero-card">
+                <div class="hero-content">
+                    <div class="hero-header">
+                        <div class="hero-subtitle">Popular Solutions</div>
+                        <h1 class="hero-title">Optimize Your Metrics</h1>
+                        <button class="cta-button">Start Now</button>
+                    </div>
+
+                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=400&fit=crop&crop=face" alt="Person in orange jacket" class="hero-image">
+
+                    <div class="stats-row">
+                        <div class="stat-item">
+                            <div class="stat-value">76k</div>
+                            <div class="stat-label">
+                                <div class="stat-dot" style="background: #4ade80;"></div>
+                                Followers
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">1.5m</div>
+                            <div class="stat-label">
+                                <div class="stat-dot" style="background: #60a5fa;"></div>
+                                Views
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">$3.6k</div>
+                            <div class="stat-label">
+                                <div class="stat-dot" style="background: #fb923c;"></div>
+                                Revenue
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">47</div>
+                            <div class="stat-label">
+                                <div class="stat-dot" style="background: #a78bfa;"></div>
+                                Videos
+                            </div>
+                        </div>
+                        <button class="stats-arrow">></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Cards -->
+            <div class="right-cards">
+                <!-- Active Users Card -->
+                <div class="glass-card right-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Active Users right now</h3>
+                        <div class="live-indicator">
+                            <div class="live-dot"></div>
+                            Live
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="activeUsersChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Latest Sales Card -->
+                <div class="glass-card right-card">
+                    <div class="sales-content">
+                        <div class="sales-info">
+                            <div class="sales-amount">$586</div>
+                            <div class="sales-label">Your Total Revenue</div>
+                            <div class="sales-indicator">
+                                <span>↗</span>
+                                +4h
+                            </div>
+                        </div>
+                        <img src="https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=80&h=80&fit=crop" alt="Backpack" class="sales-image">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Section -->
+        <div class="bottom-section">
+            <div class="section-header">
+                <h2 class="section-title">Your top videos in this period</h2>
+                <button class="dropdown-btn">
+                    Popularity ▼
+                </button>
+            </div>
+
+            <div class="videos-table">
+                <!-- Video Row 1 -->
+                <div class="video-row">
+                    <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=80&h=60&fit=crop" alt="Workout video" class="video-thumbnail">
+                    <div class="video-info">
+                        <div class="video-title">Build An Amazing Body Workout</div>
+                        <div class="video-tag">Sport series</div>
+                    </div>
+                    <canvas id="videoChart1" class="video-chart"></canvas>
+                    <div class="video-duration">4:32</div>
+                </div>
+
+                <!-- Video Row 2 -->
+                <div class="video-row">
+                    <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=80&h=60&fit=crop" alt="Heart training video" class="video-thumbnail">
+                    <div class="video-info">
+                        <div class="video-title">How to Train the Muscles of Heart</div>
+                        <div class="video-tag">Sport series</div>
+                    </div>
+                    <canvas id="videoChart2" class="video-chart"></canvas>
+                    <div class="video-duration">6:15</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Active Users Chart
+        const activeUsersCtx = document.getElementById('activeUsersChart').getContext('2d');
+        new Chart(activeUsersCtx, {
+            type: 'line',
+            data: {
+                labels: ['Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Aug'],
+                datasets: [{
+                    data: [120, 150, 180, 200, 250, 220, 280],
+                    borderColor: '#4ade80',
+                    backgroundColor: 'rgba(74, 222, 128, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 0,
+                    pointHoverRadius: 6,
+                    pointBackgroundColor: '#4ade80',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        display: false
+                    },
+                    y: {
+                        display: false
+                    }
+                },
+                elements: {
+                    point: {
+                        hoverBorderWidth: 3
+                    }
+                }
+            }
+        });
+
+        // Video Chart 1
+        const videoChart1Ctx = document.getElementById('videoChart1').getContext('2d');
+        new Chart(videoChart1Ctx, {
+            type: 'line',
+            data: {
+                labels: ['1', '2', '3', '4', '5', '6', '7'],
+                datasets: [{
+                    data: [20, 35, 25, 45, 30, 50, 40],
+                    borderColor: '#4ade80',
+                    backgroundColor: 'rgba(74, 222, 128, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 0,
+                    pointHoverRadius: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        display: false
+                    },
+                    y: {
+                        display: false
+                    }
+                }
+            }
+        });
+
+        // Video Chart 2
+        const videoChart2Ctx = document.getElementById('videoChart2').getContext('2d');
+        new Chart(videoChart2Ctx, {
+            type: 'line',
+            data: {
+                labels: ['1', '2', '3', '4', '5', '6', '7'],
+                datasets: [{
+                    data: [15, 25, 35, 20, 40, 30, 45],
+                    borderColor: '#fbbf24',
+                    backgroundColor: 'rgba(251, 191, 36, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 0,
+                    pointHoverRadius: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    x: {
+                        display: false
+                    },
+                    y: {
+                        display: false
+                    }
+                }
+            }
+        });
+
+        // Add glow effect to chart lines
+        const addGlowToCharts = () => {
+            const canvases = document.querySelectorAll('canvas');
+            canvases.forEach(canvas => {
+                canvas.style.filter = 'drop-shadow(0 0 6px rgba(74, 222, 128, 0.5))';
+            });
+        };
+
+        // Apply glow after charts are rendered
+        setTimeout(addGlowToCharts, 100);
+    </script>
+</body>
+</html>

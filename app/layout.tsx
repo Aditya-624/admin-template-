@@ -18,9 +18,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <SidebarProvider>
             <ThemedShell>
               {/* Full-width layout — no sidebar */}
-              <div className="flex flex-col min-h-screen">
+              <div className="flex flex-col min-h-screen overflow-y-auto">
                 <TopNav />
-                <main className="flex-1">
+                <main className="flex-1 overflow-y-auto">
                   {children}
                 </main>
               </div>
