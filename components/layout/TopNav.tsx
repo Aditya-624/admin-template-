@@ -8,6 +8,7 @@ import {
   ChevronDown, Settings, LogOut, User,
   Menu, Sun, Moon, Home, Layers, FileText,
   Lock, Sliders, BarChart2, Table2, Palette,
+  Users,
 } from "lucide-react";
 
 import { useTheme } from "@/contexts/ThemeContext";
@@ -26,6 +27,14 @@ const colorShifts = [
   { label: "Sky",     bg: "linear-gradient(145deg, #040f1f 0%, #0c4a6e 50%, #040f1f 100%)", orb: "radial-gradient(ellipse 80% 70% at 40% 40%, rgba(56,189,248,.9) 0%, rgba(14,165,233,.65) 45%, transparent 75%)",  swatch: "#0ea5e9" },
   { label: "Aurora",  bg: "linear-gradient(145deg, #0a0f1a 0%, #1a0a2e 50%, #0a1a0f 100%)", orb: "radial-gradient(ellipse 90% 80% at 40% 40%, rgba(99,102,241,.7) 0%, rgba(168,85,247,.5) 30%, rgba(236,72,153,.4) 60%, rgba(16,185,129,.3) 85%, transparent 100%)", swatch: "#a855f7" },
   { label: "Sunset",  bg: "linear-gradient(145deg, #1a0a05 0%, #431407 50%, #1a0a05 100%)", orb: "radial-gradient(ellipse 80% 70% at 40% 40%, rgba(251,146,60,.9) 0%, rgba(239,68,68,.65) 45%, transparent 75%)",  swatch: "#f97316" },
+];
+
+const mastersUsers = [
+  { id: 1, name: "Dr. Sarah Johnson", role: "Mathematics Master", avatar: "SJ", status: "online" },
+  { id: 2, name: "Prof. Michael Chen", role: "Physics Master", avatar: "MC", status: "offline" },
+  { id: 3, name: "Dr. Emma Davis", role: "Chemistry Master", avatar: "ED", status: "online" },
+  { id: 4, name: "Prof. Alex Rodriguez", role: "Biology Master", avatar: "AR", status: "away" },
+  { id: 5, name: "Dr. Lisa Wang", role: "Computer Science Master", avatar: "LW", status: "online" },
 ];
 
 const navItems = [
@@ -85,6 +94,13 @@ const navItems = [
     children: [
       { href: "/students", label: "Basic Tables",  desc: "Simple data tables" },
       { href: "/payments", label: "Data Tables",   desc: "Advanced with filters" },
+    ],
+  },
+  {
+    label: "Masters",
+    icon: Users,
+    children: [
+      { href: "/masters/user-list", label: "User List", desc: "View all master users" },
     ],
   },
 ];
@@ -496,12 +512,11 @@ export default function TopNav() {
         </div>
 
         {/* ══ ROW 2 — Nav menu ══ */}
-        <div className="overflow-x-auto scrollbar-none">
-          <div className="flex items-stretch h-[56px] px-16 min-w-max lg:min-w-0">
+        <div className="scrollbar-none">
+          <div className="flex items-stretch flex-wrap md:flex-nowrap h-auto md:h-[56px] px-4 md:px-16 min-w-max lg:min-w-0">
             {navItems.map((item) => (
               <NavDropdown key={item.label} label={item.label} icon={item.icon} children={item.children} />
             ))}
-
           </div>
         </div>
 

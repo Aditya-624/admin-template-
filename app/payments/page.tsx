@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { MoreHorizontal, MoreVertical } from "lucide-react";
 import {
@@ -117,6 +117,7 @@ const fadeUp = (delay = 0) => ({
 });
 
 export default function PaymentsPage() {
+
   return (
     <div className="page-content animate-fade-in">
       <div className="dashboard-header page-row">
