@@ -17,6 +17,24 @@ function getBrightness(css: string): number {
   return 0.299 * r + 0.587 * g + 0.114 * b;
 }
 
+function hexToRgb(hex: string) {
+  const clean = hex.replace("#", "");
+  const r = parseInt(clean.slice(0, 2), 16);
+  const g = parseInt(clean.slice(2, 4), 16);
+  const b = parseInt(clean.slice(4, 6), 16);
+  return `${r}, ${g}, ${b}`;
+}
+
+function applyTableAccent(label: string, swatch: string) {
+  const root = document.documentElement;
+  const rgb = hexToRgb(swatch);
+
+  root.setAttribute("data-theme", label.toLowerCase());
+  root.style.setProperty("--table-accent", swatch);
+  root.style.setProperty("--table-accent-rgb", rgb);
+  root.style.setProperty("--table-hover-bg", `rgba(${rgb}, 0.12)`);
+}
+
 export default function ThemedShell({ children }: ThemedShellProps) {
   const def = gradientThemes[2];
   const [bg, setBg] = useState(def.bg);
@@ -36,10 +54,11 @@ export default function ThemedShell({ children }: ThemedShellProps) {
 
   useEffect(() => {
     const handler = (e: Event) => {
-      const { bg: newBg } = (e as CustomEvent).detail;
+      const { bg: newBg, label, swatch } = (e as CustomEvent).detail;
       setBg(newBg);
       setGaussianCss("");
       setActiveGradient("");
+      if (label && swatch) applyTableAccent(label, swatch);
     };
     window.addEventListener("theme-color-shift", handler);
     return () => window.removeEventListener("theme-color-shift", handler);

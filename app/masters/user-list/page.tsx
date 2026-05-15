@@ -1,40 +1,72 @@
 "use client";
 
+import Link from "next/link";
 import React, { useState } from "react";
-import { ArrowUpDown, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowUpDown } from "lucide-react";
 
-// Placeholder data matching the screenshot
 const placeholderData = [
-  { id: 1, name: "Airi Satou", position: "Accountant", office: "Tokyo", age: 33, startDate: "2008/11/28", salary: "$162,700" },
-  { id: 2, name: "Angelica Ramos", position: "Chief Executive Officer (CEO)", office: "London", age: 47, startDate: "2009/10/09", salary: "$1,200,000" },
-  { id: 3, name: "Ashton Cox", position: "Junior Technical Author", office: "San Francisco", age: 66, startDate: "2009/01/12", salary: "$86,000" },
-  { id: 4, name: "Bradley Greer", position: "Software Engineer", office: "London", age: 41, startDate: "2012/10/13", salary: "$132,000" },
-  { id: 5, name: "Brenden Wagner", position: "Software Engineer", office: "San Francisco", age: 28, startDate: "2011/06/07", salary: "$206,850" },
-  { id: 6, name: "Brielle Williamson", position: "Integration Specialist", office: "New York", age: 61, startDate: "2012/12/02", salary: "$372,000" },
-  { id: 7, name: "Bruno Nash", position: "Software Engineer", office: "London", age: 38, startDate: "2011/05/03", salary: "$163,500" },
-  { id: 8, name: "Caesar Vance", position: "Pre-Sales Support", office: "New York", age: 21, startDate: "2011/12/12", salary: "$106,450" },
-  { id: 9, name: "Cara Stevens", position: "Sales Assistant", office: "New York", age: 46, startDate: "2011/12/06", salary: "$145,600" },
-  { id: 10, name: "Cedric Kelly", position: "Senior Javascript Developer", office: "Edinburgh", age: 22, startDate: "2012/03/29", salary: "$433,060" },
+  { id: "USR-001", type: "Super Admin", name: "Airi Satou", mobile: "+1 (555) 010-1001", email: "airi.satou@example.com", loginId: "airi.satou", description: "Manages platform accounts", status: "Active" },
+  { id: "USR-002", type: "Associate", name: "Angelica Ramos", mobile: "+1 (555) 010-1002", email: "angelica.ramos@example.com", loginId: "angelica.ramos", description: "Creates course content", status: "Active" },
+  { id: "USR-003", type: "Expert", name: "Ashton Cox", mobile: "+1 (555) 010-1003", email: "ashton.cox@example.com", loginId: "ashton.cox", description: "Enrolled learner account", status: "Inactive" },
+  { id: "USR-004", type: "ClientAdmin", name: "Bradley Greer", mobile: "+1 (555) 010-1004", email: "bradley.greer@example.com", loginId: "bradley.greer", description: "Reviews quizzes and lessons", status: "Active" },
+  { id: "USR-005", type: "Evaluator", name: "Brenden Wagner", mobile: "+1 (555) 010-1005", email: "brenden.wagner@example.com", loginId: "brenden.wagner", description: "Handles user queries", status: "Pending" },
+  { id: "USR-006", type: "Student", name: "Brielle Williamson", mobile: "+1 (555) 010-1006", email: "brielle.williamson@example.com", loginId: "brielle.williamson", description: "Controls master data", status: "Active" },
+  { id: "USR-007", type: "Associate", name: "Bruno Nash", mobile: "+1 (555) 010-1007", email: "bruno.nash@example.com", loginId: "bruno.nash", description: "Premium learner account", status: "Active" },
+  { id: "USR-008", type: "Expert", name: "Caesar Vance", mobile: "+1 (555) 010-1008", email: "caesar.vance@example.com", loginId: "caesar.vance", description: "Assists onboarding", status: "Inactive" },
+  { id: "USR-009", type: "Evaluator", name: "Cara Stevens", mobile: "+1 (555) 010-1009", email: "cara.stevens@example.com", loginId: "cara.stevens", description: "Publishes assessments", status: "Active" },
+  { id: "USR-010", type: "Student", name: "Cedric Kelly", mobile: "+1 (555) 010-1010", email: "cedric.kelly@example.com", loginId: "cedric.kelly", description: "Trial learner account", status: "Pending" },
 ];
+
+const columns = [
+  "User ID",
+  "User Type",
+  "User Name",
+  "Mobile Number",
+  "Email",
+  "Description",
+  "Status",
+  "Action",
+];
+
+const storageKey = "masters-user-list-v3";
+
+const getInitialRows = () => {
+  if (typeof window === "undefined") return placeholderData;
+
+  const storedRows = localStorage.getItem(storageKey);
+  if (!storedRows) return placeholderData;
+
+  try {
+    return JSON.parse(storedRows) as typeof placeholderData;
+  } catch {
+    return placeholderData;
+  }
+};
 
 export default function UserListPage() {
   const [entries, setEntries] = useState("10");
   const [search, setSearch] = useState("");
+  const [rows, setRows] = useState(getInitialRows);
+
+  const removeRow = (id: string) => {
+    setRows((currentRows) => {
+      const nextRows = currentRows.filter((row) => row.id !== id);
+      localStorage.setItem(storageKey, JSON.stringify(nextRows));
+      return nextRows;
+    });
+  };
 
   return (
-    <div className="flex flex-col h-full min-h-screen" style={{ padding: "16px 24px" }}>
-      {/* Table Container covering the total page */}
-      <div className="flex-1 flex flex-col w-full bg-white/[0.02] border border-white/[0.08] rounded-xl overflow-hidden backdrop-blur-xl" style={{ boxShadow: "0 8px 32px rgba(0,0,0,0.4)" }}>
-        
-        {/* Top Controls */}
-        <div className="flex flex-col sm:flex-row items-center justify-between p-4 border-b border-white/[0.05]">
-          <div className="flex items-center gap-2 text-sm text-slate-300">
+    <div className="datatable-page">
+      <div className="table-card">
+        <div className="datatable-toolbar">
+          <div className="datatable-length">
             <span>Show</span>
             <div className="relative">
               <select
                 value={entries}
                 onChange={(e) => setEntries(e.target.value)}
-                className="appearance-none bg-black/20 border border-white/[0.1] text-white py-1.5 pl-3 pr-8 rounded-lg outline-none focus:border-indigo-500/50 cursor-pointer"
+                className="appearance-none pr-10"
               >
                 <option value="10">10</option>
                 <option value="25">25</option>
@@ -50,101 +82,125 @@ export default function UserListPage() {
             <span>entries</span>
           </div>
 
-          <div className="flex items-center gap-3 mt-4 sm:mt-0 text-sm text-slate-300">
-            <span>Search:</span>
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="bg-black/20 border border-white/[0.1] text-white px-3 py-1.5 rounded-lg outline-none focus:border-indigo-500/50 min-w-[200px]"
-            />
+          <div className="flex items-center gap-4">
+            <div className="datatable-search">
+              <span>Search:</span>
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+            <Link href="/masters/user-list/add" className="edit-user-update py-2 px-5 text-sm">
+              + Add User
+            </Link>
           </div>
         </div>
 
-        {/* Table Body */}
-        <div className="flex-1 overflow-auto">
-          <table className="w-full text-left border-collapse whitespace-nowrap">
+        <div className="datatable-shell">
+          <table className="premium-table">
+            <colgroup>
+              <col className="w-[10%]" />
+              <col className="w-[11%]" />
+              <col className="w-[15%]" />
+              <col className="w-[14%]" />
+              <col className="w-[18%]" />
+              <col className="w-[15%]" />
+              <col className="w-[8%]" />
+              <col className="w-[9%]" />
+            </colgroup>
             <thead>
-              <tr className="border-b border-white/[0.08]">
-                <th className="py-3.5 px-4 text-[13px] font-bold text-white cursor-pointer hover:bg-white/[0.02]">
-                  <div className="flex items-center justify-between">
-                    Name <ArrowUpDown className="w-3.5 h-3.5 opacity-40" />
-                  </div>
-                </th>
-                <th className="py-3.5 px-4 text-[13px] font-bold text-white cursor-pointer hover:bg-white/[0.02] border-l border-white/[0.04]">
-                  <div className="flex items-center justify-between">
-                    Position <ArrowUpDown className="w-3.5 h-3.5 opacity-40" />
-                  </div>
-                </th>
-                <th className="py-3.5 px-4 text-[13px] font-bold text-white cursor-pointer hover:bg-white/[0.02] border-l border-white/[0.04]">
-                  <div className="flex items-center justify-between">
-                    Office <ArrowUpDown className="w-3.5 h-3.5 opacity-40" />
-                  </div>
-                </th>
-                <th className="py-3.5 px-4 text-[13px] font-bold text-white cursor-pointer hover:bg-white/[0.02] border-l border-white/[0.04]">
-                  <div className="flex items-center justify-between">
-                    Age <ArrowUpDown className="w-3.5 h-3.5 opacity-40" />
-                  </div>
-                </th>
-                <th className="py-3.5 px-4 text-[13px] font-bold text-white cursor-pointer hover:bg-white/[0.02] border-l border-white/[0.04]">
-                  <div className="flex items-center justify-between">
-                    Start date <ArrowUpDown className="w-3.5 h-3.5 opacity-40" />
-                  </div>
-                </th>
-                <th className="py-3.5 px-4 text-[13px] font-bold text-white cursor-pointer hover:bg-white/[0.02] border-l border-white/[0.04]">
-                  <div className="flex items-center justify-between">
-                    Salary <ArrowUpDown className="w-3.5 h-3.5 opacity-40" />
-                  </div>
-                </th>
+              <tr>
+                {columns.map((column) => (
+                  <th key={column}>
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="truncate">{column}</span>
+                      {column !== "Action" && <ArrowUpDown className="sort-icon" />}
+                    </div>
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody>
-              {placeholderData.map((row, index) => (
+              {rows.map((row, index) => (
                 <tr
                   key={row.id}
-                  className={`border-b border-white/[0.04] hover:bg-white/[0.04] transition-colors ${
-                    index % 2 === 0 ? "bg-white/[0.01]" : ""
-                  }`}
+                  className={index % 2 === 0 ? "bg-white/[0.01]" : ""}
                 >
-                  <td className="py-3.5 px-4 text-[14px] text-slate-200">{row.name}</td>
-                  <td className="py-3.5 px-4 text-[14px] text-slate-200">{row.position}</td>
-                  <td className="py-3.5 px-4 text-[14px] text-slate-200">{row.office}</td>
-                  <td className="py-3.5 px-4 text-[14px] text-slate-200">{row.age}</td>
-                  <td className="py-3.5 px-4 text-[14px] text-slate-200">{row.startDate}</td>
-                  <td className="py-3.5 px-4 text-[14px] text-slate-200">{row.salary}</td>
+                  <td>
+                    <div className="datatable-cell">{row.id}</div>
+                  </td>
+                  <td>
+                    <div className="datatable-cell">{row.type}</div>
+                  </td>
+                  <td>
+                    <div className="datatable-cell">{row.name}</div>
+                  </td>
+                  <td>
+                    <div className="datatable-cell">{row.mobile}</div>
+                  </td>
+                  <td>
+                    <div className="datatable-cell">{row.email}</div>
+                  </td>
+                  <td title={row.description}>
+                    <div className="datatable-cell">{row.description}</div>
+                  </td>
+                  <td>
+                    <span className="status-pill" data-status={row.status}>
+                      {row.status}
+                    </span>
+                  </td>
+                  <td>
+                    <div className="datatable-actions">
+                      <Link
+                        href={`/masters/user-list/${row.id}/edit`}
+                        className="datatable-action"
+                        title="Edit user"
+                        aria-label={`Edit ${row.name}`}
+                      >
+                        ✏️
+                      </Link>
+                      <button
+                        className="datatable-action danger"
+                        type="button"
+                        title="Remove user"
+                        aria-label={`Remove ${row.name}`}
+                        onClick={() => removeRow(row.id)}
+                      >
+                        ❌
+                      </button>
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>
             <tfoot>
-              <tr className="border-t border-white/[0.08]">
-                <th className="py-3.5 px-4 text-[13px] font-bold text-white">Name</th>
-                <th className="py-3.5 px-4 text-[13px] font-bold text-white border-l border-white/[0.04]">Position</th>
-                <th className="py-3.5 px-4 text-[13px] font-bold text-white border-l border-white/[0.04]">Office</th>
-                <th className="py-3.5 px-4 text-[13px] font-bold text-white border-l border-white/[0.04]">Age</th>
-                <th className="py-3.5 px-4 text-[13px] font-bold text-white border-l border-white/[0.04]">Start date</th>
-                <th className="py-3.5 px-4 text-[13px] font-bold text-white border-l border-white/[0.04]">Salary</th>
+              <tr>
+                {columns.map((column) => (
+                  <th key={column}>
+                    {column}
+                  </th>
+                ))}
               </tr>
             </tfoot>
           </table>
         </div>
 
-        {/* Footer Controls */}
-        <div className="flex flex-col sm:flex-row items-center justify-between p-4 border-t border-white/[0.08]">
-          <div className="text-[13px] text-slate-400">
-            Showing 1 to 10 of 57 entries
+        <div className="datatable-footer">
+          <div className="datatable-info">
+            Showing 1 to {rows.length} of {rows.length} entries
           </div>
-          <div className="flex items-center gap-1 mt-4 sm:mt-0 text-[13px]">
-            <button className="px-3 py-1.5 text-slate-400 bg-black/20 hover:text-white rounded-md border border-white/[0.05] transition-colors">Prev</button>
-            <button className="px-3 py-1.5 text-white bg-indigo-500/20 border border-indigo-500/50 rounded-md">1</button>
-            <button className="px-3 py-1.5 text-slate-400 hover:text-white hover:bg-white/[0.05] border border-transparent rounded-md transition-colors">2</button>
-            <button className="px-3 py-1.5 text-slate-400 hover:text-white hover:bg-white/[0.05] border border-transparent rounded-md transition-colors">3</button>
-            <button className="px-3 py-1.5 text-slate-400 hover:text-white hover:bg-white/[0.05] border border-transparent rounded-md transition-colors">4</button>
-            <button className="px-3 py-1.5 text-slate-400 hover:text-white hover:bg-white/[0.05] border border-transparent rounded-md transition-colors">5</button>
-            <button className="px-3 py-1.5 text-slate-400 hover:text-white hover:bg-white/[0.05] border border-transparent rounded-md transition-colors">6</button>
-            <button className="px-3 py-1.5 text-slate-400 bg-black/20 hover:text-white rounded-md border border-white/[0.05] transition-colors">Next</button>
+          <div className="pagination">
+            <button>Prev</button>
+            <button className="active">1</button>
+            <button>2</button>
+            <button>3</button>
+            <button>4</button>
+            <button>5</button>
+            <button>6</button>
+            <button>Next</button>
           </div>
         </div>
-
       </div>
     </div>
   );

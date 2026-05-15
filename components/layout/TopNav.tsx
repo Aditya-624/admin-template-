@@ -100,7 +100,12 @@ const navItems = [
     label: "Masters",
     icon: Users,
     children: [
-      { href: "/masters/user-list", label: "User List", desc: "View all master users" },
+      { href: "/masters/user-list", label: "User List", desc: "Manage users" },
+      ...mastersUsers.map((master) => ({
+        href: `/masters/${master.id}`,
+        label: master.name,
+        desc: "Master details",
+      })),
     ],
   },
 ];
@@ -512,8 +517,8 @@ export default function TopNav() {
         </div>
 
         {/* ══ ROW 2 — Nav menu ══ */}
-        <div className="scrollbar-none">
-          <div className="flex items-stretch flex-wrap md:flex-nowrap h-auto md:h-[56px] px-4 md:px-16 min-w-max lg:min-w-0">
+        <div className="w-full relative z-40 hidden lg:block border-b border-white/[0.08]">
+          <div className="flex items-stretch h-[56px] px-16">
             {navItems.map((item) => (
               <NavDropdown key={item.label} label={item.label} icon={item.icon} children={item.children} />
             ))}
