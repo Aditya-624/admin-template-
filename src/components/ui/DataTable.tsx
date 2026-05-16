@@ -79,100 +79,102 @@ export default function DataTable<T extends Record<string, unknown>>({
         </div>
       )}
 
-      <div className="overflow-x-auto rounded-xl border border-white/10">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-white/10 bg-slate-800/30">
-              {columns.map((col) => (
-                <th
-                  key={String(col.key)}
-                  className={cn(
-                    "px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider",
-                    col.sortable && "cursor-pointer hover:text-slate-200 select-none",
-                    col.width
-                  )}
-                  onClick={() => col.sortable && handleSort(String(col.key))}
-                >
-                  <div className="flex items-center gap-1">
-                    {col.label}
-                    {col.sortable && (
-                      <span className="text-slate-600">
-                        {sortKey === String(col.key) ? (
-                          sortDir === "asc" ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
-                        ) : (
-                          <ChevronsUpDown className="w-3 h-3" />
-                        )}
-                      </span>
+      <div className="overflow-x-auto rounded-xl border border-white/10" style={{ width: '694px', maxWidth: '694px' }}>
+        <table style={{ width: '694px' }}>
+      <thead>
+        <tr className="border-b border-white/10 bg-slate-800/30">
+          {columns.map((col) => (
+            <th
+              key={String(col.key)}
+              className={cn(
+                "px-4 py-3 text-left text-xs font-semibold text-slate-400 uppercase tracking-wider",
+                col.sortable && "cursor-pointer hover:text-slate-200 select-none",
+                col.width
+              )}
+              onClick={() => col.sortable && handleSort(String(col.key))}
+            >
+              <div className="flex items-center gap-1">
+                {col.label}
+                {col.sortable && (
+                  <span className="text-slate-600">
+                    {sortKey === String(col.key) ? (
+                      sortDir === "asc" ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />
+                    ) : (
+                      <ChevronsUpDown className="w-3 h-3" />
                     )}
-                  </div>
-                </th>
+                  </span>
+                )}
+              </div>
+            </th>
+          ))}
+          {actions && (
+            <th className="px-4 py-3 text-right text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              Actions
+            </th>
+          )}
+        </tr>
+      </thead>
+      <tbody>
+        {paginated.length === 0 ? (
+          <tr>
+            <td colSpan={columns.length + (actions ? 1 : 0)} className="px-4 py-12 text-center text-slate-500">
+              {emptyMessage}
+            </td>
+          </tr>
+        ) : (
+          paginated.map((row, i) => (
+            <motion.tr
+              key={i}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: i * 0.03 }}
+              className="border-b border-white/5 hover:bg-white/3 transition-colors table-row-hover"
+            >
+              {columns.map((col) => (
+                <td key={String(col.key)} className="px-4 py-3 text-sm text-slate-300">
+                  {col.render
+                    ? col.render(row[col.key as keyof T], row)
+                    : String(row[col.key as keyof T] ?? "")}
+                </td>
               ))}
               {actions && (
-                <th className="px-4 py-3 text-right text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                  Actions
-                </th>
-              )}
-            </tr>
-          </thead>
-          <tbody>
-            {paginated.length === 0 ? (
-              <tr>
-                <td colSpan={columns.length + (actions ? 1 : 0)} className="px-4 py-12 text-center text-slate-500">
-                  {emptyMessage}
+                <td className="px-4 py-3 text-right">
+                  {actions(row)}
                 </td>
-              </tr>
-            ) : (
-              paginated.map((row, i) => (
-                <motion.tr
-                  key={i}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: i * 0.03 }}
-                  className="border-b border-white/5 hover:bg-white/3 transition-colors table-row-hover"
-                >
-                  {columns.map((col) => (
-                    <td key={String(col.key)} className="px-4 py-3 text-sm text-slate-300">
-                      {col.render
-                        ? col.render(row[col.key as keyof T], row)
-                        : String(row[col.key as keyof T] ?? "")}
-                    </td>
-                  ))}
-                  {actions && (
-                    <td className="px-4 py-3 text-right">
-                      {actions(row)}
-                    </td>
-                  )}
-                </motion.tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+              )}
+            </motion.tr>
+          ))
+        )}
+      </tbody>
+    </table>
+      </div >
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-slate-500">
-            Showing {(page - 1) * perPage + 1}–{Math.min(page * perPage, sorted.length)} of {sorted.length}
-          </span>
-          <div className="flex items-center gap-1">
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-              <button
-                key={p}
-                onClick={() => setPage(p)}
-                className={cn(
-                  "w-8 h-8 rounded-lg text-xs font-medium transition-colors",
-                  p === page
-                    ? "bg-indigo-500 text-white"
-                    : "text-slate-400 hover:bg-white/10"
-                )}
-              >
-                {p}
-              </button>
-            ))}
-          </div>
+    {/* Pagination */ }
+  {
+    totalPages > 1 && (
+      <div className="flex items-center justify-between text-sm">
+        <span className="text-slate-500">
+          Showing {(page - 1) * perPage + 1}–{Math.min(page * perPage, sorted.length)} of {sorted.length}
+        </span>
+        <div className="flex items-center gap-1">
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+            <button
+              key={p}
+              onClick={() => setPage(p)}
+              className={cn(
+                "w-8 h-8 rounded-lg text-xs font-medium transition-colors",
+                p === page
+                  ? "bg-indigo-500 text-white"
+                  : "text-slate-400 hover:bg-white/10"
+              )}
+            >
+              {p}
+            </button>
+          ))}
         </div>
-      )}
-    </div>
+      </div>
+    )
+  }
+    </div >
   );
 }

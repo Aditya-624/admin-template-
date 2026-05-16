@@ -101,6 +101,7 @@ const navItems = [
     icon: Users,
     children: [
       { href: "/masters/user-list", label: "User List", desc: "Manage users" },
+      { href: "/masters/privileges-list", label: "Privileges List", desc: "Manage privileges" },
       ...mastersUsers.map((master) => ({
         href: `/masters/${master.id}`,
         label: master.name,
@@ -235,15 +236,13 @@ export default function TopNav() {
             <Menu className="w-7 h-7" />
           </button>
 
-          {/* Logo (minimal monogram) */}
+          {/* Logo */}
           <Link href="/" className="flex items-center flex-shrink-0" style={{ marginLeft: "2px" }}>
-            <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{
-              background: "linear-gradient(135deg, rgba(99,102,241,.35), rgba(168,85,247,.25))",
-              border: "1px solid rgba(255,255,255,.12)",
-              boxShadow: "0 10px 32px rgba(0,0,0,.35)",
-            }}>
-              <span className="text-[18px] font-black" style={{ color: "#f8fafc" }}>N</span>
-            </div>
+            <img 
+              src="/nirnayah-logo.svg" 
+              alt="Nirnayah Logo" 
+              className="h-10 w-auto object-contain"
+            />
           </Link>
 
 
