@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import React, { useState } from "react";
-import { ArrowUpDown, Edit, Trash2 } from "lucide-react";
+import { ArrowUpDown, Edit, Trash2, PlusSquare } from "lucide-react";
 
 const placeholderData = [
   { id: "USR-001", type: "Super Admin", name: "Airi Satou", mobile: "+1 (555) 010-1001", email: "airi.satou@example.com", loginId: "airi.satou", description: "Manages platform accounts", status: "Active" },
@@ -70,7 +70,7 @@ export default function UserListPage() {
 
   return (
     <div className="datatable-page" style={{ display: "flex", justifyContent: "center", padding: "24px" }}>
-      <div className="table-card" style={{ maxWidth: "1100px", width: "100%" }}>
+      <div className="table-card" style={{ maxWidth: "1400px", width: "100%" }}>
         <div className="datatable-toolbar" style={{ justifyContent: "flex-end" }}>
           <div className="flex items-center gap-4">
             <div className="datatable-search">
@@ -81,8 +81,9 @@ export default function UserListPage() {
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
-            <Link href="/masters/user-list/add" className="edit-user-update py-2 px-5 text-sm">
-              + Add User
+            <Link href="/masters/user-list/add" className="flex items-center gap-2 px-6 py-2.5 text-base font-medium text-white bg-white/5 border border-white/20 rounded-full hover:bg-white/10 transition-colors whitespace-nowrap flex-shrink-0">
+              <PlusSquare size={20} className="flex-shrink-0" />
+              <span>Add User</span>
             </Link>
           </div>
         </div>

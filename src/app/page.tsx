@@ -90,14 +90,6 @@ export default function DashboardPage() {
           <h1 className="dashboard-title">eCommerce Overview</h1>
         </div>
         <div className="dashboard-filters flex flex-wrap gap-3 items-center">
-          <div className="date-chip">
-            <span>From Date</span>
-            <strong>01 Jan 2024</strong>
-          </div>
-          <div className="date-chip">
-            <span>To Date</span>
-            <strong>31 Jan 2024</strong>
-          </div>
           <button className="filter-button">Export Report</button>
         </div>
       </div>
