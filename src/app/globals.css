@@ -615,21 +615,21 @@ tr.strikethrough {
 }
 
 .edit-user-card {
-  width: min(980px, 100%);
+  width: min(800px, 100%);
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
-  padding: 32px;
+  padding: 24px;
   box-shadow:
     0 8px 32px rgba(0, 0, 0, 0.4),
     inset 0 1px 0 rgba(255, 255, 255, 0.07);
 }
 
 .edit-user-header {
-  margin-bottom: 28px;
-  padding-bottom: 18px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -642,13 +642,13 @@ tr.strikethrough {
 .edit-user-form {
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 14px;
 }
 
 .edit-user-row {
   display: grid;
   grid-template-columns: minmax(150px, 30%) 1fr;
-  gap: 22px;
+  gap: 14px;
   align-items: flex-start;
 }
 
@@ -657,7 +657,7 @@ tr.strikethrough {
   font-size: 0.95rem;
   font-weight: 500;
   min-width: 160px;
-  padding-top: 12px;
+  padding-top: 10px;
 }
 
 .edit-user-field {
@@ -670,7 +670,7 @@ tr.strikethrough {
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
   color: rgba(255, 255, 255, 0.9);
-  padding: 12px 16px;
+  padding: 10px 14px;
   font-size: 0.95rem;
   backdrop-filter: blur(8px);
   transition: all 0.2s ease;
@@ -694,7 +694,7 @@ tr.strikethrough {
 
 textarea.edit-user-input {
   resize: vertical;
-  min-height: 120px;
+  min-height: 80px;
 }
 
 .edit-user-input-error {
@@ -712,7 +712,7 @@ textarea.edit-user-input {
 .edit-user-actions {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-end;
   gap: 14px;
   padding-top: 10px;
 }

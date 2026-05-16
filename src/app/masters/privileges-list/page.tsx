@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Edit2, Trash2, Plus, CheckCircle } from "lucide-react";
+import { Edit, Trash2, Plus, CheckCircle, ArrowUpDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 type Privilege = {
@@ -33,6 +33,20 @@ export default function PrivilegesListPage() {
   
   // Form state
   const [formData, setFormData] = useState({ name: "", description: "", status: true });
+  
+  // Search state
+  const [search, setSearch] = useState("");
+
+  const filteredPrivileges = privileges.filter((p) => {
+    if (!search) return true;
+    const lowerSearch = search.toLowerCase();
+    return (
+      p.id.toString().includes(lowerSearch) ||
+      p.name.toLowerCase().includes(lowerSearch) ||
+      p.description.toLowerCase().includes(lowerSearch) ||
+      (p.status ? "true" : "false").includes(lowerSearch)
+    );
+  });
   
   // Toast state
   const [toast, setToast] = useState<{ message: string; show: boolean }>({ message: "", show: false });
@@ -86,167 +100,8 @@ export default function PrivilegesListPage() {
   };
 
   return (
-    <div className="privileges-page">
+    <div className="datatable-page" style={{ display: "flex", justifyContent: "center", padding: "24px" }}>
       <style>{`
-        .privileges-page {
-          background: linear-gradient(135deg, #1a1f2e 0%, #1e2436 40%, #1a1f2e 100%);
-          min-height: 100vh;
-          padding: 32px;
-          color: white;
-        }
-
-        .header-row {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 24px;
-        }
-
-        .page-title {
-          font-size: 1.6rem;
-          font-weight: 700;
-          color: white;
-          text-align: left;
-        }
-
-        .btn-add {
-          background: #22c55e;
-          border-radius: 50%;
-          width: 44px;
-          height: 44px;
-          font-size: 1.5rem;
-          color: white;
-          border: none;
-          cursor: pointer;
-          box-shadow: 0 4px 16px rgba(34, 197, 94, 0.4);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          transition: all 0.2s ease;
-        }
-
-        .btn-add:hover {
-          background: #4ade80;
-          transform: scale(1.1);
-        }
-
-        .table-card {
-          background: rgba(255, 255, 255, 0.05);
-          backdrop-filter: blur(20px) saturate(150%);
-          -webkit-backdrop-filter: blur(20px) saturate(150%);
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          border-radius: 16px;
-          padding: 0;
-          overflow: hidden;
-          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-          margin: 24px auto;
-          width: 100%;
-          max-width: 800px;
-        }
-
-        table {
-          width: 100%;
-          border-collapse: collapse;
-        }
-
-        thead tr {
-          background: rgba(255, 255, 255, 0.07);
-          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        thead th {
-          color: rgba(255, 255, 255, 0.95);
-          font-weight: 700;
-          font-size: 0.95rem;
-          padding: 16px 20px;
-          text-align: left;
-          letter-spacing: 0.02em;
-        }
-
-        tbody tr {
-          border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-          transition: background 0.2s ease;
-        }
-
-        tbody tr:hover {
-          background: rgba(255, 255, 255, 0.06);
-        }
-
-        tbody td {
-          color: rgba(255, 255, 255, 0.85);
-          font-size: 0.95rem;
-          padding: 16px 20px;
-          vertical-align: middle;
-        }
-
-        td:first-child {
-          color: rgba(255, 255, 255, 0.6);
-          font-weight: 600;
-          text-align: center;
-          width: 80px;
-        }
-
-        .col-status, .col-actions {
-          text-align: center;
-        }
-
-        .badge-true {
-          background: rgba(34, 197, 94, 0.15);
-          color: #4ade80;
-          border: 1px solid rgba(34, 197, 94, 0.3);
-          border-radius: 20px;
-          padding: 4px 14px;
-          font-size: 0.8rem;
-          font-weight: 600;
-        }
-
-        .badge-false {
-          background: rgba(239, 68, 68, 0.15);
-          color: #f87171;
-          border: 1px solid rgba(239, 68, 68, 0.3);
-          border-radius: 20px;
-          padding: 4px 14px;
-          font-size: 0.8rem;
-          font-weight: 600;
-        }
-
-        .btn-edit {
-          background: rgba(139, 92, 246, 0.15);
-          border: 1px solid rgba(139, 92, 246, 0.3);
-          color: #a78bfa;
-          border-radius: 8px;
-          padding: 6px 10px;
-          cursor: pointer;
-          font-size: 1rem;
-          transition: all 0.2s ease;
-          margin-right: 8px;
-          display: inline-flex;
-          align-items: center;
-        }
-
-        .btn-edit:hover {
-          background: rgba(139, 92, 246, 0.3);
-          transform: scale(1.1);
-        }
-
-        .btn-delete {
-          background: rgba(239, 68, 68, 0.15);
-          border: 1px solid rgba(239, 68, 68, 0.3);
-          color: #f87171;
-          border-radius: 8px;
-          padding: 6px 10px;
-          cursor: pointer;
-          font-size: 1rem;
-          transition: all 0.2s ease;
-          display: inline-flex;
-          align-items: center;
-        }
-
-        .btn-delete:hover {
-          background: rgba(239, 68, 68, 0.3);
-          transform: scale(1.1);
-        }
-
         .modal-overlay {
           position: fixed;
           top: 0; left: 0; right: 0; bottom: 0;
@@ -375,47 +230,98 @@ export default function PrivilegesListPage() {
         }
       `}</style>
 
-      <div className="header-row">
-        <h1 className="page-title">Privileges List</h1>
-        <button className="btn-add" onClick={openAddModal}>
-          <Plus size={24} />
-        </button>
-      </div>
+      <div className="table-card" style={{ maxWidth: "1100px", width: "100%" }}>
+        <div className="datatable-toolbar" style={{ justifyContent: "space-between" }}>
+          <h1 className="text-2xl font-bold text-white">Privileges List</h1>
+          <div className="flex items-center gap-4">
+            <div className="datatable-search">
+              <span>Search:</span>
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+            <button className="edit-user-update py-2 px-5 text-sm flex items-center gap-2" onClick={openAddModal}>
+              + Add Privileges
+            </button>
+          </div>
+        </div>
 
-      <div className="table-card">
-        <table>
-          <thead>
-            <tr>
-              <th style={{ width: "80px", textAlign: "center" }}>PrivilegeID</th>
-              <th>Privilege</th>
-              <th style={{ width: "40%" }}>Description</th>
-              <th style={{ textAlign: "center" }}>Status</th>
-              <th style={{ textAlign: "center" }}>Action(s)</th>
-            </tr>
-          </thead>
-          <tbody>
-            {privileges.map((p) => (
-              <tr key={p.id}>
-                <td>{p.id}</td>
-                <td>{p.name}</td>
-                <td>{p.description}</td>
-                <td className="col-status">
-                  <span className={p.status ? "badge-true" : "badge-false"}>
-                    {p.status ? "TRUE" : "FALSE"}
-                  </span>
-                </td>
-                <td className="col-actions">
-                  <button className="btn-edit" onClick={() => openEditModal(p)}>
-                    <Edit2 size={16} />
-                  </button>
-                  <button className="btn-delete" onClick={() => openDeleteModal(p)}>
-                    <Trash2 size={16} />
-                  </button>
-                </td>
+        <div className="datatable-shell">
+          <table className="premium-table">
+            <colgroup>
+              <col className="w-[12%]" />
+              <col className="w-[20%]" />
+              <col className="w-[45%]" />
+              <col className="w-[13%]" />
+              <col className="w-[10%]" />
+            </colgroup>
+            <thead>
+              <tr>
+                {["PrivilegeID", "Privilege", "Description", "Status", "Action(s)"].map((column) => (
+                  <th key={column}>
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="truncate">{column}</span>
+                      {column !== "Action(s)" && <ArrowUpDown className="sort-icon" />}
+                    </div>
+                  </th>
+                ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filteredPrivileges.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="text-center py-8 text-slate-400">
+                    Not found in the privileges list
+                  </td>
+                </tr>
+              ) : (
+                filteredPrivileges.map((p, index) => (
+                  <tr
+                    key={p.id}
+                    className={index % 2 === 0 ? "bg-white/[0.01]" : ""}
+                  >
+                    <td><div className="datatable-cell text-center">{p.id}</div></td>
+                    <td><div className="datatable-cell">{p.name}</div></td>
+                    <td><div className="datatable-cell" style={{ whiteSpace: "normal" }}>{p.description}</div></td>
+                    <td>
+                      <div className="flex justify-center">
+                        <span className="status-pill" data-status={p.status ? "Active" : "Inactive"} style={{ 
+                          background: p.status ? "rgba(34, 197, 94, 0.15)" : "rgba(239, 68, 68, 0.15)",
+                          borderColor: p.status ? "rgba(34, 197, 94, 0.3)" : "rgba(239, 68, 68, 0.3)",
+                          color: p.status ? "#4ade80" : "#f87171"
+                        }}>
+                          {p.status ? "TRUE" : "FALSE"}
+                        </span>
+                      </div>
+                    </td>
+                    <td>
+                      <div className="datatable-actions justify-center">
+                        <button
+                          className="datatable-action"
+                          type="button"
+                          title="Edit privilege"
+                          onClick={() => openEditModal(p)}
+                        >
+                          <Edit size={16} />
+                        </button>
+                        <button
+                          className="datatable-action danger"
+                          type="button"
+                          title="Remove privilege"
+                          onClick={() => openDeleteModal(p)}
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <AnimatePresence>
@@ -481,7 +387,7 @@ export default function PrivilegesListPage() {
               className="modal-content"
             >
               <div className="modal-title">
-                <Edit2 size={20} className="text-purple-500" />
+                <Edit size={20} className="text-purple-500" />
                 Edit Privilege
               </div>
               <form onSubmit={handleEditSubmit}>

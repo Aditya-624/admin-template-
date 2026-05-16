@@ -4,14 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
-const userTypes = [
-  "Super Admin",
-  "Associate",
-  "Expert",
-  "ClientAdmin",
-  "Evaluator",
-  "Student",
-];
+
 
 const users = [
   { id: "USR-001", type: "Super Admin", name: "Airi Satou", mobile: "+1 (555) 010-1001", email: "airi.satou@example.com", loginId: "airi.satou", description: "Manages platform accounts", status: "Active" },
@@ -29,9 +22,9 @@ const users = [
 const storageKey = "masters-user-list-v3";
 
 type User = typeof users[number];
-type ValidationErrors = Partial<Record<"id" | "name" | "mobile" | "email" | "loginId", string>>;
+type ValidationErrors = Partial<Record<"name" | "mobile" | "email" | "loginId", string>>;
 
-const requiredFields: Array<keyof ValidationErrors> = ["id", "name", "mobile", "email", "loginId"];
+const requiredFields: Array<keyof ValidationErrors> = ["name", "mobile", "email", "loginId"];
 
 export default function AddUserPage() {
   const router = useRouter();
@@ -105,44 +98,27 @@ export default function AddUserPage() {
 
         <form className="edit-user-form">
           <div className="edit-user-row">
-            <label htmlFor="user-id">User ID</label>
+            <label htmlFor="user-type">User Type *</label>
             <div className="edit-user-field">
               <input
-                id="user-id"
-                className={fieldClass("id")}
-                type="text"
-                placeholder="User ID"
-                value={form.id}
-                onChange={(event) => updateField("id", event.target.value)}
-              />
-              {errors.id && <p className="edit-user-error">{errors.id}</p>}
-            </div>
-          </div>
-
-          <div className="edit-user-row">
-            <label htmlFor="user-type">User Type</label>
-            <div className="edit-user-field">
-              <select
                 id="user-type"
                 className="edit-user-input"
+                type="text"
+                placeholder="Super"
                 value={form.type}
                 onChange={(event) => updateField("type", event.target.value)}
-              >
-                {userTypes.map((type) => (
-                  <option key={type} value={type}>{type}</option>
-                ))}
-              </select>
+              />
             </div>
           </div>
 
           <div className="edit-user-row">
-            <label htmlFor="user-name">User Name</label>
+            <label htmlFor="user-name">Name of User *</label>
             <div className="edit-user-field">
               <input
                 id="user-name"
                 className={fieldClass("name")}
                 type="text"
-                placeholder="User Name"
+                placeholder="<Enter Name>"
                 value={form.name}
                 onChange={(event) => updateField("name", event.target.value)}
               />
@@ -151,13 +127,13 @@ export default function AddUserPage() {
           </div>
 
           <div className="edit-user-row">
-            <label htmlFor="mobile-number">Mobile Number</label>
+            <label htmlFor="mobile-number">Mobile *</label>
             <div className="edit-user-field">
               <input
                 id="mobile-number"
                 className={fieldClass("mobile")}
                 type="tel"
-                placeholder="Mobile Number"
+                placeholder="<Enter Mobile #>"
                 value={form.mobile}
                 onChange={(event) => updateField("mobile", event.target.value)}
               />
@@ -166,13 +142,13 @@ export default function AddUserPage() {
           </div>
 
           <div className="edit-user-row">
-            <label htmlFor="email-address">Email</label>
+            <label htmlFor="email-address">Email *</label>
             <div className="edit-user-field">
               <input
                 id="email-address"
                 className={fieldClass("email")}
                 type="email"
-                placeholder="Email Address"
+                placeholder="<Enter Email>"
                 value={form.email}
                 onChange={(event) => updateField("email", event.target.value)}
               />
@@ -181,13 +157,13 @@ export default function AddUserPage() {
           </div>
 
           <div className="edit-user-row">
-            <label htmlFor="login-id">Login ID</label>
+            <label htmlFor="login-id">Login ID *</label>
             <div className="edit-user-field">
               <input
                 id="login-id"
                 className={fieldClass("loginId")}
                 type="text"
-                placeholder="Login ID"
+                placeholder="Email ID"
                 value={form.loginId}
                 onChange={(event) => updateField("loginId", event.target.value)}
               />
@@ -201,8 +177,8 @@ export default function AddUserPage() {
               <textarea
                 id="description"
                 className="edit-user-input"
-                placeholder="Description"
-                rows={4}
+                placeholder="<Enter Description about User>"
+                rows={3}
                 value={form.description}
                 onChange={(event) => updateField("description", event.target.value)}
               />
