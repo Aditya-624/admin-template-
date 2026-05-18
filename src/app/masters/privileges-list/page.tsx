@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Edit, Trash2, PlusSquare, CheckCircle, ArrowUpDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 type Privilege = {
   id: number;
@@ -20,21 +21,25 @@ const initialData: Privilege[] = [
   { id: 6, name: "CourseApproval", description: "User can Approve Course", status: true },
 ];
 
+const storageKey = "masters-privileges-list-v1";
+
 export default function PrivilegesListPage() {
-  const [privileges, setPrivileges] = useState<Privilege[]>(initialData);
+  const router = useRouter();
+  const [privileges, setPrivileges] = useState<Privilege[]>([]);
 
-  // Modals state
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  useEffect(() => {
+    const storedRows = localStorage.getItem(storageKey);
+    if (storedRows) {
+      setPrivileges(JSON.parse(storedRows));
+    } else {
+      setPrivileges(initialData);
+      localStorage.setItem(storageKey, JSON.stringify(initialData));
+    }
+  }, []);
+
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-
-  // Current selection state
   const [selectedPrivilege, setSelectedPrivilege] = useState<Privilege | null>(null);
 
-  // Form state
-  const [formData, setFormData] = useState({ name: "", description: "", status: true });
-
-  // Search state
   const [search, setSearch] = useState("");
 
   const filteredPrivileges = privileges.filter((p) => {
@@ -48,7 +53,6 @@ export default function PrivilegesListPage() {
     );
   });
 
-  // Toast state
   const [toast, setToast] = useState<{ message: string; show: boolean }>({ message: "", show: false });
 
   const showToast = (message: string) => {
@@ -56,40 +60,18 @@ export default function PrivilegesListPage() {
     setTimeout(() => setToast({ message: "", show: false }), 3000);
   };
 
-  const openAddModal = () => {
-    setFormData({ name: "", description: "", status: true });
-    setIsAddModalOpen(true);
-  };
-
-  const handleAddSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const newId = privileges.length > 0 ? Math.max(...privileges.map((p) => p.id)) + 1 : 1;
-    setPrivileges([...privileges, { id: newId, ...formData }]);
-    setIsAddModalOpen(false);
-    showToast("✓ Privilege added successfully");
-  };
-
-  const openEditModal = (privilege: Privilege) => {
-    setSelectedPrivilege(privilege);
-    setFormData({ name: privilege.name, description: privilege.description, status: privilege.status });
-    setIsEditModalOpen(true);
-  };
-
-  const handleEditSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedPrivilege) return;
-    setPrivileges(
-      privileges.map((p) =>
-        p.id === selectedPrivilege.id ? { ...p, ...formData } : p
-      )
-    );
-    setIsEditModalOpen(false);
-    showToast("✓ Privilege updated successfully");
-  };
-
   const openDeleteModal = (privilege: Privilege) => {
-    if (window.confirm("Do you really want to delete this privilege?")) {
-      setPrivileges((current) => current.filter((p) => p.id !== privilege.id));
+    setSelectedPrivilege(privilege);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (selectedPrivilege) {
+      const nextPrivileges = privileges.filter((p) => p.id !== selectedPrivilege.id);
+      setPrivileges(nextPrivileges);
+      localStorage.setItem(storageKey, JSON.stringify(nextPrivileges));
+      setIsDeleteModalOpen(false);
+      setSelectedPrivilege(null);
       showToast("✓ Privilege deleted successfully");
     }
   };
@@ -117,62 +99,6 @@ export default function PrivilegesListPage() {
           width: 400px;
           max-width: 90vw;
           box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-        }
-
-        .modal-title {
-          font-size: 1.25rem;
-          font-weight: 600;
-          margin-bottom: 20px;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-        }
-
-        .form-group {
-          margin-bottom: 16px;
-        }
-
-        .form-label {
-          display: block;
-          font-size: 0.85rem;
-          color: rgba(255,255,255,0.7);
-          margin-bottom: 6px;
-        }
-
-        .form-input {
-          width: 100%;
-          background: rgba(0,0,0,0.2);
-          border: 1px solid rgba(255,255,255,0.1);
-          border-radius: 8px;
-          padding: 10px 12px;
-          color: white;
-          outline: none;
-        }
-        
-        .form-input:focus {
-          border-color: rgba(139, 92, 246, 0.5);
-        }
-
-        .btn-submit-add {
-          background: linear-gradient(135deg, #22c55e, #16a34a);
-          color: white;
-          border: none;
-          padding: 10px 20px;
-          border-radius: 8px;
-          cursor: pointer;
-          font-weight: 600;
-          width: 100%;
-        }
-
-        .btn-submit-edit {
-          background: linear-gradient(135deg, #6366f1, #8b5cf6);
-          color: white;
-          border: none;
-          padding: 10px 20px;
-          border-radius: 8px;
-          cursor: pointer;
-          font-weight: 600;
-          width: 100%;
         }
 
         .modal-actions {
@@ -237,7 +163,10 @@ export default function PrivilegesListPage() {
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
-            <button className="flex items-center gap-2 px-6 py-2.5 text-base font-medium text-white bg-white/5 border border-white/20 rounded-full hover:bg-white/10 transition-colors whitespace-nowrap flex-shrink-0" onClick={openAddModal}>
+            <button 
+              className="flex items-center gap-2 px-6 py-2.5 text-base font-medium text-white bg-white/5 border border-white/20 rounded-full hover:bg-white/10 transition-colors whitespace-nowrap flex-shrink-0" 
+              onClick={() => router.push('/masters/privileges-list/add')}
+            >
               <PlusSquare size={20} className="flex-shrink-0" />
               <span>Add Privileges</span>
             </button>
@@ -298,7 +227,7 @@ export default function PrivilegesListPage() {
                           className="datatable-action"
                           type="button"
                           title="Edit privilege"
-                          onClick={() => openEditModal(p)}
+                          onClick={() => router.push(`/masters/privileges-list/${p.id}/edit`)}
                         >
                           <Edit size={16} />
                         </button>
@@ -321,107 +250,6 @@ export default function PrivilegesListPage() {
       </div>
 
       <AnimatePresence>
-        {isAddModalOpen && (
-          <div className="modal-overlay">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="modal-content"
-            >
-              <div className="modal-title">
-                <PlusSquare size={20} className="text-green-500" />
-                Add Privilege
-              </div>
-              <form onSubmit={handleAddSubmit}>
-                <div className="form-group">
-                  <label className="form-label">Privilege Name</label>
-                  <input
-                    type="text"
-                    required
-                    className="form-input"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Description</label>
-                  <textarea
-                    required
-                    className="form-input"
-                    rows={3}
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  />
-                </div>
-
-                <div className="modal-actions" style={{ justifyContent: "space-between" }}>
-                  <button type="button" className="btn-cancel" onClick={() => setIsAddModalOpen(false)}>Cancel</button>
-                  <button type="submit" className="btn-submit-add">Add Privilege</button>
-                </div>
-              </form>
-            </motion.div>
-          </div>
-        )}
-
-        {isEditModalOpen && (
-          <div className="modal-overlay">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="modal-content"
-            >
-              <div className="modal-title">
-                <Edit size={20} className="text-purple-500" />
-                Edit Privilege
-              </div>
-              <form onSubmit={handleEditSubmit}>
-                <div className="form-group">
-                  <label className="form-label">Privilege Name</label>
-                  <input
-                    type="text"
-                    required
-                    className="form-input"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Description</label>
-                  <textarea
-                    required
-                    className="form-input"
-                    rows={3}
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  />
-                </div>
-
-                <div className="form-group" style={{ display: "flex", alignItems: "center", gap: "12px", marginTop: "16px" }}>
-                  <label className="form-label" style={{ marginBottom: 0 }}>Status</label>
-                  <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}>
-                    <input
-                      type="checkbox"
-                      checked={formData.status}
-                      onChange={(e) => setFormData({ ...formData, status: e.target.checked })}
-                      style={{ width: "16px", height: "16px", accentColor: "#8b5cf6" }}
-                    />
-                    <span style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.85rem" }}>
-                      {formData.status ? "True (Yes)" : "False (No)"}
-                    </span>
-                  </label>
-                </div>
-
-                <div className="modal-actions" style={{ justifyContent: "space-between" }}>
-                  <button type="button" className="btn-cancel" onClick={() => setIsEditModalOpen(false)}>Cancel</button>
-                  <button type="submit" className="btn-submit-edit">Update Privilege</button>
-                </div>
-              </form>
-            </motion.div>
-          </div>
-        )}
-
         {isDeleteModalOpen && (
           <div className="modal-overlay">
             <motion.div

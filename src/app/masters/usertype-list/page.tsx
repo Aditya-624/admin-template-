@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Edit, Trash2, PlusSquare, CheckCircle, ArrowUpDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 type UserTypeItem = {
   id: number;
@@ -21,21 +22,25 @@ const initialData: UserTypeItem[] = [
   { id: 7, name: "Student", description: "User can Aoorive Course", status: true },
 ];
 
+const storageKey = "masters-usertype-list-v1";
+
 export default function UserTypeListPage() {
-  const [userTypes, setUserTypes] = useState<UserTypeItem[]>(initialData);
+  const router = useRouter();
+  const [userTypes, setUserTypes] = useState<UserTypeItem[]>([]);
 
-  // Modals state
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  useEffect(() => {
+    const storedRows = localStorage.getItem(storageKey);
+    if (storedRows) {
+      setUserTypes(JSON.parse(storedRows));
+    } else {
+      setUserTypes(initialData);
+      localStorage.setItem(storageKey, JSON.stringify(initialData));
+    }
+  }, []);
+
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-
-  // Current selection state
   const [selectedUserType, setSelectedUserType] = useState<UserTypeItem | null>(null);
 
-  // Form state
-  const [formData, setFormData] = useState({ name: "", description: "", status: true });
-
-  // Search state
   const [search, setSearch] = useState("");
 
   const filteredUserTypes = userTypes.filter((p) => {
@@ -49,43 +54,11 @@ export default function UserTypeListPage() {
     );
   });
 
-  // Toast state
   const [toast, setToast] = useState<{ message: string; show: boolean }>({ message: "", show: false });
 
   const showToast = (message: string) => {
     setToast({ message, show: true });
     setTimeout(() => setToast({ message: "", show: false }), 3000);
-  };
-
-  const openAddModal = () => {
-    setFormData({ name: "", description: "", status: true });
-    setIsAddModalOpen(true);
-  };
-
-  const handleAddSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const newId = userTypes.length > 0 ? Math.max(...userTypes.map((p) => p.id)) + 1 : 1;
-    setUserTypes([...userTypes, { id: newId, ...formData }]);
-    setIsAddModalOpen(false);
-    showToast("✓ User Type added successfully");
-  };
-
-  const openEditModal = (userType: UserTypeItem) => {
-    setSelectedUserType(userType);
-    setFormData({ name: userType.name, description: userType.description, status: userType.status });
-    setIsEditModalOpen(true);
-  };
-
-  const handleEditSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedUserType) return;
-    setUserTypes(
-      userTypes.map((p) =>
-        p.id === selectedUserType.id ? { ...p, ...formData } : p
-      )
-    );
-    setIsEditModalOpen(false);
-    showToast("✓ User Type updated successfully");
   };
 
   const openDeleteModal = (userType: UserTypeItem) => {
@@ -95,7 +68,9 @@ export default function UserTypeListPage() {
 
   const handleDeleteConfirm = () => {
     if (selectedUserType) {
-      setUserTypes((current) => current.filter((p) => p.id !== selectedUserType.id));
+      const nextTypes = userTypes.filter((p) => p.id !== selectedUserType.id);
+      setUserTypes(nextTypes);
+      localStorage.setItem(storageKey, JSON.stringify(nextTypes));
       setIsDeleteModalOpen(false);
       setSelectedUserType(null);
       showToast("✓ User Type deleted successfully");
@@ -125,62 +100,6 @@ export default function UserTypeListPage() {
           width: 400px;
           max-width: 90vw;
           box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-        }
-
-        .modal-title {
-          font-size: 1.25rem;
-          font-weight: 600;
-          margin-bottom: 20px;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-        }
-
-        .form-group {
-          margin-bottom: 16px;
-        }
-
-        .form-label {
-          display: block;
-          font-size: 0.85rem;
-          color: rgba(255,255,255,0.7);
-          margin-bottom: 6px;
-        }
-
-        .form-input {
-          width: 100%;
-          background: rgba(0,0,0,0.2);
-          border: 1px solid rgba(255,255,255,0.1);
-          border-radius: 8px;
-          padding: 10px 12px;
-          color: white;
-          outline: none;
-        }
-        
-        .form-input:focus {
-          border-color: rgba(139, 92, 246, 0.5);
-        }
-
-        .btn-submit-add {
-          background: linear-gradient(135deg, #22c55e, #16a34a);
-          color: white;
-          border: none;
-          padding: 10px 20px;
-          border-radius: 8px;
-          cursor: pointer;
-          font-weight: 600;
-          width: 100%;
-        }
-
-        .btn-submit-edit {
-          background: linear-gradient(135deg, #6366f1, #8b5cf6);
-          color: white;
-          border: none;
-          padding: 10px 20px;
-          border-radius: 8px;
-          cursor: pointer;
-          font-weight: 600;
-          width: 100%;
         }
 
         .modal-actions {
@@ -245,7 +164,10 @@ export default function UserTypeListPage() {
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
-            <button className="flex items-center gap-2 px-6 py-2.5 text-base font-medium text-white bg-white/5 border border-white/20 rounded-full hover:bg-white/10 transition-colors whitespace-nowrap flex-shrink-0" onClick={openAddModal}>
+            <button 
+              className="flex items-center gap-2 px-6 py-2.5 text-base font-medium text-white bg-white/5 border border-white/20 rounded-full hover:bg-white/10 transition-colors whitespace-nowrap flex-shrink-0" 
+              onClick={() => router.push('/masters/usertype-list/add')}
+            >
               <PlusSquare size={20} className="flex-shrink-0" />
               <span>Add User Type</span>
             </button>
@@ -306,7 +228,7 @@ export default function UserTypeListPage() {
                           className="datatable-action"
                           type="button"
                           title="Edit User Type"
-                          onClick={() => openEditModal(p)}
+                          onClick={() => router.push(`/masters/usertype-list/${p.id}/edit`)}
                         >
                           <Edit size={16} />
                         </button>
@@ -329,107 +251,6 @@ export default function UserTypeListPage() {
       </div>
 
       <AnimatePresence>
-        {isAddModalOpen && (
-          <div className="modal-overlay">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="modal-content"
-            >
-              <div className="modal-title">
-                <PlusSquare size={20} className="text-green-500" />
-                Add User Type
-              </div>
-              <form onSubmit={handleAddSubmit}>
-                <div className="form-group">
-                  <label className="form-label">User Type Name</label>
-                  <input
-                    type="text"
-                    required
-                    className="form-input"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Description</label>
-                  <textarea
-                    required
-                    className="form-input"
-                    rows={3}
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  />
-                </div>
-
-                <div className="modal-actions" style={{ justifyContent: "space-between" }}>
-                  <button type="button" className="btn-cancel" onClick={() => setIsAddModalOpen(false)}>Cancel</button>
-                  <button type="submit" className="btn-submit-add">Add User Type</button>
-                </div>
-              </form>
-            </motion.div>
-          </div>
-        )}
-
-        {isEditModalOpen && (
-          <div className="modal-overlay">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="modal-content"
-            >
-              <div className="modal-title">
-                <Edit size={20} className="text-purple-500" />
-                Edit User Type
-              </div>
-              <form onSubmit={handleEditSubmit}>
-                <div className="form-group">
-                  <label className="form-label">User Type Name</label>
-                  <input
-                    type="text"
-                    required
-                    className="form-input"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Description</label>
-                  <textarea
-                    required
-                    className="form-input"
-                    rows={3}
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  />
-                </div>
-
-                <div className="form-group" style={{ display: "flex", alignItems: "center", gap: "12px", marginTop: "16px" }}>
-                  <label className="form-label" style={{ marginBottom: 0 }}>Status</label>
-                  <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}>
-                    <input
-                      type="checkbox"
-                      checked={formData.status}
-                      onChange={(e) => setFormData({ ...formData, status: e.target.checked })}
-                      style={{ width: "16px", height: "16px", accentColor: "#8b5cf6" }}
-                    />
-                    <span style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.85rem" }}>
-                      {formData.status ? "True (Yes)" : "False (No)"}
-                    </span>
-                  </label>
-                </div>
-
-                <div className="modal-actions" style={{ justifyContent: "space-between" }}>
-                  <button type="button" className="btn-cancel" onClick={() => setIsEditModalOpen(false)}>Cancel</button>
-                  <button type="submit" className="btn-submit-edit">Update User Type</button>
-                </div>
-              </form>
-            </motion.div>
-          </div>
-        )}
-
         {isDeleteModalOpen && (
           <div className="modal-overlay">
             <motion.div
