@@ -8,7 +8,7 @@ import {
   ChevronDown, Settings, LogOut, User,
   Menu, Sun, Moon, Home, Layers, FileText,
   Lock, Sliders, BarChart2, Table2, Palette,
-  Users,
+  Users, ChevronRight,
 } from "lucide-react";
 
 import { useTheme } from "@/contexts/ThemeContext";
@@ -29,13 +29,7 @@ const colorShifts = [
   { label: "Sunset",  bg: "linear-gradient(145deg, #1a0a05 0%, #431407 50%, #1a0a05 100%)", orb: "radial-gradient(ellipse 80% 70% at 40% 40%, rgba(251,146,60,.9) 0%, rgba(239,68,68,.65) 45%, transparent 75%)",  swatch: "#f97316" },
 ];
 
-const mastersUsers = [
-  { id: 1, name: "Dr. Sarah Johnson", role: "Mathematics Master", avatar: "SJ", status: "online" },
-  { id: 2, name: "Prof. Michael Chen", role: "Physics Master", avatar: "MC", status: "offline" },
-  { id: 3, name: "Dr. Emma Davis", role: "Chemistry Master", avatar: "ED", status: "online" },
-  { id: 4, name: "Prof. Alex Rodriguez", role: "Biology Master", avatar: "AR", status: "away" },
-  { id: 5, name: "Dr. Lisa Wang", role: "Computer Science Master", avatar: "LW", status: "online" },
-];
+
 
 const navItems = [
   {
@@ -100,19 +94,99 @@ const navItems = [
     label: "Masters",
     icon: Users,
     children: [
-      { href: "/masters/user-list", label: "User List", desc: "Manage users" },
-      { href: "/masters/usertype-list", label: "UserType List", desc: "Manage user types" },
-      { href: "/masters/privileges-list", label: "Privileges List", desc: "Manage privileges" },
-      ...mastersUsers.map((master) => ({
-        href: `/masters/${master.id}`,
-        label: master.name,
-        desc: "Master details",
-      })),
+      {
+        label: "Users",
+        desc: "Manage system users",
+        subItems: [
+          { href: "/masters/user-list", label: "User List" },
+          { href: "/masters/usertype-list", label: "UserType List" },
+          { href: "/masters/privileges-list", label: "Privileges List" },
+        ]
+      }
     ],
   },
 ];
 
 /* ── Clean dropdown ── */
+function NestedNavItem({ child, setOpen }: { child: any, setOpen: any }) {
+  const [isHovered, setIsHovered] = useState(false);
+
+  if (child.subItems) {
+    return (
+      <div 
+        className="relative group"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        <div className="flex items-center justify-between px-3 py-3 rounded-xl text-[14px] font-medium text-slate-300 hover:text-white hover:bg-white/[0.08] transition-all cursor-pointer">
+          <div className="flex items-start gap-3">
+            <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: "rgba(99,102,241,.15)" }}>
+              <span className="w-1.5 h-1.5 rounded-full bg-indigo-400" />
+            </div>
+            <div>
+              <p className="leading-tight">{child.label}</p>
+              {child.desc && <p className="text-[11px] text-slate-500 mt-0.5 font-normal">{child.desc}</p>}
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 opacity-50" />
+        </div>
+        
+        <AnimatePresence>
+          {isHovered && (
+             <motion.div
+               initial={{ opacity: 0, x: -8 }}
+               animate={{ opacity: 1, x: 0 }}
+               exit={{ opacity: 0, x: -8 }}
+               transition={{ duration: 0.15 }}
+               className="absolute left-full top-0 ml-2 z-[60]"
+               style={{
+                  minWidth: "220px",
+                  background: "rgba(10,15,24,0.95)",
+                  backdropFilter: "blur(32px)",
+                  border: "1px solid rgba(255,255,255,.08)",
+                  borderRadius: "16px",
+                  boxShadow: "0 20px 60px rgba(0,0,0,.5)",
+                  padding: "12px",
+               }}
+             >
+               <div className="flex flex-col gap-1">
+                 {child.subItems.map((sub: any) => (
+                    <Link
+                      key={sub.href + sub.label}
+                      href={sub.href}
+                      onClick={() => setOpen(false)}
+                      className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium text-slate-300 hover:text-white hover:bg-white/[0.08] transition-all group/sub"
+                    >
+                      <div className="w-1.5 h-1.5 rounded-full border border-slate-500 group-hover/sub:border-indigo-400 group-hover/sub:bg-indigo-400 transition-colors flex-shrink-0" />
+                      {sub.label}
+                    </Link>
+                 ))}
+               </div>
+             </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    );
+  }
+
+  // normal link
+  return (
+    <Link
+      href={child.href}
+      onClick={() => setOpen(false)}
+      className="flex items-start gap-3 px-3 py-3 rounded-xl text-[14px] font-medium text-slate-300 hover:text-white hover:bg-white/[0.08] transition-all group"
+    >
+      <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: "rgba(99,102,241,.15)" }}>
+        <span className="w-1.5 h-1.5 rounded-full bg-indigo-400" />
+      </div>
+      <div>
+        <p className="leading-tight">{child.label}</p>
+        {child.desc && <p className="text-[11px] text-slate-500 mt-0.5 font-normal">{child.desc}</p>}
+      </div>
+    </Link>
+  );
+}
+
 function NavDropdown({
   label,
   icon: Icon,
@@ -120,11 +194,10 @@ function NavDropdown({
 }: {
   label: string;
   icon: React.ElementType;
-  children: { href: string; label: string; desc?: string }[];
+  children: any[];
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
-
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -162,7 +235,7 @@ function NavDropdown({
             transition={{ duration: 0.15, ease: "easeOut" }}
             className="absolute left-0 top-full z-50"
             style={{
-              minWidth: children.length > 3 ? "360px" : "220px",
+              minWidth: children.length > 3 ? "360px" : "240px",
               background: "rgba(8,10,20,0.98)",
               backdropFilter: "blur(32px)",
               border: "1px solid rgba(255,255,255,.12)",
@@ -179,20 +252,7 @@ function NavDropdown({
               gap: "4px",
             }}>
               {children.map((child) => (
-                <Link
-                  key={child.href + child.label}
-                  href={child.href}
-                  onClick={() => setOpen(false)}
-                  className="flex items-start gap-3 px-3 py-3 rounded-xl text-[14px] font-medium text-slate-300 hover:text-white hover:bg-white/[0.08] transition-all group"
-                >
-                  <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: "rgba(99,102,241,.15)" }}>
-                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-400" />
-                  </div>
-                  <div>
-                    <p className="leading-tight">{child.label}</p>
-                    {child.desc && <p className="text-[11px] text-slate-500 mt-0.5 font-normal">{child.desc}</p>}
-                  </div>
-                </Link>
+                <NestedNavItem key={child.label} child={child} setOpen={setOpen} />
               ))}
             </div>
           </motion.div>

@@ -41,10 +41,10 @@ body{
   min-height:100vh;
   overflow-y: auto;
   background-image:
-    radial-gradient(circle at 20% 20%, rgba(99,102,241,0.15), transparent 45%),
-    radial-gradient(circle at 80% 80%, rgba(6,182,212,0.12), transparent 45%),
-    linear-gradient(135deg, #0d0d1a 0%, #0f0f2e 30%, #0a1628 60%, #0d0d1a 100%);
-  background-blend-mode: overlay, screen, normal;
+    radial-gradient(circle at 15% 15%, rgba(99,102,241,0.06), transparent 50%),
+    radial-gradient(circle at 85% 85%, rgba(6,182,212,0.04), transparent 50%),
+    linear-gradient(135deg, #0a0f18 0%, #0d121d 30%, #0f1624 60%, #0a0f18 100%);
+  background-blend-mode: normal;
 }
 
 /* ── Scrollbar ─────────────────────────────────────────── */
@@ -63,22 +63,24 @@ body{
    SIDEBAR — Dashtrans vertical sidebar style
 ══════════════════════════════════════════════════════════ */
 .glass-sidebar {
-  background: rgba(10, 14, 20, 0.92);
+  background: rgba(10, 15, 24, 0.95);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border-right: 1px solid rgba(255,255,255,.08);
-  box-shadow: 4px 0 24px rgba(0,0,0,.35);
+  border-right: 1px solid rgba(255,255,255,0.04);
+  box-shadow: 4px 0 24px rgba(0,0,0,0.25);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* ══════════════════════════════════════════════════════════
    TOP NAVBAR
 ══════════════════════════════════════════════════════════ */
 .glass-nav {
-  background: rgba(10, 14, 20, 0.88);
+  background: rgba(10, 15, 24, 0.95);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border-bottom: 1px solid rgba(255,255,255,.08);
-  box-shadow: 0 2px 20px rgba(0,0,0,.3);
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  box-shadow: 0 4px 30px rgba(0,0,0,0.2);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -92,17 +94,17 @@ body{
 .transactions-card,
 .revenue-card,
 .metrics-card {
-  background: rgba(255,255,255,0.04) !important;
-  backdrop-filter: blur(20px) saturate(150%) !important;
-  -webkit-backdrop-filter: blur(20px) saturate(150%) !important;
-  border: 1px solid rgba(255,255,255,0.08) !important;
-  border-radius: 20px !important;
+  background: rgba(255,255,255,0.02) !important;
+  backdrop-filter: blur(16px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(140%) !important;
+  border: 1px solid rgba(255,255,255,0.04) !important;
+  border-radius: 16px !important;
   box-shadow:
-    0 8px 32px rgba(0,0,0,0.4),
-    inset 0 1px 0 rgba(255,255,255,0.06) !important;
+    0 10px 30px rgba(0,0,0,0.2),
+    inset 0 1px 0 rgba(255,255,255,0.03) !important;
   position: relative;
-  padding: 28px;
-  transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
+  padding: 24px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
 }
 
@@ -116,8 +118,8 @@ body{
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
-  border-radius: 20px 20px 0 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+  border-radius: 16px 16px 0 0;
   pointer-events: none;
   z-index: 1;
 }
@@ -129,7 +131,7 @@ body{
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 55%);
+  background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, transparent 55%);
   pointer-events: none;
   border-radius: inherit;
   z-index: 0;
@@ -147,16 +149,16 @@ body{
 .stat-card:hover,
 .card:hover,
 [class*="card"]:hover {
-  transform: translateY(-4px);
+  transform: translateY(-2px);
   box-shadow:
-    0 16px 56px rgba(0,0,0,0.55),
-    inset 0 1px 0 rgba(255,255,255,0.12),
-    inset 0 -1px 0 rgba(0,0,0,0.18);
-  border-color: rgba(255,255,255,0.18);
+    0 14px 40px rgba(0,0,0,0.3),
+    inset 0 1px 0 rgba(255,255,255,0.08),
+    inset 0 -1px 0 rgba(0,0,0,0.1);
+  border-color: rgba(255,255,255,0.1) !important;
 }
 
 .chart-card {
-  background: rgba(255,255,255,0.03) !important;
+  background: rgba(255,255,255,0.02) !important;
 }
 
 /* Inner panel */
@@ -238,15 +240,18 @@ body{
 }
 .filter-button {
   padding: 0.85rem 1.2rem;
-  border-radius: 14px;
-  border: 1px solid rgba(255,255,255,.08);
-  background: rgba(255,255,255,.06);
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.05);
+  background: rgba(255,255,255,.04);
   color: #e2e8f0;
   font-weight: 600;
-  transition: all .2s ease;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .filter-button:hover {
-  background: rgba(255,255,255,.1);
+  background: rgba(255,255,255,.08);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
 }
 .dashboard-metric-card {
   background: rgba(255,255,255,.06);
@@ -321,15 +326,16 @@ body{
 .table-card {
   width: 100%;
   min-height: calc(100vh - 128px);
-  background: rgba(255, 255, 255, 0.05) !important;
-  backdrop-filter: blur(20px) saturate(150%) !important;
-  -webkit-backdrop-filter: blur(20px) saturate(150%) !important;
-  border: 1px solid var(--table-border) !important;
+  background: rgba(255, 255, 255, 0.02) !important;
+  backdrop-filter: blur(16px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(140%) !important;
+  border: 1px solid rgba(255,255,255,0.04) !important;
   border-radius: 16px !important;
   box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.07) !important;
+    0 10px 30px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03) !important;
   padding: 24px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
 }
 
@@ -357,13 +363,14 @@ body{
 
 .datatable-search input,
 .datatable-length select {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
   color: white;
-  padding: 8px 14px;
+  padding: 10px 16px;
   font-size: 0.9rem;
   backdrop-filter: blur(10px);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .datatable-search input {
@@ -374,7 +381,8 @@ body{
 .datatable-length select:focus {
   border-color: var(--table-accent);
   outline: none;
-  box-shadow: 0 0 0 2px rgba(var(--table-accent-rgb), 0.2);
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 0 0 3px rgba(var(--table-accent-rgb), 0.15);
 }
 
 .datatable-shell {
@@ -409,16 +417,17 @@ body{
 
 .premium-table tbody tr {
   min-height: 46px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.02);
   border-left: 3px solid transparent;
-  transition: background .2s ease, border-color .2s ease, transform .2s ease;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .premium-table tbody tr:hover {
   background: var(--table-hover-bg);
   border-left-color: var(--table-accent);
-  border-bottom-color: rgba(var(--table-accent-rgb), 0.2);
-  transform: scale(1.001);
+  border-bottom-color: rgba(var(--table-accent-rgb), 0.15);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   cursor: pointer;
 }
 
@@ -498,23 +507,24 @@ body{
   justify-content: center;
   width: 36px;
   height: 36px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.04);
   font-size: 1rem;
-  transition: all .2s ease;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .datatable-action:hover {
   background: var(--table-accent);
   border-color: var(--table-accent);
-  box-shadow: 0 0 12px rgba(var(--table-accent-rgb), 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(var(--table-accent-rgb), 0.3);
 }
 
 .datatable-action.danger:hover {
   background: #ef4444;
   border-color: #ef4444;
-  box-shadow: 0 0 12px rgba(239, 68, 68, 0.35);
+  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.25);
 }
 
 .datatable-footer {
@@ -617,15 +627,16 @@ tr.strikethrough {
 
 .edit-user-card {
   width: min(800px, 100%);
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(16px) saturate(140%);
+  -webkit-backdrop-filter: blur(16px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.04);
   border-radius: 16px;
   padding: 24px;
   box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+    0 10px 30px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .edit-user-header {
@@ -722,18 +733,18 @@ textarea.edit-user-input {
   background: linear-gradient(135deg, #6366f1, #8b5cf6);
   color: white;
   border: none;
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 13px 40px;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
 }
 
 .edit-user-update:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 28px rgba(99, 102, 241, 0.6);
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.45);
 }
 
 .edit-user-cancel {
@@ -912,18 +923,22 @@ textarea.edit-user-input {
 
 /* ── Dashtrans Topbar ────────────────────────────────────────── */
 .topbar {
-  background: #1a1f2e;
+  background: rgba(20, 25, 35, 0.95);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   height: 64px;
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  padding: 0 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  box-shadow: 0 4px 30px rgba(0,0,0,0.15);
   position: sticky;
   top: 0;
   z-index: 1000;
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .navbar-left {
@@ -958,13 +973,20 @@ textarea.edit-user-input {
 .search-wrapper {
   display: flex;
   align-items: center;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
-  padding: 0 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  padding: 0 14px;
   width: 100%;
   height: 40px;
   gap: 8px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.search-wrapper:focus-within {
+  border-color: rgba(99, 102, 241, 0.5);
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
 }
 
 .search-wrapper .search-icon {
@@ -977,9 +999,9 @@ textarea.edit-user-input {
   background: transparent;
   border: none;
   outline: none;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.9);
   font-size: 14px;
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Inter', sans-serif;
 }
 
 .search-wrapper input::placeholder {
@@ -988,20 +1010,21 @@ textarea.edit-user-input {
 }
 
 .search-wrapper .search-btn {
-  background: #7c3aed;
+  background: linear-gradient(135deg, #7c3aed, #6d28d9);
   color: white;
   border: none;
-  border-radius: 6px;
-  padding: 5px 16px;
+  border-radius: 8px;
+  padding: 6px 18px;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   white-space: nowrap;
 }
 
 .search-wrapper .search-btn:hover {
-  background: #6d28d9;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
 }
 
 .navbar-right {
@@ -1023,19 +1046,20 @@ textarea.edit-user-input {
   color: rgba(255, 255, 255, 0.6);
   width: 38px;
   height: 38px;
-  border-radius: 8px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 17px;
   cursor: pointer;
   position: relative;
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .icon-btn:hover {
-  background: rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.06);
   color: white;
+  transform: translateY(-2px);
 }
 
 .icon-btn .badge {
@@ -1059,14 +1083,14 @@ textarea.edit-user-input {
   align-items: center;
   gap: 10px;
   padding: 6px 10px;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   margin-left: 8px;
 }
 
 .user-info:hover {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .user-avatar {
@@ -1108,38 +1132,41 @@ textarea.edit-user-input {
 }
 
 .navbar-menu {
-  background: #1a1f2e;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-  padding: 0 20px;
+  background: rgba(20, 25, 35, 0.95);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  padding: 0 24px;
   display: flex;
   align-items: center;
-  height: 46px;
-  gap: 4px;
-  font-family: 'Roboto', sans-serif;
+  height: 48px;
+  gap: 6px;
+  font-family: 'Inter', sans-serif;
 }
 
 .nav-item {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 14px;
-  border-radius: 6px;
+  padding: 8px 16px;
+  border-radius: 8px;
   color: rgba(255, 255, 255, 0.65);
   font-size: 13.5px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   white-space: nowrap;
 }
 
 .nav-item:hover {
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.95);
 }
 
 .nav-item.active {
   color: white;
   background: rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
 }
 
 .nav-item .nav-icon {
