@@ -22,18 +22,18 @@ const initialData: Privilege[] = [
 
 export default function PrivilegesListPage() {
   const [privileges, setPrivileges] = useState<Privilege[]>(initialData);
-  
+
   // Modals state
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  
+
   // Current selection state
   const [selectedPrivilege, setSelectedPrivilege] = useState<Privilege | null>(null);
-  
+
   // Form state
   const [formData, setFormData] = useState({ name: "", description: "", status: true });
-  
+
   // Search state
   const [search, setSearch] = useState("");
 
@@ -47,7 +47,7 @@ export default function PrivilegesListPage() {
       (p.status ? "true" : "false").includes(lowerSearch)
     );
   });
-  
+
   // Toast state
   const [toast, setToast] = useState<{ message: string; show: boolean }>({ message: "", show: false });
 
@@ -88,15 +88,10 @@ export default function PrivilegesListPage() {
   };
 
   const openDeleteModal = (privilege: Privilege) => {
-    setSelectedPrivilege(privilege);
-    setIsDeleteModalOpen(true);
-  };
-
-  const handleDeleteConfirm = () => {
-    if (!selectedPrivilege) return;
-    setPrivileges(privileges.filter((p) => p.id !== selectedPrivilege.id));
-    setIsDeleteModalOpen(false);
-    showToast("✓ Privilege deleted successfully");
+    if (window.confirm("Do you really want to delete this privilege?")) {
+      setPrivileges((current) => current.filter((p) => p.id !== privilege.id));
+      showToast("✓ Privilege deleted successfully");
+    }
   };
 
   return (
@@ -288,7 +283,7 @@ export default function PrivilegesListPage() {
                     <td><div className="datatable-cell" style={{ whiteSpace: "normal" }}>{p.description}</div></td>
                     <td>
                       <div className="flex justify-center">
-                        <span className="status-pill" data-status={p.status ? "Active" : "Inactive"} style={{ 
+                        <span className="status-pill" data-status={p.status ? "Active" : "Inactive"} style={{
                           background: p.status ? "rgba(34, 197, 94, 0.15)" : "rgba(239, 68, 68, 0.15)",
                           borderColor: p.status ? "rgba(34, 197, 94, 0.3)" : "rgba(239, 68, 68, 0.3)",
                           color: p.status ? "#4ade80" : "#f87171"

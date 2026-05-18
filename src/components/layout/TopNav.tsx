@@ -134,25 +134,23 @@ function NavDropdown({
   }, []);
 
   return (
-    <div ref={ref} className="relative h-full flex items-center">
-      <button
+    <div ref={ref} className="relative flex items-center">
+      <div
         onClick={() => setOpen((v) => !v)}
         className={cn(
-          "flex items-center gap-2 px-6 h-full text-[15px] font-medium transition-all whitespace-nowrap border-b-[3px] select-none",
-          open
-            ? "text-white border-indigo-400 bg-white/[0.04]"
-            : "text-slate-300 hover:text-white border-transparent hover:bg-white/[0.04] hover:border-white/20"
+          "nav-item",
+          open ? "active" : ""
         )}
       >
-        <Icon className={cn("w-[17px] h-[17px] flex-shrink-0", open ? "text-indigo-400" : "text-slate-500")} />
+        <Icon className="nav-icon" />
         {label}
         <ChevronDown
           className={cn(
-            "w-4 h-4 flex-shrink-0 transition-transform duration-200",
-            open ? "rotate-180 text-indigo-400" : "text-slate-500"
+            "chevron transition-transform duration-200",
+            open ? "rotate-180" : ""
           )}
         />
-      </button>
+      </div>
 
       <AnimatePresence>
         {open && (
@@ -222,66 +220,54 @@ export default function TopNav() {
 
   return (
     <>
-      <header className="sticky top-0 z-30 glass-nav">
+      <header className="sticky top-0 z-30">
+        <nav className="topbar">
 
-        {/* ══ ROW 1 — 72px ══ */}
-        <div className="min-h-[72px] relative flex items-center gap-4 px-10 md:px-16 border-b border-white/[0.08]">
-
-
-          {/* Mobile menu */}
-          <button
-            onClick={() => setMobileOpen(true)}
-            className="lg:hidden p-3 rounded-2xl text-slate-400 hover:text-white hover:bg-white/10 transition-all"
-          >
-            <Menu className="w-7 h-7" />
-          </button>
-
-          {/* Logo */}
-          <Link href="/" className="flex items-center flex-shrink-0" style={{ marginLeft: "2px" }}>
-            <img 
-              src="/nirnayah-logo.svg" 
-              alt="Nirnayah Logo" 
-              className="h-10 w-auto object-contain"
-            />
-          </Link>
-
-
-          {/* Search — centered */}
-      <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-3 px-5 py-4 rounded-2xl glass-input" style={{ width: "min(560px, 50vw)" }}>
-
-
-            <Search className="w-6 h-6 text-slate-400 flex-shrink-0" />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Type to search..."
-              className="flex-1 bg-transparent text-[16px] text-slate-200 placeholder-slate-500 outline-none"
-            />
+          {/* LEFT: Logo */}
+          <div className="navbar-left">
             <button
-              className="flex items-center justify-center px-5 py-2.5 rounded-[20px] text-[14px] font-semibold text-white transition-all whitespace-nowrap"
-              style={{ background: "#7c3aed", boxShadow: "0 6px 18px rgba(124,58,237,.35)" }}
+              onClick={() => setMobileOpen(true)}
+              className="lg:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-all mr-3"
             >
-              Search
+              <Menu className="w-5 h-5" />
             </button>
-
+            <Link href="/" className="flex items-center flex-shrink-0">
+              <img 
+                src="/nirnayah-logo.svg" 
+                alt="Nirnayah Logo" 
+                className="h-10 w-auto object-contain"
+              />
+            </Link>
           </div>
 
-          <div className="flex-1" />
+          {/* CENTER: Search Bar */}
+          <div className="navbar-center">
+            <div className="search-wrapper">
+              <Search className="search-icon flex-shrink-0" size={14} />
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Type to search..."
+              />
+              <button className="search-btn">Search</button>
+            </div>
+          </div>
 
-          {/* Right actions */}
-          <div className="flex items-center gap-2">
-
-            {/* Color Shift Palette */}
-            <div className="relative">
-              <button
-                onClick={() => { setShowPalette(!showPalette); setShowNotifications(false); setShowProfile(false); }}
-                className="w-12 h-12 rounded-2xl flex items-center justify-center hover:bg-white/10 transition-all"
-                title="Color Shift"
-                style={{ color: colorShifts.find(c => c.label === activeColor)?.swatch ?? "#6366f1" }}
-              >
-                <Palette className="w-[24px] h-[24px]" />
-              </button>
+          {/* RIGHT: Icons + User */}
+          <div className="navbar-right">
+            <div className="nav-icons">
+              
+              {/* Color Shift Palette */}
+              <div className="relative">
+                <button
+                  onClick={() => { setShowPalette(!showPalette); setShowNotifications(false); setShowProfile(false); }}
+                  className="icon-btn palette-icon"
+                  title="Color Shift"
+                  style={{ color: colorShifts.find(c => c.label === activeColor)?.swatch ?? "#6366f1" }}
+                >
+                  <Palette size={17} />
+                </button>
 
               <AnimatePresence>
                 {showPalette && (
@@ -325,40 +311,17 @@ export default function TopNav() {
               </AnimatePresence>
             </div>
 
-            {/* Theme toggle */}
-            <button
-              onClick={toggleTheme}
-              className="w-12 h-12 rounded-2xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all"
-              aria-label="Toggle theme"
-            >
-              <AnimatePresence mode="wait">
-                {theme === "dark" ? (
-                  <motion.div key="sun" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} transition={{ duration: 0.2 }}>
-                    <Sun className="w-[24px] h-[24px]" />
-                  </motion.div>
-                ) : (
-                  <motion.div key="moon" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }} transition={{ duration: 0.2 }}>
-                    <Moon className="w-[24px] h-[24px]" />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </button>
-
-            {/* Apps grid */}
-            <button className="w-12 h-12 rounded-2xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all" aria-label="Apps">
-              <LayoutGrid className="w-[24px] h-[24px]" />
-            </button>
 
             {/* Notifications */}
             <div className="relative">
               <button
-                onClick={() => { setShowNotifications(!showNotifications); setShowProfile(false); }}
-                className="relative w-12 h-12 rounded-2xl flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all"
+                onClick={() => { setShowNotifications(!showNotifications); setShowProfile(false); setShowPalette(false); }}
+                className="icon-btn bell-icon"
                 aria-label="Notifications"
               >
-                <Bell className="w-[24px] h-[24px]" />
+                <Bell size={17} />
                 {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 min-w-[20px] h-[20px] bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1 shadow-lg notification-badge">
+                  <span className="badge">
                     {unreadCount}
                   </span>
                 )}
@@ -431,28 +394,24 @@ export default function TopNav() {
                   </motion.div>
                 )}
               </AnimatePresence>
+             </div>
             </div>
-
-
-
+            
             {/* Profile */}
             <div className="relative">
-              <button
-                onClick={() => { setShowProfile(!showProfile); setShowNotifications(false); }}
-                className="flex items-center gap-3 px-3 py-2 rounded-2xl hover:bg-white/[0.08] transition-all"
+              <div
+                onClick={() => { setShowProfile(!showProfile); setShowNotifications(false); setShowPalette(false); }}
+                className="user-info"
               >
-                <div
-                  className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-red-500 flex items-center justify-center text-white text-[13px] font-bold flex-shrink-0"
-                  style={{ boxShadow: "0 0 0 2.5px rgba(255,255,255,.2)" }}
-                >
+                <div className="user-avatar">
                   PS
                 </div>
-                <div className="hidden md:block text-left">
-                  <p className="text-[14px] font-semibold text-white leading-tight">Pauline Seitz</p>
-                  <p className="text-[12px] text-slate-400 leading-tight mt-0.5">Web Designer</p>
+                <div className="user-text hidden md:flex">
+                  <span className="user-name">Pauline Seitz</span>
+                  <span className="user-role">Web Designer</span>
                 </div>
-                <ChevronDown className={cn("w-4 h-4 text-slate-500 hidden md:block transition-transform duration-200", showProfile && "rotate-180")} />
-              </button>
+                <ChevronDown className={cn("chevron hidden md:block transition-transform duration-200", showProfile && "rotate-180")} />
+              </div>
 
               <AnimatePresence>
                 {showProfile && (
@@ -513,15 +472,13 @@ export default function TopNav() {
               </AnimatePresence>
             </div>
           </div>
-        </div>
+        </nav>
 
         {/* ══ ROW 2 — Nav menu ══ */}
-        <div className="w-full relative z-40 hidden lg:block border-b border-white/[0.08]">
-          <div className="flex items-stretch h-[56px] px-16">
-            {navItems.map((item) => (
-              <NavDropdown key={item.label} label={item.label} icon={item.icon} children={item.children} />
-            ))}
-          </div>
+        <div className="navbar-menu hidden lg:flex">
+          {navItems.map((item) => (
+            <NavDropdown key={item.label} label={item.label} icon={item.icon} children={item.children} />
+          ))}
         </div>
 
       </header>
