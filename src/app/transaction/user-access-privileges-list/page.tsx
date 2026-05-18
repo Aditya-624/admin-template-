@@ -168,11 +168,10 @@ export default function UserAccessPrivilegesListPage() {
               />
             </div>
             <button 
-              className="flex items-center gap-2 px-6 py-2.5 text-base font-medium text-white bg-white/5 border border-white/20 rounded-full hover:bg-white/10 transition-colors whitespace-nowrap flex-shrink-0" 
+              className="add-btn-card" 
               onClick={() => router.push('/transaction/user-access-privileges-list/add')}
             >
-              <PlusSquare size={20} className="flex-shrink-0" />
-              <span>Add Privilege Access</span>
+              <span className="btn-label">Add Privilege Access</span>
             </button>
           </div>
         </div>

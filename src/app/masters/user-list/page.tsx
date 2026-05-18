@@ -83,9 +83,8 @@ export default function UserListPage() {
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
-            <Link href="/masters/user-list/add" className="flex items-center gap-2 px-6 py-2.5 text-base font-medium text-white bg-white/5 border border-white/20 rounded-full hover:bg-white/10 transition-colors whitespace-nowrap flex-shrink-0">
-              <PlusSquare size={20} className="flex-shrink-0" />
-              <span>Add User</span>
+            <Link href="/masters/user-list/add" className="add-btn-card">
+              <span className="btn-label">Add User</span>
             </Link>
           </div>
         </div>

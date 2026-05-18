@@ -165,11 +165,10 @@ export default function UserTypeListPage() {
               />
             </div>
             <button 
-              className="flex items-center gap-2 px-6 py-2.5 text-base font-medium text-white bg-white/5 border border-white/20 rounded-full hover:bg-white/10 transition-colors whitespace-nowrap flex-shrink-0" 
+              className="add-btn-card" 
               onClick={() => router.push('/masters/usertype-list/add')}
             >
-              <PlusSquare size={20} className="flex-shrink-0" />
-              <span>Add User Type</span>
+              <span className="btn-label">Add User Type</span>
             </button>
           </div>
         </div>

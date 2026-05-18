@@ -50,6 +50,7 @@ const navItems = [
       { href: "/courses",       label: "Courses",       desc: "Course catalog" },
       { href: "/notifications", label: "Notifications",  desc: "Alerts & updates" },
       { href: "/podcasts",      label: "Podcasts",      desc: "Audio content" },
+      { href: "/settings",      label: "Settings",      desc: "Platform settings" },
     ],
   },
   {
@@ -58,13 +59,6 @@ const navItems = [
     children: [
       { href: "/quizzes",    label: "Quizzes",    desc: "Quiz builder" },
       { href: "/ai-control", label: "AI Control", desc: "AI settings" },
-    ],
-  },
-  {
-    label: "Authentication",
-    icon: Lock,
-    children: [
-      { href: "/settings", label: "Settings", desc: "Platform config" },
     ],
   },
   {
@@ -140,19 +134,19 @@ function NestedNavItem({ child, setOpen }: { child: any, setOpen: any }) {
         <AnimatePresence>
           {isHovered && (
              <motion.div
-               initial={{ opacity: 0, x: -8 }}
-               animate={{ opacity: 1, x: 0 }}
-               exit={{ opacity: 0, x: -8 }}
-               transition={{ duration: 0.15 }}
+               initial={{ opacity: 0, y: 6 }}
+               animate={{ opacity: 1, y: 0 }}
+               exit={{ opacity: 0, y: 6 }}
+               transition={{ duration: 0.18, ease: "easeOut" }}
                className="absolute left-full top-0 ml-2 z-[60]"
                style={{
                   minWidth: "220px",
-                  background: "rgba(10,15,24,0.95)",
-                  backdropFilter: "blur(32px)",
-                  border: "1px solid rgba(255,255,255,.08)",
-                  borderRadius: "16px",
-                  boxShadow: "0 20px 60px rgba(0,0,0,.5)",
-                  padding: "12px",
+                  background: "#171717",
+                  backdropFilter: "none",
+                  border: "1px solid rgba(255, 255, 255, 0.04)",
+                  borderRadius: "18px",
+                  boxShadow: "0 12px 30px rgba(0, 0, 0, 0.28)",
+                  padding: "10px 14px",
                }}
              >
                <div className="flex flex-col gap-1">
@@ -234,12 +228,12 @@ function NavDropdown({
 
       <AnimatePresence>
         {open && (
-          <motion.div
-            initial={{ opacity: 0, y: 8, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 8, scale: 0.98 }}
-            transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
-            className="absolute left-0 top-full z-50 submenu-flyout mt-2"
+           <motion.div
+             initial={{ opacity: 0, y: 6 }}
+             animate={{ opacity: 1, y: 0 }}
+             exit={{ opacity: 0, y: 6 }}
+             transition={{ duration: 0.18, ease: "easeOut" }}
+             className="absolute left-0 top-full z-50 submenu-flyout mt-2"
             style={{
               minWidth: children.length > 3 ? "360px" : "240px",
             }}
