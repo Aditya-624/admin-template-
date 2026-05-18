@@ -922,23 +922,76 @@ textarea.edit-user-input {
 .breadcrumb-active { color: #e2e8f0; font-weight: 500; }
 
 /* ── Dashtrans Topbar ────────────────────────────────────────── */
+/* ── Floating SaaS Header Container ─────────────────────────── */
+.floating-header {
+  position: fixed !important;
+  top: 16px !important;
+  left: 24px !important;
+  right: 24px !important;
+  z-index: 999 !important;
+  border-radius: 16px !important;
+  background: rgba(15, 23, 42, 0.55) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.22),
+    0 2px 8px rgba(0, 0, 0, 0.12) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  overflow: visible !important;
+}
+
+.floating-header.header-scrolled {
+  background: rgba(10, 15, 24, 0.85) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 
+    0 16px 40px rgba(0, 0, 0, 0.3),
+    0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  top: 16px !important; /* Anchored in the exact same space */
+}
+
+@media (max-width: 1024px) {
+  .floating-header {
+    left: 12px !important;
+    right: 12px !important;
+    border-radius: 12px !important;
+    top: 8px !important;
+  }
+  .floating-header.header-scrolled {
+    top: 8px !important;
+  }
+}
+
+/* Offset page content for fixed header to prevent overlap */
+main {
+  padding-top: 144px !important;
+}
+
+@media (max-width: 1024px) {
+  main {
+    padding-top: 96px !important;
+  }
+}
+
+/* ── Dashtrans Topbar ────────────────────────────────────────── */
 .topbar {
-  background: rgba(20, 25, 35, 0.95);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   height: 64px;
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 24px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-  box-shadow: 0 4px 30px rgba(0,0,0,0.15);
-  position: sticky;
-  top: 0;
-  z-index: 1000;
+  border-bottom: none;
+  box-shadow: none;
+  position: relative;
+  z-index: 10;
   font-family: 'Inter', sans-serif;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .navbar-left {
@@ -1132,41 +1185,48 @@ textarea.edit-user-input {
 }
 
 .navbar-menu {
-  background: rgba(20, 25, 35, 0.95);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-bottom: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.03); /* Subtle internal separator */
   padding: 0 24px;
   display: flex;
   align-items: center;
   height: 48px;
   gap: 6px;
   font-family: 'Inter', sans-serif;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .nav-item {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 16px;
-  border-radius: 8px;
+  padding: 8px 14px;
+  border-radius: 10px;
   color: rgba(255, 255, 255, 0.65);
   font-size: 13.5px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   white-space: nowrap;
+  border: 1px solid transparent;
 }
 
 .nav-item:hover {
   background: rgba(255, 255, 255, 0.05);
   color: rgba(255, 255, 255, 0.95);
+  border-color: rgba(255, 255, 255, 0.03);
 }
 
 .nav-item.active {
   color: white;
   background: rgba(255, 255, 255, 0.08);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .nav-item .nav-icon {

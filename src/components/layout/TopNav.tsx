@@ -83,11 +83,16 @@ const navItems = [
     ],
   },
   {
-    label: "Tables",
+    label: "Transaction",
     icon: Table2,
     children: [
-      { href: "/students", label: "Basic Tables",  desc: "Simple data tables" },
-      { href: "/payments", label: "Data Tables",   desc: "Advanced with filters" },
+      {
+        label: "User Access Privileges",
+        desc: "Manage access rights",
+        subItems: [
+          { href: "/transaction/user-access-privileges-list", label: "User Access Privileges List" },
+        ]
+      }
     ],
   },
   {
@@ -270,6 +275,52 @@ export default function TopNav() {
   const [showPalette, setShowPalette] = useState(false);
   const [activeColor, setActiveColor] = useState("Indigo");
   const [search, setSearch] = useState("");
+  const [scrolled, setScrolled] = useState(false);
+  const headerRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const parent = headerRef.current?.parentElement;
+      const main = document.querySelector("main");
+      
+      const scrollY = window.scrollY || 0;
+      const parentScroll = parent?.scrollTop || 0;
+      const mainScroll = main?.scrollTop || 0;
+
+      if (scrollY > 15 || parentScroll > 15 || mainScroll > 15) {
+        setScrolled(true);
+      } else {
+        setScrolled(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    
+    // Listen to parent container
+    const parent = headerRef.current?.parentElement;
+    if (parent) {
+      parent.addEventListener("scroll", handleScroll, { passive: true });
+    }
+
+    // Listen to main container
+    const main = document.querySelector("main");
+    if (main) {
+      main.addEventListener("scroll", handleScroll, { passive: true });
+    }
+
+    // Run once on mount
+    handleScroll();
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (parent) {
+        parent.removeEventListener("scroll", handleScroll);
+      }
+      if (main) {
+        main.removeEventListener("scroll", handleScroll);
+      }
+    };
+  }, []);
 
   const applyColor = (shift: typeof colorShifts[0]) => {
     setActiveColor(shift.label);
@@ -281,7 +332,10 @@ export default function TopNav() {
 
   return (
     <>
-      <header className="sticky top-0 z-30">
+      <header 
+        ref={headerRef}
+        className={cn("floating-header", scrolled && "header-scrolled")}
+      >
         <nav className="topbar">
 
           {/* LEFT: Logo */}
