@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search, Bell, LayoutGrid,
@@ -234,20 +235,13 @@ function NavDropdown({
       <AnimatePresence>
         {open && (
           <motion.div
-            initial={{ opacity: 0, y: 8, scale: 0.97 }}
+            initial={{ opacity: 0, y: 8, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 8, scale: 0.97 }}
-            transition={{ duration: 0.15, ease: "easeOut" }}
-            className="absolute left-0 top-full z-50"
+            exit={{ opacity: 0, y: 8, scale: 0.98 }}
+            transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
+            className="absolute left-0 top-full z-50 submenu-flyout mt-2"
             style={{
               minWidth: children.length > 3 ? "360px" : "240px",
-              background: "rgba(8,10,20,0.98)",
-              backdropFilter: "blur(32px)",
-              border: "1px solid rgba(255,255,255,.12)",
-              borderRadius: "16px",
-              boxShadow: "0 20px 60px rgba(0,0,0,.7)",
-              marginTop: "6px",
-              padding: "16px",
             }}
           >
             <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-3">{label}</p>
@@ -267,7 +261,25 @@ function NavDropdown({
   );
 }
 
+const SEARCHABLE_PAGES = [
+  { label: "User List", href: "/masters/user-list", category: "Masters" },
+  { label: "UserType List", href: "/masters/usertype-list", category: "Masters" },
+  { label: "Privileges List", href: "/masters/privileges-list", category: "Masters" },
+  { label: "User Access Privileges List", href: "/transaction/user-access-privileges-list", category: "Transaction" },
+  { label: "eCommerce Dashboard", href: "/", category: "Dashboard" },
+  { label: "Analytics Dashboard", href: "/analytics", category: "Dashboard" },
+  { label: "Students", href: "/students", category: "Apps & Pages" },
+  { label: "Teachers", href: "/teachers", category: "Apps & Pages" },
+  { label: "Courses", href: "/courses", category: "Apps & Pages" },
+  { label: "Notifications", href: "/notifications", category: "Apps & Pages" },
+  { label: "Podcasts", href: "/podcasts", category: "Apps & Pages" },
+  { label: "Quizzes", href: "/quizzes", category: "Forms" },
+  { label: "AI Control", href: "/ai-control", category: "Forms" },
+  { label: "Settings", href: "/settings", category: "Authentication" },
+];
+
 export default function TopNav() {
+  const router = useRouter();
   const { theme, toggleTheme } = useTheme();
   const { setMobileOpen } = useSidebar();
   const [showNotifications, setShowNotifications] = useState(false);
@@ -275,8 +287,22 @@ export default function TopNav() {
   const [showPalette, setShowPalette] = useState(false);
   const [activeColor, setActiveColor] = useState("Indigo");
   const [search, setSearch] = useState("");
+  const [showResults, setShowResults] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
+        setShowResults(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -346,27 +372,107 @@ export default function TopNav() {
             >
               <Menu className="w-5 h-5" />
             </button>
-            <Link href="/" className="flex items-center flex-shrink-0">
+            <Link href="/" className="flex items-center gap-2.5 flex-shrink-0">
               <img 
                 src="/nirnayah-logo.svg" 
                 alt="Nirnayah Logo" 
                 className="h-10 w-auto object-contain"
               />
+              <span className="text-[17px] font-extrabold tracking-tight text-white hidden sm:block">
+                Nirnayah
+              </span>
             </Link>
           </div>
 
           {/* CENTER: Search Bar */}
-          <div className="navbar-center">
+          <div ref={searchContainerRef} className="navbar-center relative search-container">
             <div className="search-wrapper">
               <Search className="search-icon flex-shrink-0" size={14} />
               <input
                 type="text"
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Type to search..."
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setShowResults(true);
+                }}
+                onFocus={() => setShowResults(true)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    const matches = SEARCHABLE_PAGES.filter(p => 
+                      p.label.toLowerCase().includes(search.toLowerCase()) ||
+                      p.category.toLowerCase().includes(search.toLowerCase())
+                    );
+                    if (matches.length > 0) {
+                      router.push(matches[0].href);
+                      setShowResults(false);
+                      setSearch("");
+                    }
+                  }
+                }}
+                placeholder="Type to search pages (e.g. user list)..."
               />
-              <button className="search-btn">Search</button>
+              <button 
+                className="search-btn"
+                onClick={() => {
+                  const matches = SEARCHABLE_PAGES.filter(p => 
+                    p.label.toLowerCase().includes(search.toLowerCase()) ||
+                    p.category.toLowerCase().includes(search.toLowerCase())
+                  );
+                  if (matches.length > 0) {
+                    router.push(matches[0].href);
+                    setShowResults(false);
+                    setSearch("");
+                  }
+                }}
+              >
+                Search
+              </button>
             </div>
+
+            <AnimatePresence>
+              {showResults && search.trim() !== "" && (
+                <motion.div
+                  initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 8, scale: 0.98 }}
+                  transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
+                  className="absolute left-0 right-0 top-full mt-2 z-[999] submenu-flyout max-h-80 overflow-y-auto"
+                  style={{ padding: "8px" }}
+                >
+                  <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest px-3 py-1.5">Page Suggestions</p>
+                  <div className="space-y-0.5">
+                    {SEARCHABLE_PAGES.filter(p => 
+                      p.label.toLowerCase().includes(search.toLowerCase()) ||
+                      p.category.toLowerCase().includes(search.toLowerCase())
+                    ).map((page) => (
+                      <button
+                        key={page.href + page.label}
+                        onClick={() => {
+                          router.push(page.href);
+                          setShowResults(false);
+                          setSearch("");
+                        }}
+                        className="w-full flex items-center justify-between px-3 py-2 rounded-xl transition-all hover:bg-white/10 text-left"
+                      >
+                        <div>
+                          <span className="text-[13px] font-semibold text-slate-200">{page.label}</span>
+                          <span className="text-[11px] text-slate-500 block">{page.category}</span>
+                        </div>
+                        <ChevronRight className="w-4 h-4 text-slate-500" />
+                      </button>
+                    ))}
+                    {SEARCHABLE_PAGES.filter(p => 
+                      p.label.toLowerCase().includes(search.toLowerCase()) ||
+                      p.category.toLowerCase().includes(search.toLowerCase())
+                    ).length === 0 && (
+                      <div className="px-3 py-4 text-center text-[12px] text-slate-500">
+                        No pages match your search
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           {/* RIGHT: Icons + User */}
@@ -387,19 +493,11 @@ export default function TopNav() {
               <AnimatePresence>
                 {showPalette && (
                   <motion.div
-                    initial={{ opacity: 0, y: 10, scale: 0.96 }}
+                    initial={{ opacity: 0, y: 8, scale: 0.98 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 10, scale: 0.96 }}
-                    transition={{ duration: 0.15 }}
-                    className="absolute right-0 top-full mt-3 w-52 z-50"
-                    style={{
-                      background: "rgba(8,10,20,0.98)",
-                      backdropFilter: "blur(32px)",
-                      border: "1px solid rgba(255,255,255,.12)",
-                      borderRadius: "16px",
-                      boxShadow: "0 24px 64px rgba(0,0,0,.7)",
-                      padding: "12px",
-                    }}
+                    exit={{ opacity: 0, y: 8, scale: 0.98 }}
+                    transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
+                    className="absolute right-0 top-full mt-2 w-52 z-50 submenu-flyout"
                   >
                     <p className="text-[11px] text-slate-500 font-bold uppercase tracking-widest mb-2.5 px-1">Color Shift</p>
                     <div className="space-y-0.5">
@@ -445,18 +543,11 @@ export default function TopNav() {
               <AnimatePresence>
                 {showNotifications && (
                   <motion.div
-                    initial={{ opacity: 0, y: 10, scale: 0.96 }}
+                    initial={{ opacity: 0, y: 8, scale: 0.98 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 10, scale: 0.96 }}
-                    transition={{ duration: 0.15 }}
-                    className="absolute right-0 top-full mt-3 w-96 z-50 overflow-hidden"
-                    style={{
-                      background: "rgba(8,10,20,0.98)",
-                      backdropFilter: "blur(32px)",
-                      border: "1px solid rgba(255,255,255,.12)",
-                      borderRadius: "16px",
-                      boxShadow: "0 24px 64px rgba(0,0,0,.7)",
-                    }}
+                    exit={{ opacity: 0, y: 8, scale: 0.98 }}
+                    transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
+                    className="absolute right-0 top-full mt-2 w-96 z-50 overflow-hidden submenu-flyout !p-0"
                   >
                     <div className="px-5 py-4 border-b border-white/[0.08] flex items-center justify-between">
                       <div>
@@ -531,18 +622,11 @@ export default function TopNav() {
               <AnimatePresence>
                 {showProfile && (
                   <motion.div
-                    initial={{ opacity: 0, y: 10, scale: 0.96 }}
+                    initial={{ opacity: 0, y: 8, scale: 0.98 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 10, scale: 0.96 }}
-                    transition={{ duration: 0.15 }}
-                    className="absolute right-0 top-full mt-3 w-56 z-50 overflow-hidden"
-                    style={{
-                      background: "rgba(8,10,20,0.98)",
-                      backdropFilter: "blur(32px)",
-                      border: "1px solid rgba(255,255,255,.12)",
-                      borderRadius: "16px",
-                      boxShadow: "0 24px 64px rgba(0,0,0,.7)",
-                    }}
+                    exit={{ opacity: 0, y: 8, scale: 0.98 }}
+                    transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
+                    className="absolute right-0 top-full mt-2 w-56 z-50 overflow-hidden submenu-flyout !p-0"
                   >
                     {/* Profile header */}
                     <div className="px-4 py-4 border-b border-white/[0.08] flex items-center gap-3">
