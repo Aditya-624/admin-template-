@@ -4,24 +4,25 @@ import React, { useState } from "react";
 import { Edit, Trash2, PlusSquare, CheckCircle, ArrowUpDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-type Privilege = {
+type UserTypeItem = {
   id: number;
   name: string;
   description: string;
   status: boolean;
 };
 
-const initialData: Privilege[] = [
-  { id: 1, name: "SyllabusUpload", description: "User can upload Syllabus", status: true },
-  { id: 2, name: "SyllabusReview", description: "User can review Syllabus", status: true },
-  { id: 3, name: "SyllabusApproval", description: "User can Approval Syllabus", status: true },
-  { id: 4, name: "CourseUpload", description: "User can upload Course", status: true },
-  { id: 5, name: "CourseReview", description: "User can review Course", status: true },
-  { id: 6, name: "CourseApproval", description: "User can Approve Course", status: true },
+const initialData: UserTypeItem[] = [
+  { id: 1, name: "Super", description: "User can upload Syllabus", status: true },
+  { id: 2, name: "Admin", description: "User can review Syllabus", status: true },
+  { id: 3, name: "Associate", description: "User can Approval Syllabus", status: true },
+  { id: 4, name: "Expert", description: "User can upload Course", status: true },
+  { id: 5, name: "ClientAdmin", description: "User can review Course", status: true },
+  { id: 6, name: "Evaluator", description: "User can Aoorive Course", status: true },
+  { id: 7, name: "Student", description: "User can Aoorive Course", status: true },
 ];
 
-export default function PrivilegesListPage() {
-  const [privileges, setPrivileges] = useState<Privilege[]>(initialData);
+export default function UserTypeListPage() {
+  const [userTypes, setUserTypes] = useState<UserTypeItem[]>(initialData);
 
   // Modals state
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -29,7 +30,7 @@ export default function PrivilegesListPage() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   // Current selection state
-  const [selectedPrivilege, setSelectedPrivilege] = useState<Privilege | null>(null);
+  const [selectedUserType, setSelectedUserType] = useState<UserTypeItem | null>(null);
 
   // Form state
   const [formData, setFormData] = useState({ name: "", description: "", status: true });
@@ -37,7 +38,7 @@ export default function PrivilegesListPage() {
   // Search state
   const [search, setSearch] = useState("");
 
-  const filteredPrivileges = privileges.filter((p) => {
+  const filteredUserTypes = userTypes.filter((p) => {
     if (!search) return true;
     const lowerSearch = search.toLowerCase();
     return (
@@ -63,34 +64,41 @@ export default function PrivilegesListPage() {
 
   const handleAddSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const newId = privileges.length > 0 ? Math.max(...privileges.map((p) => p.id)) + 1 : 1;
-    setPrivileges([...privileges, { id: newId, ...formData }]);
+    const newId = userTypes.length > 0 ? Math.max(...userTypes.map((p) => p.id)) + 1 : 1;
+    setUserTypes([...userTypes, { id: newId, ...formData }]);
     setIsAddModalOpen(false);
-    showToast("✓ Privilege added successfully");
+    showToast("✓ User Type added successfully");
   };
 
-  const openEditModal = (privilege: Privilege) => {
-    setSelectedPrivilege(privilege);
-    setFormData({ name: privilege.name, description: privilege.description, status: privilege.status });
+  const openEditModal = (userType: UserTypeItem) => {
+    setSelectedUserType(userType);
+    setFormData({ name: userType.name, description: userType.description, status: userType.status });
     setIsEditModalOpen(true);
   };
 
   const handleEditSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedPrivilege) return;
-    setPrivileges(
-      privileges.map((p) =>
-        p.id === selectedPrivilege.id ? { ...p, ...formData } : p
+    if (!selectedUserType) return;
+    setUserTypes(
+      userTypes.map((p) =>
+        p.id === selectedUserType.id ? { ...p, ...formData } : p
       )
     );
     setIsEditModalOpen(false);
-    showToast("✓ Privilege updated successfully");
+    showToast("✓ User Type updated successfully");
   };
 
-  const openDeleteModal = (privilege: Privilege) => {
-    if (window.confirm("Do you really want to delete this privilege?")) {
-      setPrivileges((current) => current.filter((p) => p.id !== privilege.id));
-      showToast("✓ Privilege deleted successfully");
+  const openDeleteModal = (userType: UserTypeItem) => {
+    setSelectedUserType(userType);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (selectedUserType) {
+      setUserTypes((current) => current.filter((p) => p.id !== selectedUserType.id));
+      setIsDeleteModalOpen(false);
+      setSelectedUserType(null);
+      showToast("✓ User Type deleted successfully");
     }
   };
 
@@ -227,7 +235,7 @@ export default function PrivilegesListPage() {
 
       <div className="table-card" style={{ maxWidth: "1400px", width: "100%" }}>
         <div className="datatable-toolbar" style={{ justifyContent: "space-between" }}>
-          <h1 className="text-2xl font-bold text-white">Privileges List</h1>
+          <h1 className="text-2xl font-bold text-white">User Types List</h1>
           <div className="flex items-center gap-4">
             <div className="datatable-search">
               <span>Search:</span>
@@ -239,7 +247,7 @@ export default function PrivilegesListPage() {
             </div>
             <button className="flex items-center gap-2 px-6 py-2.5 text-base font-medium text-white bg-white/5 border border-white/20 rounded-full hover:bg-white/10 transition-colors whitespace-nowrap flex-shrink-0" onClick={openAddModal}>
               <PlusSquare size={20} className="flex-shrink-0" />
-              <span>Add Privileges</span>
+              <span>Add User Type</span>
             </button>
           </div>
         </div>
@@ -255,7 +263,7 @@ export default function PrivilegesListPage() {
             </colgroup>
             <thead>
               <tr>
-                {["PrivilegeID", "Privilege", "Description", "Status", "Action(s)"].map((column) => (
+                {["UserTypeID", "UserType", "Description", "Status", "Action(s)"].map((column) => (
                   <th key={column}>
                     <div className="flex items-center justify-between gap-3">
                       <span className="truncate">{column}</span>
@@ -266,14 +274,14 @@ export default function PrivilegesListPage() {
               </tr>
             </thead>
             <tbody>
-              {filteredPrivileges.length === 0 ? (
+              {filteredUserTypes.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="text-center py-8 text-slate-400">
-                    Not found in the privileges list
+                    Not found in the user type list
                   </td>
                 </tr>
               ) : (
-                filteredPrivileges.map((p, index) => (
+                filteredUserTypes.map((p, index) => (
                   <tr
                     key={p.id}
                     className={index % 2 === 0 ? "bg-white/[0.01]" : ""}
@@ -297,7 +305,7 @@ export default function PrivilegesListPage() {
                         <button
                           className="datatable-action"
                           type="button"
-                          title="Edit privilege"
+                          title="Edit User Type"
                           onClick={() => openEditModal(p)}
                         >
                           <Edit size={16} />
@@ -305,7 +313,7 @@ export default function PrivilegesListPage() {
                         <button
                           className="datatable-action danger"
                           type="button"
-                          title="Remove privilege"
+                          title="Remove User Type"
                           onClick={() => openDeleteModal(p)}
                         >
                           <Trash2 size={16} />
@@ -331,11 +339,11 @@ export default function PrivilegesListPage() {
             >
               <div className="modal-title">
                 <PlusSquare size={20} className="text-green-500" />
-                Add Privilege
+                Add User Type
               </div>
               <form onSubmit={handleAddSubmit}>
                 <div className="form-group">
-                  <label className="form-label">Privilege Name</label>
+                  <label className="form-label">User Type Name</label>
                   <input
                     type="text"
                     required
@@ -357,7 +365,7 @@ export default function PrivilegesListPage() {
 
                 <div className="modal-actions" style={{ justifyContent: "space-between" }}>
                   <button type="button" className="btn-cancel" onClick={() => setIsAddModalOpen(false)}>Cancel</button>
-                  <button type="submit" className="btn-submit-add">Add Privilege</button>
+                  <button type="submit" className="btn-submit-add">Add User Type</button>
                 </div>
               </form>
             </motion.div>
@@ -374,11 +382,11 @@ export default function PrivilegesListPage() {
             >
               <div className="modal-title">
                 <Edit size={20} className="text-purple-500" />
-                Edit Privilege
+                Edit User Type
               </div>
               <form onSubmit={handleEditSubmit}>
                 <div className="form-group">
-                  <label className="form-label">Privilege Name</label>
+                  <label className="form-label">User Type Name</label>
                   <input
                     type="text"
                     required
@@ -415,7 +423,7 @@ export default function PrivilegesListPage() {
 
                 <div className="modal-actions" style={{ justifyContent: "space-between" }}>
                   <button type="button" className="btn-cancel" onClick={() => setIsEditModalOpen(false)}>Cancel</button>
-                  <button type="submit" className="btn-submit-edit">Update Privilege</button>
+                  <button type="submit" className="btn-submit-edit">Update User Type</button>
                 </div>
               </form>
             </motion.div>
@@ -435,7 +443,7 @@ export default function PrivilegesListPage() {
                 <Trash2 size={48} style={{ margin: "0 auto" }} />
               </div>
               <p style={{ marginBottom: "24px", color: "rgba(255,255,255,0.9)" }}>
-                Are you sure you want to delete this privilege?
+                Are you sure you want to delete this user type?
               </p>
               <div className="modal-actions" style={{ justifyContent: "center" }}>
                 <button className="btn-cancel" onClick={() => setIsDeleteModalOpen(false)}>Cancel</button>

@@ -101,6 +101,7 @@ const navItems = [
     icon: Users,
     children: [
       { href: "/masters/user-list", label: "User List", desc: "Manage users" },
+      { href: "/masters/usertype-list", label: "UserType List", desc: "Manage user types" },
       { href: "/masters/privileges-list", label: "Privileges List", desc: "Manage privileges" },
       ...mastersUsers.map((master) => ({
         href: `/masters/${master.id}`,

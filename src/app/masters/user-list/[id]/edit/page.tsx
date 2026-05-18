@@ -200,6 +200,24 @@ export default function EditUserPage() {
             </div>
           </div>
 
+          <div className="edit-user-row">
+            <label htmlFor="status">Status</label>
+            <div className="edit-user-field" style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
+              <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: '10px' }}>
+                <input
+                  id="status"
+                  type="checkbox"
+                  checked={form.status === "Active"}
+                  onChange={(e) => updateField("status", e.target.checked ? "Active" : "Inactive")}
+                  style={{ width: '20px', height: '20px', accentColor: '#6366f1' }}
+                />
+                <span style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.9rem' }}>
+                  {form.status === "Active" ? "True (Active)" : "False (Inactive)"}
+                </span>
+              </label>
+            </div>
+          </div>
+
           <div className="edit-user-actions">
             <Link href="/masters/user-list" className="edit-user-cancel">
               Cancel
