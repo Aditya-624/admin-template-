@@ -98,9 +98,10 @@ const navItems = [
         label: "Users",
         desc: "Manage system users",
         subItems: [
-          { href: "/masters/user-list", label: "User List" },
           { href: "/masters/usertype-list", label: "UserType List" },
+          { href: "/masters/user-list", label: "User List" },
           { href: "/masters/privileges-list", label: "Privileges List" },
+          { href: "/masters/modules-list", label: "Modules List" },
         ]
       }
     ],
@@ -256,9 +257,10 @@ function NavDropdown({
 }
 
 const SEARCHABLE_PAGES = [
-  { label: "User List", href: "/masters/user-list", category: "Masters" },
   { label: "UserType List", href: "/masters/usertype-list", category: "Masters" },
+  { label: "User List", href: "/masters/user-list", category: "Masters" },
   { label: "Privileges List", href: "/masters/privileges-list", category: "Masters" },
+  { label: "Modules List", href: "/masters/modules-list", category: "Masters" },
   { label: "User Access Privileges List", href: "/transaction/user-access-privileges-list", category: "Transaction" },
   { label: "eCommerce Dashboard", href: "/", category: "Dashboard" },
   { label: "Analytics Dashboard", href: "/analytics", category: "Dashboard" },

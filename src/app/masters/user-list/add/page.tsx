@@ -3,8 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
-
-
+import API from "@/services/api";
 
 const users = [
   { id: "1", type: "Super Admin", name: "Airi Satou", mobile: "+1 (555) 010-1001", email: "airi.satou@example.com", loginId: "airi.satou", description: "Manages platform accounts", status: "Active" },
@@ -24,14 +23,97 @@ const storageKey = "masters-user-list-v4";
 type User = typeof users[number];
 type ValidationErrors = Partial<Record<"name" | "mobile" | "email" | "loginId", string>>;
 
+type UserTypeOption = {
+  id: number;
+  name: string;
+};
+
 const requiredFields: Array<keyof ValidationErrors> = ["name", "mobile", "email", "loginId"];
 
 export default function AddUserPage() {
   const router = useRouter();
-  
+
+  // ── User Type Dropdown State (fetched from DB via API) ────────────────────
+  const [userTypeOptions, setUserTypeOptions] = useState<UserTypeOption[]>([]);
+  const [userTypesLoading, setUserTypesLoading] = useState(true);
+
+  useEffect(() => {
+    console.log("Fetching user types dropdown from /api/users/user-types-dropdown...");
+    setUserTypesLoading(true);
+
+    // Try the dedicated dropdown endpoint first
+    API.get("/api/users/user-types-dropdown")
+      .then((res) => {
+        console.log("User types dropdown response:", res.data);
+        const data = Array.isArray(res.data) ? res.data : [];
+        const opts: UserTypeOption[] = data.map((ut: any, idx: number) => ({
+          id: typeof ut.id === "number" ? ut.id : parseInt(ut.id ?? ut.user_type_id ?? ut.userTypeId ?? (idx + 1), 10),
+          name: String(ut.name ?? ut.user_type ?? ut.userType ?? ut.label ?? ut.value ?? "N/A"),
+        }));
+        setUserTypeOptions(opts);
+        if (opts.length > 0) {
+          setForm((f) => ({ ...f, type: opts[0].name }));
+        }
+        setUserTypesLoading(false);
+      })
+      .catch((err) => {
+        console.warn("Dedicated dropdown endpoint failed, falling back to /api/master/user-types:", err);
+        // Fallback: use the full user types list
+        API.get("/api/master/user-types")
+          .then((res) => {
+            console.log("Fallback user types response:", res.data);
+            const data = Array.isArray(res.data) ? res.data : [];
+            const opts: UserTypeOption[] = data.map((ut: any, idx: number) => ({
+              id: typeof ut.id === "number" ? ut.id : parseInt(ut.id ?? ut.user_type_id ?? (idx + 1), 10),
+              name: String(ut.name ?? ut.user_type ?? ut.userType ?? "N/A"),
+            }));
+            setUserTypeOptions(opts);
+            if (opts.length > 0) {
+              setForm((f) => ({ ...f, type: opts[0].name }));
+            }
+            setUserTypesLoading(false);
+          })
+          .catch((err2) => {
+            console.error("Both user type endpoints failed, using storage/hardcoded fallback:", err2);
+            let fallback: UserTypeOption[] = [];
+            const localData = typeof window !== "undefined" ? localStorage.getItem("masters-usertype-list-v1") : null;
+            if (localData) {
+              try {
+                const parsed = JSON.parse(localData);
+                if (Array.isArray(parsed)) {
+                  fallback = parsed.map((ut: any) => ({
+                    id: ut.id,
+                    name: ut.name
+                  }));
+                }
+              } catch (e) {
+                console.error("Error parsing local storage user types:", e);
+              }
+            }
+            if (fallback.length === 0) {
+              fallback = [
+                { id: 1, name: "Super" },
+                { id: 2, name: "Admin" },
+                { id: 3, name: "Associate" },
+                { id: 4, name: "Expert" },
+                { id: 5, name: "ClientAdmin" },
+                { id: 6, name: "Evaluator" },
+                { id: 7, name: "Student" },
+              ];
+            }
+            setUserTypeOptions(fallback);
+            if (fallback.length > 0) {
+              setForm((f) => ({ ...f, type: fallback[0].name }));
+            }
+            setUserTypesLoading(false);
+          });
+      });
+  }, []);
+
+  // ── Form State ────────────────────────────────────────────────────────────
   const [form, setForm] = useState<User>({
-    id: "", // Will be set by useEffect
-    type: "Student",
+    id: "",
+    type: "",
     name: "",
     mobile: "",
     email: "",
@@ -40,6 +122,7 @@ export default function AddUserPage() {
     status: "Active"
   });
 
+  // Set auto-incremented ID from existing users
   useEffect(() => {
     const storedRows = localStorage.getItem(storageKey);
     const existingUsers = storedRows ? JSON.parse(storedRows) : users;
@@ -50,7 +133,7 @@ export default function AddUserPage() {
         if (!isNaN(num) && num > maxId) maxId = num;
       });
     }
-    setForm(f => ({ ...f, id: String(maxId + 1) }));
+    setForm((f) => ({ ...f, id: String(maxId + 1) }));
   }, []);
 
   const [errors, setErrors] = useState<ValidationErrors>({});
@@ -65,13 +148,11 @@ export default function AddUserPage() {
 
   const validateForm = () => {
     const nextErrors: ValidationErrors = {};
-
     requiredFields.forEach((field) => {
       if (!form[field].trim()) {
         nextErrors[field] = "This field is required";
       }
     });
-
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
   };
@@ -80,11 +161,8 @@ export default function AddUserPage() {
     if (!validateForm()) return;
 
     const storedUsers = localStorage.getItem(storageKey);
-    const currentUsers = storedUsers ? JSON.parse(storedUsers) as User[] : users;
-    
-    // Add new user to the top of the list
+    const currentUsers = storedUsers ? (JSON.parse(storedUsers) as User[]) : users;
     const nextUsers = [form, ...currentUsers];
-
     localStorage.setItem(storageKey, JSON.stringify(nextUsers));
     setToast("✓ User created successfully");
 
@@ -98,11 +176,7 @@ export default function AddUserPage() {
 
   return (
     <div className="edit-user-page">
-      {toast && (
-        <div className="edit-user-toast">
-          {toast}
-        </div>
-      )}
+      {toast && <div className="edit-user-toast">{toast}</div>}
 
       <section className="edit-user-card">
         <div className="edit-user-header">
@@ -110,17 +184,50 @@ export default function AddUserPage() {
         </div>
 
         <form className="edit-user-form">
+          {/* ── User Type — dynamic dropdown from DB ── */}
           <div className="edit-user-row">
             <label htmlFor="user-type">User Type *</label>
             <div className="edit-user-field">
-              <input
-                id="user-type"
-                className="edit-user-input"
-                type="text"
-                placeholder="Super"
-                value={form.type}
-                onChange={(event) => updateField("type", event.target.value)}
-              />
+              {userTypesLoading ? (
+                <div
+                  className="edit-user-input"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    color: "rgba(255,255,255,0.5)",
+                    cursor: "not-allowed",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "14px",
+                      height: "14px",
+                      border: "2px solid rgba(255,255,255,0.2)",
+                      borderTopColor: "rgba(255,255,255,0.6)",
+                      borderRadius: "50%",
+                      animation: "spin 1s linear infinite",
+                      flexShrink: 0,
+                    }}
+                  ></div>
+                  Loading user types...
+                  <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+                </div>
+              ) : (
+                <select
+                  id="user-type"
+                  className="edit-user-input"
+                  value={form.type}
+                  onChange={(e) => updateField("type", e.target.value)}
+                >
+                  <option value="" disabled>-- Select User Type --</option>
+                  {userTypeOptions.map((opt) => (
+                    <option key={opt.id} value={opt.name}>
+                      {opt.id} - {opt.name}
+                    </option>
+                  ))}
+                </select>
+              )}
             </div>
           </div>
 

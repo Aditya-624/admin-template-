@@ -1548,3 +1548,112 @@ main {
   gap: 0 !important;
   justify-content: center !important;
 }
+
+/* Custom styling for User Type select dropdowns to support arrow markers and readable options */
+select.edit-user-input {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 14px center !important;
+  background-size: 16px !important;
+  padding-right: 40px !important;
+  cursor: pointer;
+}
+
+select.edit-user-input option {
+  background-color: #1e2436 !important;
+  color: #ffffff !important;
+}
+
+[data-bg="light"] select.edit-user-input {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%230f172a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
+}
+
+[data-bg="light"] select.edit-user-input option {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+/* 1-to-many Privilege Checklist grid styling */
+.privilege-checkboxes-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px 24px;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  margin-top: 8px;
+  width: 100%;
+}
+
+.privilege-checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.2s ease-in-out;
+}
+
+.privilege-checkbox-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(139, 92, 246, 0.35);
+}
+
+.privilege-checkbox-item.checked {
+  background: rgba(139, 92, 246, 0.1);
+  border-color: rgba(139, 92, 246, 0.5);
+  box-shadow: 0 2px 6px rgba(139, 92, 246, 0.1);
+}
+
+.privilege-checkbox-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #8b5cf6;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.privilege-checkbox-label {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.9rem;
+  font-weight: 500;
+  user-select: none;
+}
+
+[data-bg="light"] .privilege-checkboxes-container {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+}
+
+[data-bg="light"] .privilege-checkbox-item {
+  background: rgba(15, 23, 42, 0.02);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+[data-bg="light"] .privilege-checkbox-item:hover {
+  background: rgba(15, 23, 42, 0.05);
+  border-color: rgba(139, 92, 246, 0.4);
+}
+
+[data-bg="light"] .privilege-checkbox-item.checked {
+  background: rgba(139, 92, 246, 0.06);
+  border-color: rgba(139, 92, 246, 0.6);
+}
+
+[data-bg="light"] .privilege-checkbox-label {
+  color: rgba(15, 23, 42, 0.85);
+}
+
+@media (max-width: 576px) {
+  .privilege-checkboxes-container {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Edit, Trash2, PlusSquare, CheckCircle, ArrowUpDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
+import API from "@/services/api";
 
 type UserAccessPrivilege = {
   id: number;
@@ -28,15 +29,40 @@ const storageKey = "transaction-user-access-privileges-v1";
 export default function UserAccessPrivilegesListPage() {
   const router = useRouter();
   const [privileges, setPrivileges] = useState<UserAccessPrivilege[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const storedRows = localStorage.getItem(storageKey);
-    if (storedRows) {
-      setPrivileges(JSON.parse(storedRows));
-    } else {
-      setPrivileges(initialData);
-      localStorage.setItem(storageKey, JSON.stringify(initialData));
-    }
+    console.log("Fetching user access privileges from backend API /api/user-access-privileges...");
+    setLoading(true);
+    setError(null);
+    API.get("/api/user-access-privileges")
+      .then((res) => {
+        console.log("Successfully fetched user access privileges from backend:", res.data);
+        if (Array.isArray(res.data)) {
+          const mapped = res.data.map((uap: any, idx: number) => ({
+            id: typeof uap.id === "number" ? uap.id : parseInt(uap.id ?? uap.uap_id ?? uap.userAccessPrivilegeId ?? (idx + 1), 10),
+            userType: String(uap.userType ?? uap.user_type ?? uap.usertype ?? "N/A"),
+            userName: String(uap.userName ?? uap.user_name ?? uap.username ?? "N/A"),
+            privilege: String(uap.privilege ?? uap.access_privilege ?? uap.privilege_name ?? "N/A"),
+            description: String(uap.description ?? ""),
+            status: uap.status === true || uap.status === "Active" || uap.status === "active" || uap.status === 1 || String(uap.status).toLowerCase() === "true"
+          }));
+          setPrivileges(mapped);
+        } else {
+          console.warn("Unexpected privileges response format, using local storage/placeholder fallback");
+          const storedRows = localStorage.getItem(storageKey);
+          setPrivileges(storedRows ? JSON.parse(storedRows) : initialData);
+        }
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Error fetching user access privileges from backend:", err);
+        setError("Failed to load user access privileges from backend API. Displaying offline data.");
+        const storedRows = localStorage.getItem(storageKey);
+        setPrivileges(storedRows ? JSON.parse(storedRows) : initialData);
+        setLoading(false);
+      });
   }, []);
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -71,12 +97,27 @@ export default function UserAccessPrivilegesListPage() {
 
   const handleDeleteConfirm = () => {
     if (selectedPrivilege) {
-      const nextPrivileges = privileges.filter((p) => p.id !== selectedPrivilege.id);
-      setPrivileges(nextPrivileges);
-      localStorage.setItem(storageKey, JSON.stringify(nextPrivileges));
-      setIsDeleteModalOpen(false);
-      setSelectedPrivilege(null);
-      showToast("✓ Record deleted successfully");
+      console.log(`Sending DELETE request for user access privilege ID: ${selectedPrivilege.id}`);
+      API.delete(`/api/user-access-privileges/${selectedPrivilege.id}`)
+        .then((res) => {
+          console.log(`Successfully deleted user access privilege ${selectedPrivilege.id}:`, res.data);
+          const nextPrivileges = privileges.filter((p) => p.id !== selectedPrivilege.id);
+          setPrivileges(nextPrivileges);
+          localStorage.setItem(storageKey, JSON.stringify(nextPrivileges));
+          setIsDeleteModalOpen(false);
+          setSelectedPrivilege(null);
+          showToast("✓ Record deleted successfully");
+        })
+        .catch((err) => {
+          console.error(`Error deleting user access privilege ${selectedPrivilege.id}:`, err);
+          alert("Failed to delete record on backend. Deleting from offline list.");
+          const nextPrivileges = privileges.filter((p) => p.id !== selectedPrivilege.id);
+          setPrivileges(nextPrivileges);
+          localStorage.setItem(storageKey, JSON.stringify(nextPrivileges));
+          setIsDeleteModalOpen(false);
+          setSelectedPrivilege(null);
+          showToast("✓ Record deleted locally");
+        });
     }
   };
 
@@ -208,7 +249,29 @@ export default function UserAccessPrivilegesListPage() {
               </tr>
             </thead>
             <tbody>
-              {filteredPrivileges.length === 0 ? (
+              {loading ? (
+                <tr>
+                  <td colSpan={7} className="text-center py-8 text-slate-400">
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
+                      <div className="spinner" style={{
+                        width: "16px",
+                        height: "16px",
+                        border: "2px solid rgba(255,255,255,0.2)",
+                        borderTopColor: "#fff",
+                        borderRadius: "50%",
+                        animation: "spin 1s linear infinite"
+                      }}></div>
+                      Loading privileges...
+                    </div>
+                  </td>
+                </tr>
+              ) : error ? (
+                <tr>
+                  <td colSpan={7} className="text-center py-8 text-red-400" style={{ color: "#ef4444" }}>
+                    {error}
+                  </td>
+                </tr>
+              ) : filteredPrivileges.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="text-center py-8 text-slate-400">
                     Not found in the list
