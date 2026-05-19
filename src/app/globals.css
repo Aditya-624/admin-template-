@@ -1013,7 +1013,7 @@ textarea.edit-user-input {
   right: 18px !important;
   z-index: 999 !important;
   border-radius: 28px !important;
-  background: rgba(10, 15, 28, 0.75) !important;
+  background: rgba(10, 15, 28, 0.65) !important;
   backdrop-filter: blur(18px) !important;
   -webkit-backdrop-filter: blur(18px) !important;
   border: 1px solid rgba(255, 255, 255, 0.04) !important;
@@ -1025,7 +1025,7 @@ textarea.edit-user-input {
 }
 
 .floating-header.header-scrolled {
-  background: rgba(8, 11, 20, 0.9) !important;
+  background: rgba(8, 11, 20, 0.80) !important;
   box-shadow: 
     0 16px 48px rgba(0, 0, 0, 0.32),
     inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
@@ -1301,9 +1301,9 @@ main {
   gap: 6px !important;
   padding: 8px 12px !important;
   border-radius: 12px !important;
-  color: rgba(255, 255, 255, 0.72) !important;
+  color: rgba(255, 255, 255, 0.92) !important;
   font-size: 15px !important;
-  font-weight: 500 !important;
+  font-weight: 600 !important;
   cursor: pointer;
   transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1) !important;
   white-space: nowrap;
