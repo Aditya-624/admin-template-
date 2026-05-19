@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search, Bell, ShoppingCart, LayoutGrid,
@@ -14,14 +14,13 @@ import { cn } from "@/lib/utils";
 
 const colorShifts = [
   { label: "Cyan", bg: "linear-gradient(145deg, #021a1f 0%, #164e63 50%, #021a1f 100%)", orb: "radial-gradient(ellipse 80% 70% at 40% 40%, rgba(34,211,238,.9) 0%, rgba(6,182,212,.65) 45%, transparent 75%)", swatch: "#06b6d4" },
-  { label: "Sky", bg: "linear-gradient(145deg, #040f1f 0%, #0c4a6e 50%, #040f1f 100%)", orb: "radial-gradient(ellipse 80% 70% at 40% 40%, rgba(56,189,248,.9) 0%, rgba(14,165,233,.65) 45%, transparent 75%)", swatch: "#0ea5e9" },
-  { label: "Smoke Dark", bg: "radial-gradient(ellipse at 50% 0%, #3b495c 0%, #263344 100%)", orb: "none", swatch: "#3b495c" },
-  { label: "Periwinkle", bg: "linear-gradient(135deg, #6366f1 0%, #818cf8 50%, #a5b4fc 100%)", orb: "none", swatch: "#818cf8" },
 ];
 
 export default function Navbar() {
   const { theme, toggleTheme } = useTheme();
   const { setMobileOpen } = useSidebar();
+  const headerRef = useRef<HTMLElement>(null);
+  const [isScrolled, setIsScrolled] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [showPalette, setShowPalette] = useState(false);
@@ -30,6 +29,23 @@ export default function Navbar() {
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
+  // Scroll detection
+  useEffect(() => {
+    // Check initial scroll position
+    const checkScroll = () => {
+      const scrolled = window.scrollY > 10;
+      setIsScrolled(scrolled);
+      console.log('Scroll Y:', window.scrollY, 'Scrolled:', scrolled);
+    };
+
+    // Call on mount to check initial position
+    checkScroll();
+
+    // Add scroll listener
+    window.addEventListener("scroll", checkScroll, { passive: true });
+    return () => window.removeEventListener("scroll", checkScroll);
+  }, []);
+
   const applyColor = (shift: typeof colorShifts[0]) => {
     setActiveColor(shift.label);
     setShowPalette(false);
@@ -37,7 +53,7 @@ export default function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-30 h-16 flex items-center gap-3 px-4 lg:px-5 glass-nav">
+    <header ref={headerRef} className={`sticky top-0 z-30 h-16 flex items-center gap-3 px-4 lg:px-5 glass-nav ${isScrolled ? 'scrolled' : ''}`}>
 
       {/* Mobile menu */}
       <button
