@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import ThemeCustomizer, { gradientThemes } from "./ThemeCustomizer";
+
 
 interface ThemedShellProps {
   children: React.ReactNode;
@@ -36,58 +36,36 @@ function applyTableAccent(label: string, swatch: string) {
 }
 
 export default function ThemedShell({ children }: ThemedShellProps) {
-  const def = gradientThemes[2];
-  const [bg, setBg] = useState(def.bg);
-  const [gaussianCss, setGaussianCss] = useState("");
-  const [activeGradient, setActiveGradient] = useState(def.id);
+  const [bg, setBg] = useState("linear-gradient(145deg, #040f1f 0%, #0c4a6e 50%, #040f1f 100%)"); // Default Sky
 
   /* Apply light/dark text mode based on background brightness */
   useEffect(() => {
-    const activeCss = gaussianCss || bg;
-    const bright = getBrightness(activeCss);
+    const bright = getBrightness(bg);
     if (bright > 140) {
       document.body.setAttribute("data-bg", "light");
     } else {
       document.body.removeAttribute("data-bg");
     }
-  }, [bg, gaussianCss]);
+  }, [bg]);
 
   useEffect(() => {
     const handler = (e: Event) => {
       const { bg: newBg, label, swatch } = (e as CustomEvent).detail;
       setBg(newBg);
-      setGaussianCss("");
-      setActiveGradient("");
       if (label && swatch) applyTableAccent(label, swatch);
     };
     window.addEventListener("theme-color-shift", handler);
     return () => window.removeEventListener("theme-color-shift", handler);
   }, []);
 
-  const handleGradientChange = (newBg: string) => {
-    setBg(newBg);
-    setGaussianCss("");
-    const found = gradientThemes.find((t) => t.bg === newBg);
-    if (found) setActiveGradient(found.id);
-  };
-
-  const handleGaussianChange = (css: string) => {
-    setGaussianCss(css);
-  };
 
   return (
     <>
       <div
         className="fixed inset-0 z-0 transition-all duration-700"
-        style={{ background: gaussianCss || bg }}
+        style={{ background: bg }}
         aria-hidden="true"
       >
-        {gaussianCss && (
-          <div
-            className="absolute inset-0"
-            style={{ background: gaussianCss, filter: "blur(60px)", opacity: 0.6 }}
-          />
-        )}
         <div
           className="absolute inset-0 opacity-[0.03]"
           style={{
@@ -97,13 +75,6 @@ export default function ThemedShell({ children }: ThemedShellProps) {
       </div>
 
       <div className="relative z-10">{children}</div>
-
-      <ThemeCustomizer
-        onGradientChange={handleGradientChange}
-        onGaussianChange={handleGaussianChange}
-        activeGradient={activeGradient}
-        activeGaussian={gaussianCss}
-      />
     </>
   );
 }

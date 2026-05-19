@@ -981,6 +981,13 @@ textarea.edit-user-input {
 [data-bg="light"] .dashboard-title { color: #0f172a !important; }
 [data-bg="light"] .dash-table td { color: #334155 !important; }
 [data-bg="light"] .dash-table th { color: #64748b !important; }
+
+/* Exclude ThemeCustomizer from light text overrides */
+[data-bg="light"] .theme-customizer .text-white { color: #ffffff !important; }
+[data-bg="light"] .theme-customizer .text-slate-200 { color: #e2e8f0 !important; }
+[data-bg="light"] .theme-customizer .text-slate-300 { color: #cbd5e1 !important; }
+[data-bg="light"] .theme-customizer .text-slate-400 { color: #94a3b8 !important; }
+[data-bg="light"] .theme-customizer .text-slate-500 { color: #64748b !important; }
 [data-bg="light"] .glass-input {
   background: rgba(0, 0, 0, 0.03) !important;
   border-color: rgba(0, 0, 0, 0.08) !important;
@@ -1006,7 +1013,7 @@ textarea.edit-user-input {
   right: 18px !important;
   z-index: 999 !important;
   border-radius: 28px !important;
-  background: rgba(10, 15, 28, 0.75) !important;
+  background: rgba(10, 15, 28, 0.65) !important;
   backdrop-filter: blur(18px) !important;
   -webkit-backdrop-filter: blur(18px) !important;
   border: 1px solid rgba(255, 255, 255, 0.04) !important;
@@ -1018,7 +1025,7 @@ textarea.edit-user-input {
 }
 
 .floating-header.header-scrolled {
-  background: rgba(8, 11, 20, 0.9) !important;
+  background: rgba(8, 11, 20, 0.80) !important;
   box-shadow: 
     0 16px 48px rgba(0, 0, 0, 0.32),
     inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
@@ -1147,9 +1154,9 @@ main {
 }
 
 .search-wrapper .search-btn {
-  background: linear-gradient(135deg, #7c3aed, #6d28d9);
-  color: white;
-  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 10px;
   padding: 8px 20px;
   font-size: 13.5px;
@@ -1161,7 +1168,8 @@ main {
 
 .search-wrapper .search-btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.35);
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
 .navbar-right {
@@ -1293,9 +1301,9 @@ main {
   gap: 6px !important;
   padding: 8px 12px !important;
   border-radius: 12px !important;
-  color: rgba(255, 255, 255, 0.72) !important;
+  color: rgba(255, 255, 255, 0.92) !important;
   font-size: 15px !important;
-  font-weight: 500 !important;
+  font-weight: 600 !important;
   cursor: pointer;
   transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1) !important;
   white-space: nowrap;

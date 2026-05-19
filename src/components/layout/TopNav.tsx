@@ -18,16 +18,10 @@ import { notifications } from "@/lib/dummy-data";
 import { cn } from "@/lib/utils";
 
 const colorShifts = [
-  { label: "Indigo",  bg: "linear-gradient(145deg, #0f0a1a 0%, #1e1b4b 50%, #0f0a1a 100%)", orb: "radial-gradient(ellipse 80% 70% at 40% 40%, rgba(99,102,241,.9) 0%, rgba(79,70,229,.65) 45%, transparent 75%)",  swatch: "#6366f1" },
-  { label: "Violet",  bg: "linear-gradient(145deg, #130a2a 0%, #2e1065 50%, #130a2a 100%)", orb: "radial-gradient(ellipse 80% 70% at 40% 40%, rgba(167,139,250,.9) 0%, rgba(139,92,246,.65) 45%, transparent 75%)", swatch: "#8b5cf6" },
-  { label: "Fuchsia", bg: "linear-gradient(145deg, #1a0a20 0%, #4a044e 50%, #1a0a20 100%)", orb: "radial-gradient(ellipse 80% 70% at 40% 40%, rgba(232,121,249,.9) 0%, rgba(192,38,211,.65) 45%, transparent 75%)", swatch: "#d946ef" },
-  { label: "Rose",    bg: "linear-gradient(145deg, #1a0a0f 0%, #4c0519 50%, #1a0a0f 100%)", orb: "radial-gradient(ellipse 80% 70% at 40% 40%, rgba(251,113,133,.9) 0%, rgba(244,63,94,.65) 45%, transparent 75%)",  swatch: "#f43f5e" },
-  { label: "Amber",   bg: "linear-gradient(145deg, #1a0f00 0%, #451a03 50%, #1a0f00 100%)", orb: "radial-gradient(ellipse 80% 70% at 40% 40%, rgba(251,191,36,.9) 0%, rgba(245,158,11,.65) 45%, transparent 75%)",  swatch: "#f59e0b" },
-  { label: "Emerald", bg: "linear-gradient(145deg, #021a0f 0%, #064e3b 50%, #021a0f 100%)", orb: "radial-gradient(ellipse 80% 70% at 40% 40%, rgba(52,211,153,.9) 0%, rgba(16,185,129,.65) 45%, transparent 75%)",  swatch: "#10b981" },
-  { label: "Cyan",    bg: "linear-gradient(145deg, #021a1f 0%, #164e63 50%, #021a1f 100%)", orb: "radial-gradient(ellipse 80% 70% at 40% 40%, rgba(34,211,238,.9) 0%, rgba(6,182,212,.65) 45%, transparent 75%)",   swatch: "#06b6d4" },
-  { label: "Sky",     bg: "linear-gradient(145deg, #040f1f 0%, #0c4a6e 50%, #040f1f 100%)", orb: "radial-gradient(ellipse 80% 70% at 40% 40%, rgba(56,189,248,.9) 0%, rgba(14,165,233,.65) 45%, transparent 75%)",  swatch: "#0ea5e9" },
-  { label: "Aurora",  bg: "linear-gradient(145deg, #0a0f1a 0%, #1a0a2e 50%, #0a1a0f 100%)", orb: "radial-gradient(ellipse 90% 80% at 40% 40%, rgba(99,102,241,.7) 0%, rgba(168,85,247,.5) 30%, rgba(236,72,153,.4) 60%, rgba(16,185,129,.3) 85%, transparent 100%)", swatch: "#a855f7" },
-  { label: "Sunset",  bg: "linear-gradient(145deg, #1a0a05 0%, #431407 50%, #1a0a05 100%)", orb: "radial-gradient(ellipse 80% 70% at 40% 40%, rgba(251,146,60,.9) 0%, rgba(239,68,68,.65) 45%, transparent 75%)",  swatch: "#f97316" },
+  { label: "Cyan", bg: "linear-gradient(145deg, #021a1f 0%, #164e63 50%, #021a1f 100%)", orb: "radial-gradient(ellipse 80% 70% at 40% 40%, rgba(34,211,238,.9) 0%, rgba(6,182,212,.65) 45%, transparent 75%)", swatch: "#06b6d4" },
+  { label: "Sky", bg: "linear-gradient(145deg, #040f1f 0%, #0c4a6e 50%, #040f1f 100%)", orb: "radial-gradient(ellipse 80% 70% at 40% 40%, rgba(56,189,248,.9) 0%, rgba(14,165,233,.65) 45%, transparent 75%)", swatch: "#0ea5e9" },
+  { label: "Smoke Dark", bg: "radial-gradient(ellipse at 50% 0%, #3b495c 0%, #263344 100%)", orb: "none", swatch: "#3b495c" },
+  { label: "Periwinkle", bg: "linear-gradient(135deg, #6366f1 0%, #818cf8 50%, #a5b4fc 100%)", orb: "none", swatch: "#818cf8" },
 ];
 
 
@@ -37,46 +31,11 @@ const navItems = [
     label: "Dashboard",
     icon: Home,
     children: [
-      { href: "/",          label: "eCommerce",     desc: "Sales overview" },
-      { href: "/analytics", label: "Analytics",     desc: "Charts & metrics" },
+      { href: "/", label: "eCommerce", desc: "Sales overview" },
+      { href: "/analytics", label: "Analytics", desc: "Charts & metrics" },
     ],
   },
-  {
-    label: "Apps & Pages",
-    icon: Layers,
-    children: [
-      { href: "/students",      label: "Students",      desc: "Manage students" },
-      { href: "/teachers",      label: "Teachers",      desc: "Manage teachers" },
-      { href: "/courses",       label: "Courses",       desc: "Course catalog" },
-      { href: "/notifications", label: "Notifications",  desc: "Alerts & updates" },
-      { href: "/podcasts",      label: "Podcasts",      desc: "Audio content" },
-      { href: "/settings",      label: "Settings",      desc: "Platform settings" },
-    ],
-  },
-  {
-    label: "Forms",
-    icon: FileText,
-    children: [
-      { href: "/quizzes",    label: "Quizzes",    desc: "Quiz builder" },
-      { href: "/ai-control", label: "AI Control", desc: "AI settings" },
-    ],
-  },
-  {
-    label: "UI Elements",
-    icon: Sliders,
-    children: [
-      { href: "/analytics",  label: "Widgets", desc: "UI components" },
-      { href: "/ai-control", label: "Icons",   desc: "Icon library" },
-    ],
-  },
-  {
-    label: "Charts",
-    icon: BarChart2,
-    children: [
-      { href: "/analytics", label: "Area Charts", desc: "Trend lines" },
-      { href: "/analytics", label: "Bar Charts",  desc: "Comparisons" },
-    ],
-  },
+
   {
     label: "Transaction",
     icon: Table2,
@@ -85,7 +44,7 @@ const navItems = [
         label: "User Access Privileges",
         desc: "Manage access rights",
         subItems: [
-          { href: "/transaction/user-access-privileges-list", label: "User Access Privileges List" },
+          { href: "/transaction/user-access-privileges-list", label: "User Access Privileges" },
         ]
       }
     ],
@@ -95,7 +54,7 @@ const navItems = [
     icon: Users,
     children: [
       {
-        label: "Users",
+        label: "Management",
         desc: "Manage system users",
         subItems: [
           { href: "/masters/usertype-list", label: "UserType List" },
@@ -114,7 +73,7 @@ function NestedNavItem({ child, setOpen }: { child: any, setOpen: any }) {
 
   if (child.subItems) {
     return (
-      <div 
+      <div
         className="relative group"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
@@ -131,39 +90,39 @@ function NestedNavItem({ child, setOpen }: { child: any, setOpen: any }) {
           </div>
           <ChevronRight className="w-4 h-4 opacity-50" />
         </div>
-        
+
         <AnimatePresence>
           {isHovered && (
-             <motion.div
-               initial={{ opacity: 0, y: 6 }}
-               animate={{ opacity: 1, y: 0 }}
-               exit={{ opacity: 0, y: 6 }}
-               transition={{ duration: 0.18, ease: "easeOut" }}
-               className="absolute left-full top-0 ml-2 z-[60]"
-               style={{
-                  minWidth: "220px",
-                  background: "#171717",
-                  backdropFilter: "none",
-                  border: "1px solid rgba(255, 255, 255, 0.04)",
-                  borderRadius: "18px",
-                  boxShadow: "0 12px 30px rgba(0, 0, 0, 0.28)",
-                  padding: "10px 14px",
-               }}
-             >
-               <div className="flex flex-col gap-1">
-                 {child.subItems.map((sub: any) => (
-                    <Link
-                      key={sub.href + sub.label}
-                      href={sub.href}
-                      onClick={() => setOpen(false)}
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium text-slate-300 hover:text-white hover:bg-white/[0.08] transition-all group/sub"
-                    >
-                      <div className="w-1.5 h-1.5 rounded-full border border-slate-500 group-hover/sub:border-indigo-400 group-hover/sub:bg-indigo-400 transition-colors flex-shrink-0" />
-                      {sub.label}
-                    </Link>
-                 ))}
-               </div>
-             </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 6 }}
+              transition={{ duration: 0.18, ease: "easeOut" }}
+              className="absolute left-full top-0 ml-2 z-[60]"
+              style={{
+                minWidth: "220px",
+                background: "#171717",
+                backdropFilter: "none",
+                border: "1px solid rgba(255, 255, 255, 0.04)",
+                borderRadius: "18px",
+                boxShadow: "0 12px 30px rgba(0, 0, 0, 0.28)",
+                padding: "10px 14px",
+              }}
+            >
+              <div className="flex flex-col gap-1">
+                {child.subItems.map((sub: any) => (
+                  <Link
+                    key={sub.href + sub.label}
+                    href={sub.href}
+                    onClick={() => setOpen(false)}
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium text-slate-300 hover:text-white hover:bg-white/[0.08] transition-all group/sub"
+                  >
+                    <div className="w-1.5 h-1.5 rounded-full border border-slate-500 group-hover/sub:border-indigo-400 group-hover/sub:bg-indigo-400 transition-colors flex-shrink-0" />
+                    {sub.label}
+                  </Link>
+                ))}
+              </div>
+            </motion.div>
           )}
         </AnimatePresence>
       </div>
@@ -198,20 +157,14 @@ function NavDropdown({
   children: any[];
 }) {
   const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
 
   return (
-    <div ref={ref} className="relative flex items-center">
+    <div 
+      className="relative flex items-center"
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+    >
       <div
-        onClick={() => setOpen((v) => !v)}
         className={cn(
           "nav-item",
           open ? "active" : ""
@@ -229,12 +182,12 @@ function NavDropdown({
 
       <AnimatePresence>
         {open && (
-           <motion.div
-             initial={{ opacity: 0, y: 6 }}
-             animate={{ opacity: 1, y: 0 }}
-             exit={{ opacity: 0, y: 6 }}
-             transition={{ duration: 0.18, ease: "easeOut" }}
-             className="absolute left-0 top-full z-50 submenu-flyout mt-2"
+          <motion.div
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 6 }}
+            transition={{ duration: 0.18, ease: "easeOut" }}
+            className="absolute left-0 top-full z-50 submenu-flyout mt-2"
             style={{
               minWidth: children.length > 3 ? "360px" : "240px",
             }}
@@ -304,7 +257,7 @@ export default function TopNav() {
     const handleScroll = () => {
       const parent = headerRef.current?.parentElement;
       const main = document.querySelector("main");
-      
+
       const scrollY = window.scrollY || 0;
       const parentScroll = parent?.scrollTop || 0;
       const mainScroll = main?.scrollTop || 0;
@@ -317,7 +270,7 @@ export default function TopNav() {
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
-    
+
     // Listen to parent container
     const parent = headerRef.current?.parentElement;
     if (parent) {
@@ -354,7 +307,7 @@ export default function TopNav() {
 
   return (
     <>
-      <header 
+      <header
         ref={headerRef}
         className={cn("floating-header", scrolled && "header-scrolled")}
       >
@@ -369,9 +322,9 @@ export default function TopNav() {
               <Menu className="w-5 h-5" />
             </button>
             <Link href="/" className="flex items-center gap-2.5 flex-shrink-0">
-              <img 
-                src="/nirnayah-logo.svg" 
-                alt="Nirnayah Logo" 
+              <img
+                src="/nirnayah-logo.svg"
+                alt="Nirnayah Logo"
                 className="h-10 w-auto object-contain"
               />
               <span className="text-[17px] font-extrabold tracking-tight text-white hidden sm:block">
@@ -380,229 +333,18 @@ export default function TopNav() {
             </Link>
           </div>
 
-          {/* CENTER: Search Bar */}
-          <div ref={searchContainerRef} className="navbar-center relative search-container">
-            <div className="search-wrapper">
-              <Search className="search-icon flex-shrink-0" size={14} />
-              <input
-                type="text"
-                value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value);
-                  setShowResults(true);
-                }}
-                onFocus={() => setShowResults(true)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    const matches = SEARCHABLE_PAGES.filter(p => 
-                      p.label.toLowerCase().includes(search.toLowerCase()) ||
-                      p.category.toLowerCase().includes(search.toLowerCase())
-                    );
-                    if (matches.length > 0) {
-                      router.push(matches[0].href);
-                      setShowResults(false);
-                      setSearch("");
-                    }
-                  }
-                }}
-                placeholder="Type to search pages (e.g. user list)..."
-              />
-              <button 
-                className="search-btn"
-                onClick={() => {
-                  const matches = SEARCHABLE_PAGES.filter(p => 
-                    p.label.toLowerCase().includes(search.toLowerCase()) ||
-                    p.category.toLowerCase().includes(search.toLowerCase())
-                  );
-                  if (matches.length > 0) {
-                    router.push(matches[0].href);
-                    setShowResults(false);
-                    setSearch("");
-                  }
-                }}
-              >
-                Search
-              </button>
-            </div>
 
-            <AnimatePresence>
-              {showResults && search.trim() !== "" && (
-                <motion.div
-                  initial={{ opacity: 0, y: 8, scale: 0.98 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 8, scale: 0.98 }}
-                  transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
-                  className="absolute left-0 right-0 top-full mt-2 z-[999] submenu-flyout max-h-80 overflow-y-auto"
-                  style={{ padding: "8px" }}
-                >
-                  <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest px-3 py-1.5">Page Suggestions</p>
-                  <div className="space-y-0.5">
-                    {SEARCHABLE_PAGES.filter(p => 
-                      p.label.toLowerCase().includes(search.toLowerCase()) ||
-                      p.category.toLowerCase().includes(search.toLowerCase())
-                    ).map((page) => (
-                      <button
-                        key={page.href + page.label}
-                        onClick={() => {
-                          router.push(page.href);
-                          setShowResults(false);
-                          setSearch("");
-                        }}
-                        className="w-full flex items-center justify-between px-3 py-2 rounded-xl transition-all hover:bg-white/10 text-left"
-                      >
-                        <div>
-                          <span className="text-[13px] font-semibold text-slate-200">{page.label}</span>
-                          <span className="text-[11px] text-slate-500 block">{page.category}</span>
-                        </div>
-                        <ChevronRight className="w-4 h-4 text-slate-500" />
-                      </button>
-                    ))}
-                    {SEARCHABLE_PAGES.filter(p => 
-                      p.label.toLowerCase().includes(search.toLowerCase()) ||
-                      p.category.toLowerCase().includes(search.toLowerCase())
-                    ).length === 0 && (
-                      <div className="px-3 py-4 text-center text-[12px] text-slate-500">
-                        No pages match your search
-                      </div>
-                    )}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
 
           {/* RIGHT: Icons + User */}
           <div className="navbar-right">
-            <div className="nav-icons">
-              
-              {/* Color Shift Palette */}
-              <div className="relative">
-                <button
-                  onClick={() => { setShowPalette(!showPalette); setShowNotifications(false); setShowProfile(false); }}
-                  className="icon-btn palette-icon"
-                  title="Color Shift"
-                  style={{ color: colorShifts.find(c => c.label === activeColor)?.swatch ?? "#6366f1" }}
-                >
-                  <Palette size={17} />
-                </button>
 
-              <AnimatePresence>
-                {showPalette && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 8, scale: 0.98 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 8, scale: 0.98 }}
-                    transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
-                    className="absolute right-0 top-full mt-2 w-52 z-50 submenu-flyout"
-                  >
-                    <p className="text-[11px] text-slate-500 font-bold uppercase tracking-widest mb-2.5 px-1">Color Shift</p>
-                    <div className="space-y-0.5">
-                      {colorShifts.map((shift) => (
-                        <button
-                          key={shift.label}
-                          onClick={() => applyColor(shift)}
-                          className="w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all hover:bg-white/10"
-                          style={{
-                            background: activeColor === shift.label ? `${shift.swatch}18` : "transparent",
-                            border: `1px solid ${activeColor === shift.label ? shift.swatch + "55" : "transparent"}`,
-                          }}
-                        >
-                          <div className="w-5 h-5 rounded-md flex-shrink-0" style={{ background: shift.swatch, boxShadow: `0 2px 6px ${shift.swatch}66` }} />
-                          <span className="text-[13px] font-medium text-slate-200">{shift.label}</span>
-                          {activeColor === shift.label && (
-                            <div className="ml-auto w-1.5 h-1.5 rounded-full" style={{ background: shift.swatch }} />
-                          )}
-                        </button>
-                      ))}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
-
-            {/* Notifications */}
-            <div className="relative">
-              <button
-                onClick={() => { setShowNotifications(!showNotifications); setShowProfile(false); setShowPalette(false); }}
-                className="icon-btn bell-icon"
-                aria-label="Notifications"
-              >
-                <Bell size={17} />
-                {unreadCount > 0 && (
-                  <span className="badge">
-                    {unreadCount}
-                  </span>
-                )}
-              </button>
-
-              <AnimatePresence>
-                {showNotifications && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 8, scale: 0.98 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 8, scale: 0.98 }}
-                    transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
-                    className="absolute right-0 top-full mt-2 w-96 z-50 overflow-hidden submenu-flyout !p-0"
-                  >
-                    <div className="px-5 py-4 border-b border-white/[0.08] flex items-center justify-between">
-                      <div>
-                        <h3 className="text-[15px] font-bold text-white">Notifications</h3>
-                        <p className="text-[12px] text-slate-500 mt-0.5">{unreadCount} unread</p>
-                      </div>
-                      <button className="text-[12px] text-indigo-400 hover:text-indigo-300 font-semibold transition-colors px-3 py-1.5 rounded-lg hover:bg-indigo-500/10">
-                        Mark all read
-                      </button>
-                    </div>
-                    <div className="max-h-80 overflow-y-auto">
-                      {notifications.map((notif) => (
-                        <div
-                          key={notif.id}
-                          className={cn(
-                            "px-5 py-4 border-b border-white/[0.05] hover:bg-white/[0.05] cursor-pointer transition-colors",
-                            !notif.read && "bg-indigo-500/[0.05]"
-                          )}
-                        >
-                          <div className="flex items-start gap-3.5">
-                            <div className={cn(
-                              "w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 text-base",
-                              notif.type === "ai"      && "bg-purple-500/20",
-                              notif.type === "payment" && "bg-emerald-500/20",
-                              notif.type === "alert"   && "bg-red-500/20",
-                              notif.type === "student" && "bg-blue-500/20",
-                              notif.type === "teacher" && "bg-cyan-500/20",
-                            )}>
-                              {notif.type === "ai" && "✨"}
-                              {notif.type === "payment" && "💳"}
-                              {notif.type === "alert" && "⚠️"}
-                              {notif.type === "student" && "👤"}
-                              {notif.type === "teacher" && "🎓"}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-[13px] font-semibold text-slate-200">{notif.title}</p>
-                              <p className="text-[12px] text-slate-500 mt-0.5 line-clamp-2">{notif.message}</p>
-                              <p className="text-[11px] text-slate-600 mt-1.5">{notif.time}</p>
-                            </div>
-                            {!notif.read && <div className="w-2.5 h-2.5 bg-indigo-500 rounded-full flex-shrink-0 mt-1" />}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="px-5 py-3.5 text-center border-t border-white/[0.06]">
-                      <button className="text-[13px] text-indigo-400 hover:text-indigo-300 font-semibold transition-colors">
-                        View all notifications →
-                      </button>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-             </div>
-            </div>
-            
             {/* Profile */}
-            <div className="relative">
+            <div 
+              className="relative"
+              onMouseEnter={() => { setShowProfile(true); setShowNotifications(false); setShowPalette(false); }}
+              onMouseLeave={() => setShowProfile(false)}
+            >
               <div
-                onClick={() => { setShowProfile(!showProfile); setShowNotifications(false); setShowPalette(false); }}
                 className="user-info"
               >
                 <div className="user-avatar">
@@ -622,45 +364,92 @@ export default function TopNav() {
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 8, scale: 0.98 }}
                     transition={{ duration: 0.22, ease: [0.4, 0, 0.2, 1] }}
-                    className="absolute right-0 top-full mt-2 w-56 z-50 overflow-hidden submenu-flyout !p-0"
+                    className="absolute right-0 top-full mt-2 w-56 z-50 submenu-flyout !p-0"
                   >
-                    {/* Profile header */}
-                    <div className="px-4 py-4 border-b border-white/[0.08] flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-red-500 flex items-center justify-center text-white text-[13px] font-bold flex-shrink-0">
-                        PS
-                      </div>
-                      <div>
-                        <p className="text-[13px] font-semibold text-white">Pauline Seitz</p>
-                        <p className="text-[11px] text-slate-400">Web Designer</p>
-                      </div>
-                    </div>
                     <div className="p-2">
-                      {[
-                        { icon: User,     label: "My Profile",  sub: "View profile" },
-                        { icon: Settings, label: "Settings",    sub: "Preferences" },
-                        { icon: LogOut,   label: "Sign Out",    sub: "Logout",       danger: true },
-                      ].map((item) => (
-                        <button
-                          key={item.label}
-                          className={cn(
-                            "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all",
-                            item.danger
-                              ? "text-red-400 hover:bg-red-500/10"
-                              : "text-slate-300 hover:bg-white/[0.06] hover:text-white"
-                          )}
-                        >
-                          <div className={cn(
-                            "w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0",
-                            item.danger ? "bg-red-500/15" : "bg-white/[0.07]"
-                          )}>
-                            <item.icon className="w-4 h-4" />
+                      <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all text-slate-300 hover:bg-white/[0.06] hover:text-white">
+                        <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-white/[0.07]">
+                          <User className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <p className="text-[13px] font-medium leading-tight">My Profile</p>
+                          <p className="text-[11px] text-slate-500 leading-tight mt-0.5">View profile</p>
+                        </div>
+                      </button>
+                      <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all text-slate-300 hover:bg-white/[0.06] hover:text-white">
+                        <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-white/[0.07]">
+                          <Settings className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <p className="text-[13px] font-medium leading-tight">Settings</p>
+                          <p className="text-[11px] text-slate-500 leading-tight mt-0.5">Preferences</p>
+                        </div>
+                      </button>
+
+                      {/* Nested Color Shift */}
+                      <div 
+                        className="relative w-full"
+                        onMouseEnter={() => setShowPalette(true)}
+                        onMouseLeave={() => setShowPalette(false)}
+                      >
+                        <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all text-slate-300 hover:bg-white/[0.06] hover:text-white">
+                          <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-white/[0.07]">
+                            <Palette className="w-4 h-4" />
                           </div>
                           <div>
-                            <p className="text-[13px] font-medium leading-tight">{item.label}</p>
-                            <p className="text-[11px] text-slate-500 leading-tight mt-0.5">{item.sub}</p>
+                            <p className="text-[13px] font-medium leading-tight">Theme Color</p>
+                            <p className="text-[11px] text-slate-500 leading-tight mt-0.5">Customizer</p>
                           </div>
                         </button>
-                      ))}
+
+                        <AnimatePresence>
+                          {showPalette && (
+                            <motion.div
+                              initial={{ opacity: 0, x: 8, scale: 0.98 }}
+                              animate={{ opacity: 1, x: 0, scale: 1 }}
+                              exit={{ opacity: 0, x: 8, scale: 0.98 }}
+                              transition={{ duration: 0.18, ease: "easeOut" }}
+                              className="absolute right-full top-0 mr-2 w-52 z-50 submenu-flyout p-2"
+                            >
+                              <p className="text-[11px] text-slate-500 font-bold uppercase tracking-widest mb-2 px-1">Color Shift</p>
+                              <div className="space-y-0.5">
+                                {colorShifts.map((shift) => (
+                                  <button
+                                    key={shift.label}
+                                    onClick={() => applyColor(shift)}
+                                    className="w-full flex items-center gap-3 px-2 py-1.5 rounded-lg transition-all"
+                                    style={{
+                                      background: activeColor === shift.label ? `${shift.swatch}18` : "transparent",
+                                      border: `1px solid ${activeColor === shift.label ? shift.swatch + "55" : "transparent"}`,
+                                    }}
+                                  >
+                                    <div
+                                      className="w-4 h-4 rounded-md flex-shrink-0"
+                                      style={{ background: shift.swatch, boxShadow: `0 2px 6px ${shift.swatch}66` }}
+                                    />
+                                    <span className="text-[12px] font-medium text-slate-200">{shift.label}</span>
+                                    {activeColor === shift.label && (
+                                      <div className="ml-auto w-1.5 h-1.5 rounded-full" style={{ background: shift.swatch }} />
+                                    )}
+                                  </button>
+                                ))}
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                      
+                      <div className="h-px w-full bg-white/[0.06] my-1" />
+
+                      <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all text-red-400 hover:bg-red-500/10">
+                        <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-red-500/15">
+                          <LogOut className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <p className="text-[13px] font-medium leading-tight">Sign Out</p>
+                          <p className="text-[11px] text-slate-500 leading-tight mt-0.5">Logout</p>
+                        </div>
+                      </button>
                     </div>
                   </motion.div>
                 )}

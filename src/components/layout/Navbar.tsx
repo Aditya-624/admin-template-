@@ -13,16 +13,10 @@ import { notifications } from "@/lib/dummy-data";
 import { cn } from "@/lib/utils";
 
 const colorShifts = [
-  { label: "Indigo",  bg: "linear-gradient(145deg, #0f0a1a 0%, #1e1b4b 50%, #0f0a1a 100%)", orb: "radial-gradient(ellipse 80% 70% at 40% 40%, rgba(99,102,241,.9) 0%, rgba(79,70,229,.65) 45%, transparent 75%)", swatch: "#6366f1" },
-  { label: "Violet",  bg: "linear-gradient(145deg, #130a2a 0%, #2e1065 50%, #130a2a 100%)", orb: "radial-gradient(ellipse 80% 70% at 40% 40%, rgba(167,139,250,.9) 0%, rgba(139,92,246,.65) 45%, transparent 75%)", swatch: "#8b5cf6" },
-  { label: "Fuchsia", bg: "linear-gradient(145deg, #1a0a20 0%, #4a044e 50%, #1a0a20 100%)", orb: "radial-gradient(ellipse 80% 70% at 40% 40%, rgba(232,121,249,.9) 0%, rgba(192,38,211,.65) 45%, transparent 75%)", swatch: "#d946ef" },
-  { label: "Rose",    bg: "linear-gradient(145deg, #1a0a0f 0%, #4c0519 50%, #1a0a0f 100%)", orb: "radial-gradient(ellipse 80% 70% at 40% 40%, rgba(251,113,133,.9) 0%, rgba(244,63,94,.65) 45%, transparent 75%)",  swatch: "#f43f5e" },
-  { label: "Amber",   bg: "linear-gradient(145deg, #1a0f00 0%, #451a03 50%, #1a0f00 100%)", orb: "radial-gradient(ellipse 80% 70% at 40% 40%, rgba(251,191,36,.9) 0%, rgba(245,158,11,.65) 45%, transparent 75%)",  swatch: "#f59e0b" },
-  { label: "Emerald", bg: "linear-gradient(145deg, #021a0f 0%, #064e3b 50%, #021a0f 100%)", orb: "radial-gradient(ellipse 80% 70% at 40% 40%, rgba(52,211,153,.9) 0%, rgba(16,185,129,.65) 45%, transparent 75%)",  swatch: "#10b981" },
-  { label: "Cyan",    bg: "linear-gradient(145deg, #021a1f 0%, #164e63 50%, #021a1f 100%)", orb: "radial-gradient(ellipse 80% 70% at 40% 40%, rgba(34,211,238,.9) 0%, rgba(6,182,212,.65) 45%, transparent 75%)",   swatch: "#06b6d4" },
-  { label: "Sky",     bg: "linear-gradient(145deg, #040f1f 0%, #0c4a6e 50%, #040f1f 100%)", orb: "radial-gradient(ellipse 80% 70% at 40% 40%, rgba(56,189,248,.9) 0%, rgba(14,165,233,.65) 45%, transparent 75%)",  swatch: "#0ea5e9" },
-  { label: "Aurora",  bg: "linear-gradient(145deg, #0a0f1a 0%, #1a0a2e 50%, #0a1a0f 100%)", orb: "radial-gradient(ellipse 90% 80% at 40% 40%, rgba(99,102,241,.7) 0%, rgba(168,85,247,.5) 30%, rgba(236,72,153,.4) 60%, rgba(16,185,129,.3) 85%, transparent 100%)", swatch: "#a855f7" },
-  { label: "Sunset",  bg: "linear-gradient(145deg, #1a0a05 0%, #431407 50%, #1a0a05 100%)", orb: "radial-gradient(ellipse 80% 70% at 40% 40%, rgba(251,146,60,.9) 0%, rgba(239,68,68,.65) 45%, transparent 75%)",  swatch: "#f97316" },
+  { label: "Cyan", bg: "linear-gradient(145deg, #021a1f 0%, #164e63 50%, #021a1f 100%)", orb: "radial-gradient(ellipse 80% 70% at 40% 40%, rgba(34,211,238,.9) 0%, rgba(6,182,212,.65) 45%, transparent 75%)", swatch: "#06b6d4" },
+  { label: "Sky", bg: "linear-gradient(145deg, #040f1f 0%, #0c4a6e 50%, #040f1f 100%)", orb: "radial-gradient(ellipse 80% 70% at 40% 40%, rgba(56,189,248,.9) 0%, rgba(14,165,233,.65) 45%, transparent 75%)", swatch: "#0ea5e9" },
+  { label: "Smoke Dark", bg: "radial-gradient(ellipse at 50% 0%, #3b495c 0%, #263344 100%)", orb: "none", swatch: "#3b495c" },
+  { label: "Periwinkle", bg: "linear-gradient(135deg, #6366f1 0%, #818cf8 50%, #a5b4fc 100%)", orb: "none", swatch: "#818cf8" },
 ];
 
 export default function Navbar() {
@@ -63,17 +57,7 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Search */}
-      <div className="flex items-center gap-2 px-3 py-2 rounded-lg glass-input flex-1 max-w-[480px]">
-        <Search className="w-4 h-4 text-slate-400 flex-shrink-0" />
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Type to search..."
-          className="flex-1 bg-transparent text-sm text-slate-200 placeholder-slate-500 outline-none"
-        />
-      </div>
+
 
       <div className="flex-1" />
 
@@ -86,53 +70,7 @@ export default function Navbar() {
           <span className="text-xs text-indigo-300 font-medium">AI Active</span>
         </div>
 
-        {/* Color Shift Palette */}
-        <div className="relative">
-          <button
-            onClick={() => { setShowPalette(!showPalette); setShowNotifications(false); setShowProfile(false); }}
-            className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-white/10 transition-all"
-            title="Color Shift"
-            style={{ color: colorShifts.find(c => c.label === activeColor)?.swatch ?? "#6366f1" }}
-          >
-            <Palette className="w-4 h-4" />
-          </button>
 
-          <AnimatePresence>
-            {showPalette && (
-              <motion.div
-                initial={{ opacity: 0, y: 8, scale: 0.96 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 8, scale: 0.96 }}
-                transition={{ duration: 0.14 }}
-                className="absolute right-0 top-full mt-2 w-52 glass-modal z-50 p-3"
-              >
-                <p className="text-[11px] text-slate-500 font-medium mb-2.5 px-1 tracking-wider">COLOR SHIFT</p>
-                <div className="space-y-0.5">
-                  {colorShifts.map((shift) => (
-                    <button
-                      key={shift.label}
-                      onClick={() => applyColor(shift)}
-                      className="w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all"
-                      style={{
-                        background: activeColor === shift.label ? `${shift.swatch}18` : "transparent",
-                        border: `1px solid ${activeColor === shift.label ? shift.swatch + "55" : "transparent"}`,
-                      }}
-                    >
-                      <div
-                        className="w-5 h-5 rounded-md flex-shrink-0"
-                        style={{ background: shift.swatch, boxShadow: `0 2px 6px ${shift.swatch}66` }}
-                      />
-                      <span className="text-[13px] font-medium text-slate-200">{shift.label}</span>
-                      {activeColor === shift.label && (
-                        <div className="ml-auto w-1.5 h-1.5 rounded-full" style={{ background: shift.swatch }} />
-                      )}
-                    </button>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
 
         {/* Theme toggle */}
         <button
@@ -157,76 +95,7 @@ export default function Navbar() {
           <LayoutGrid className="w-4.5 h-4.5" />
         </button>
 
-        {/* Notifications */}
-        <div className="relative">
-          <button
-            onClick={() => { setShowNotifications(!showNotifications); setShowProfile(false); setShowPalette(false); }}
-            className="relative w-9 h-9 rounded-lg flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition-all"
-          >
-            <Bell className="w-4.5 h-4.5" />
-            {unreadCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1 notification-badge">
-                {unreadCount}
-              </span>
-            )}
-          </button>
 
-          <AnimatePresence>
-            {showNotifications && (
-              <motion.div
-                initial={{ opacity: 0, y: 8, scale: 0.96 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 8, scale: 0.96 }}
-                transition={{ duration: 0.14 }}
-                className="absolute right-0 top-full mt-2 w-80 glass-modal overflow-hidden z-50"
-              >
-                <div className="px-4 py-3 border-b border-white/[0.08] flex items-center justify-between">
-                  <h3 className="text-[14px] font-semibold text-white">Notifications</h3>
-                  <span className="text-xs text-indigo-400 cursor-pointer hover:text-indigo-300">Mark all read</span>
-                </div>
-                <div className="max-h-72 overflow-y-auto">
-                  {notifications.map((notif) => (
-                    <div
-                      key={notif.id}
-                      className={cn(
-                        "px-4 py-3 border-b border-white/[0.05] hover:bg-white/[0.04] cursor-pointer transition-colors",
-                        !notif.read && "bg-indigo-500/[0.04]"
-                      )}
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className={cn(
-                          "w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 text-sm",
-                          notif.type === "ai"      && "bg-purple-500/20 text-purple-400",
-                          notif.type === "payment" && "bg-emerald-500/20 text-emerald-400",
-                          notif.type === "alert"   && "bg-red-500/20 text-red-400",
-                          notif.type === "student" && "bg-blue-500/20 text-blue-400",
-                          notif.type === "teacher" && "bg-cyan-500/20 text-cyan-400",
-                        )}>
-                          {notif.type === "ai"      && "✨"}
-                          {notif.type === "payment" && "💳"}
-                          {notif.type === "alert"   && "⚠️"}
-                          {notif.type === "student" && "👤"}
-                          {notif.type === "teacher" && "🎓"}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-[13px] font-medium text-slate-200">{notif.title}</p>
-                          <p className="text-[12px] text-slate-500 mt-0.5 line-clamp-2">{notif.message}</p>
-                          <p className="text-[11px] text-slate-600 mt-1">{notif.time}</p>
-                        </div>
-                        {!notif.read && (
-                          <div className="w-2 h-2 bg-indigo-500 rounded-full flex-shrink-0 mt-1.5" />
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div className="px-4 py-3 text-center border-t border-white/[0.06]">
-                  <span className="text-xs text-indigo-400 cursor-pointer hover:text-indigo-300">View all notifications</span>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
 
         {/* Cart */}
         <div className="relative">
@@ -242,9 +111,12 @@ export default function Navbar() {
         <div className="w-px h-7 bg-white/[0.10] mx-1" />
 
         {/* Profile */}
-        <div className="relative">
+        <div 
+          className="relative"
+          onMouseEnter={() => { setShowProfile(true); setShowNotifications(false); setShowPalette(false); }}
+          onMouseLeave={() => setShowProfile(false)}
+        >
           <button
-            onClick={() => { setShowProfile(!showProfile); setShowNotifications(false); setShowPalette(false); }}
             className="flex items-center gap-2.5 px-2 py-1.5 rounded-xl hover:bg-white/[0.07] transition-all"
           >
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-red-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
@@ -265,26 +137,68 @@ export default function Navbar() {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 8, scale: 0.96 }}
                 transition={{ duration: 0.14 }}
-                className="absolute right-0 top-full mt-2 w-48 glass-modal overflow-hidden z-50 py-1"
+                className="absolute right-0 top-full mt-2 w-48 glass-modal z-50 py-1"
               >
-                {[
-                  { icon: User,     label: "Profile" },
-                  { icon: Settings, label: "Settings" },
-                  { icon: LogOut,   label: "Sign Out", danger: true },
-                ].map((item) => (
-                  <button
-                    key={item.label}
-                    className={cn(
-                      "w-full flex items-center gap-3 px-4 py-2.5 text-[13px] font-medium transition-colors",
-                      item.danger
-                        ? "text-red-400 hover:bg-red-500/10"
-                        : "text-slate-300 hover:bg-white/[0.05]"
-                    )}
-                  >
-                    <item.icon className="w-4 h-4" />
-                    {item.label}
+                <button className="w-full flex items-center gap-3 px-4 py-2.5 text-[13px] font-medium transition-colors text-slate-300 hover:bg-white/[0.05]">
+                  <User className="w-4 h-4" /> Profile
+                </button>
+                <button className="w-full flex items-center gap-3 px-4 py-2.5 text-[13px] font-medium transition-colors text-slate-300 hover:bg-white/[0.05]">
+                  <Settings className="w-4 h-4" /> Settings
+                </button>
+                
+                {/* Nested Color Shift */}
+                <div
+                  className="relative w-full"
+                  onMouseEnter={() => setShowPalette(true)}
+                  onMouseLeave={() => setShowPalette(false)}
+                >
+                  <button className="w-full flex items-center justify-between px-4 py-2.5 text-[13px] font-medium transition-colors text-slate-300 hover:bg-white/[0.05]">
+                    <div className="flex items-center gap-3">
+                      <Palette className="w-4 h-4" /> Theme Color
+                    </div>
                   </button>
-                ))}
+
+                  <AnimatePresence>
+                    {showPalette && (
+                      <motion.div
+                        initial={{ opacity: 0, x: 8, scale: 0.96 }}
+                        animate={{ opacity: 1, x: 0, scale: 1 }}
+                        exit={{ opacity: 0, x: 8, scale: 0.96 }}
+                        transition={{ duration: 0.14 }}
+                        className="absolute right-full top-0 mr-1 w-52 glass-modal z-50 p-2"
+                      >
+                        <p className="text-[11px] text-slate-500 font-medium mb-1.5 px-2 tracking-wider">COLOR SHIFT</p>
+                        <div className="space-y-0.5">
+                          {colorShifts.map((shift) => (
+                            <button
+                              key={shift.label}
+                              onClick={() => applyColor(shift)}
+                              className="w-full flex items-center gap-3 px-2 py-1.5 rounded-lg transition-all"
+                              style={{
+                                background: activeColor === shift.label ? `${shift.swatch}18` : "transparent",
+                                border: `1px solid ${activeColor === shift.label ? shift.swatch + "55" : "transparent"}`,
+                              }}
+                            >
+                              <div
+                                className="w-4 h-4 rounded-md flex-shrink-0"
+                                style={{ background: shift.swatch, boxShadow: `0 2px 6px ${shift.swatch}66` }}
+                              />
+                              <span className="text-[12px] font-medium text-slate-200">{shift.label}</span>
+                              {activeColor === shift.label && (
+                                <div className="ml-auto w-1.5 h-1.5 rounded-full" style={{ background: shift.swatch }} />
+                              )}
+                            </button>
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+
+                <div className="h-px w-full bg-white/[0.08] my-1" />
+                <button className="w-full flex items-center gap-3 px-4 py-2.5 text-[13px] font-medium transition-colors text-red-400 hover:bg-red-500/10">
+                  <LogOut className="w-4 h-4" /> Sign Out
+                </button>
               </motion.div>
             )}
           </AnimatePresence>
