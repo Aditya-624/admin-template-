@@ -46,6 +46,13 @@ const navItems = [
         subItems: [
           { href: "/transaction/user-access-privileges-list", label: "User Access Privileges" },
         ]
+      },
+      {
+        label: "User Modules List",
+        desc: "Manage user modules",
+        subItems: [
+          { href: "/transaction/user-modules-list", label: "User Modules List" },
+        ]
       }
     ],
   },
@@ -57,6 +64,18 @@ const navItems = [
         label: "User Management",
         desc: "Manage system users",
         subItems: [
+          { href: "/masters/usertype-list", label: "UserType List" },
+          { href: "/masters/user-list", label: "User List" },
+          { href: "/masters/privileges-list", label: "Privileges List" },
+          { href: "/masters/modules-list", label: "Modules List" },
+        ]
+      },
+      {
+        label: "Clients",
+        desc: "Manage clients and contacts",
+        subItems: [
+          { href: "/masters/clients", label: "Clients" },
+          { href: "/masters/contacts", label: "Contacts" },
           { href: "/masters/usertype", label: "UserType" },
           { href: "/masters/user", label: "User" },
           { href: "/masters/privileges", label: "Privileges" },
@@ -209,10 +228,14 @@ function NavDropdown({
 }
 
 const SEARCHABLE_PAGES = [
-  { label: "User List", href: "/masters/user-list", category: "Masters" },
   { label: "UserType List", href: "/masters/usertype-list", category: "Masters" },
+  { label: "User List", href: "/masters/user-list", category: "Masters" },
   { label: "Privileges List", href: "/masters/privileges-list", category: "Masters" },
+  { label: "Modules List", href: "/masters/modules-list", category: "Masters" },
+  { label: "Clients", href: "/masters/clients", category: "Masters" },
+  { label: "Contacts", href: "/masters/contacts", category: "Masters" },
   { label: "User Access Privileges List", href: "/transaction/user-access-privileges-list", category: "Transaction" },
+  { label: "User Modules List", href: "/transaction/user-modules-list", category: "Transaction" },
   { label: "eCommerce Dashboard", href: "/", category: "Dashboard" },
   { label: "Analytics Dashboard", href: "/analytics", category: "Dashboard" },
   { label: "Students", href: "/students", category: "Apps & Pages" },

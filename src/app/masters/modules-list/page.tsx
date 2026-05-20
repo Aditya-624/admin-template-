@@ -6,74 +6,99 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import API from "@/services/api";
 
-type Privilege = {
+type Module = {
   id: number;
   name: string;
   description: string;
+  shortForm: string;
   status: boolean;
 };
 
-const initialData: Privilege[] = [
-  { id: 1, name: "SyllabusUpload", description: "User can upload Syllabus", status: true },
-  { id: 2, name: "SyllabusReview", description: "User can review Syllabus", status: true },
-  { id: 3, name: "SyllabusApproval", description: "User can Approval Syllabus", status: true },
-  { id: 4, name: "CourseUpload", description: "User can upload Course", status: true },
-  { id: 5, name: "CourseReview", description: "User can review Course", status: true },
-  { id: 6, name: "CourseApproval", description: "User can Approve Course", status: true },
+const initialData: Module[] = [
+  { id: 1, name: "Learn", description: "Saral Vidhya", shortForm: "LRN", status: true },
+  { id: 2, name: "Evaluate", description: "Saral Nirnayah", shortForm: "EVL", status: true },
+  { id: 3, name: "Teach", description: "Saral Bhodhana", shortForm: "TCH", status: true },
+  { id: 4, name: "Train", description: "Saral Shikshana", shortForm: "TRN", status: true },
+  { id: 5, name: "Compete", description: "Saral Pratiyogita", shortForm: "CMP", status: true },
 ];
 
-const storageKey = "masters-privileges-list-v1";
+const storageKey = "masters-modules-list-v1";
 
-export default function PrivilegesListPage() {
+export default function ModulesListPage() {
   const router = useRouter();
-  const [privileges, setPrivileges] = useState<Privilege[]>([]);
+  const [modules, setModules] = useState<Module[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
-    console.log("Fetching privileges from backend API /api/master/access-privileges...");
+    console.log("Fetching modules from backend API /api/master/modules...");
     setLoading(true);
     setError(null);
-    API.get("/api/master/access-privileges")
+    API.get("/api/master/modules")
       .then((res) => {
-        console.log("Successfully fetched privileges from backend:", res.data);
+        console.log("Successfully fetched modules from backend:", res.data);
         if (Array.isArray(res.data)) {
-          const mapped = res.data.map((p: any, idx: number) => ({
-            id: typeof p.id === "number" ? p.id : parseInt(p.id ?? p.privilege_id ?? p.privilegeId ?? (idx + 1), 10),
-            name: String(p.name ?? p.privilege ?? p.access_privilege ?? "N/A"),
-            description: String(p.description ?? ""),
-            status: p.status === true || p.status === "Active" || p.status === "active" || p.status === 1 || String(p.status).toLowerCase() === "true"
+          const mapped = res.data.map((m: any, idx: number) => ({
+            id: typeof m.id === "number" ? m.id : parseInt(m.id ?? m.module_id ?? m.moduleId ?? (idx + 1), 10),
+            name: String(m.name ?? m.module ?? "N/A"),
+            description: String(m.description ?? ""),
+            shortForm: String(m.shortForm ?? m.short_form ?? m.shortform ?? "N/A"),
+            status: m.status === true || m.status === "Active" || m.status === "active" || m.status === 1 || String(m.status).toLowerCase() === "true"
           }));
-          setPrivileges(mapped);
+          setModules(mapped);
         } else {
-          console.warn("Unexpected privileges response format, using local storage/placeholder fallback");
+          console.warn("Unexpected modules response format, using local storage/placeholder fallback");
           const storedRows = localStorage.getItem(storageKey);
-          setPrivileges(storedRows ? JSON.parse(storedRows) : initialData);
+          setModules(storedRows ? JSON.parse(storedRows) : initialData);
         }
         setLoading(false);
       })
       .catch((err) => {
-        console.error("Error fetching privileges from backend:", err);
-        setError("Failed to load privileges from backend API. Displaying offline data.");
-        const storedRows = localStorage.getItem(storageKey);
-        setPrivileges(storedRows ? JSON.parse(storedRows) : initialData);
-        setLoading(false);
+        console.warn("Error fetching modules from backend, trying secondary endpoint /api/modules...", err);
+        API.get("/api/modules")
+          .then((res) => {
+            if (Array.isArray(res.data)) {
+              const mapped = res.data.map((m: any, idx: number) => ({
+                id: typeof m.id === "number" ? m.id : parseInt(m.id ?? m.module_id ?? (idx + 1), 10),
+                name: String(m.name ?? m.module ?? "N/A"),
+                description: String(m.description ?? ""),
+                shortForm: String(m.shortForm ?? m.short_form ?? "N/A"),
+                status: m.status === true || m.status === "Active" || m.status === 1
+              }));
+              setModules(mapped);
+              setLoading(false);
+            } else {
+              throw new Error("Invalid response format");
+            }
+          })
+          .catch((err2) => {
+            console.error("All module endpoints failed, using localStorage fallback:", err2);
+            setError("Failed to load modules from backend API. Displaying offline data.");
+            const storedRows = localStorage.getItem(storageKey);
+            if (storedRows) {
+              setModules(JSON.parse(storedRows));
+            } else {
+              setModules(initialData);
+              localStorage.setItem(storageKey, JSON.stringify(initialData));
+            }
+            setLoading(false);
+          });
       });
   }, []);
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [selectedPrivilege, setSelectedPrivilege] = useState<Privilege | null>(null);
+  const [selectedModule, setSelectedModule] = useState<Module | null>(null);
 
-  const [search, setSearch] = useState("");
-
-  const filteredPrivileges = privileges.filter((p) => {
+  const filteredModules = modules.filter((m) => {
     if (!search) return true;
     const lowerSearch = search.toLowerCase();
     return (
-      p.id.toString().includes(lowerSearch) ||
-      p.name.toLowerCase().includes(lowerSearch) ||
-      p.description.toLowerCase().includes(lowerSearch) ||
-      (p.status ? "true" : "false").includes(lowerSearch)
+      m.id.toString().includes(lowerSearch) ||
+      m.name.toLowerCase().includes(lowerSearch) ||
+      m.description.toLowerCase().includes(lowerSearch) ||
+      m.shortForm.toLowerCase().includes(lowerSearch) ||
+      (m.status ? "true" : "false").includes(lowerSearch)
     );
   });
 
@@ -84,33 +109,44 @@ export default function PrivilegesListPage() {
     setTimeout(() => setToast({ message: "", show: false }), 3000);
   };
 
-  const openDeleteModal = (privilege: Privilege) => {
-    setSelectedPrivilege(privilege);
+  const openDeleteModal = (module: Module) => {
+    setSelectedModule(module);
     setIsDeleteModalOpen(true);
   };
 
   const handleDeleteConfirm = () => {
-    if (selectedPrivilege) {
-      console.log(`Sending DELETE request for privilege ID: ${selectedPrivilege.id}`);
-      API.delete(`/api/master/access-privileges/${selectedPrivilege.id}`)
+    if (selectedModule) {
+      console.log(`Sending DELETE request for module ID: ${selectedModule.id}`);
+      API.delete(`/api/master/modules/${selectedModule.id}`)
         .then((res) => {
-          console.log(`Successfully deleted privilege ${selectedPrivilege.id}:`, res.data);
-          const nextPrivileges = privileges.filter((p) => p.id !== selectedPrivilege.id);
-          setPrivileges(nextPrivileges);
-          localStorage.setItem(storageKey, JSON.stringify(nextPrivileges));
+          console.log(`Successfully deleted module ${selectedModule.id}:`, res.data);
+          const nextModules = modules.filter((m) => m.id !== selectedModule.id);
+          setModules(nextModules);
+          localStorage.setItem(storageKey, JSON.stringify(nextModules));
           setIsDeleteModalOpen(false);
-          setSelectedPrivilege(null);
-          showToast("✓ Privilege deleted successfully");
+          setSelectedModule(null);
+          showToast("✓ Module deleted successfully");
         })
         .catch((err) => {
-          console.error(`Error deleting privilege ${selectedPrivilege.id}:`, err);
-          alert("Failed to delete privilege on backend. Deleting from offline list.");
-          const nextPrivileges = privileges.filter((p) => p.id !== selectedPrivilege.id);
-          setPrivileges(nextPrivileges);
-          localStorage.setItem(storageKey, JSON.stringify(nextPrivileges));
-          setIsDeleteModalOpen(false);
-          setSelectedPrivilege(null);
-          showToast("✓ Privilege deleted locally");
+          console.warn(`Failed to delete module on backend, trying /api/modules/${selectedModule.id}...`, err);
+          API.delete(`/api/modules/${selectedModule.id}`)
+            .then(() => {
+              const nextModules = modules.filter((m) => m.id !== selectedModule.id);
+              setModules(nextModules);
+              localStorage.setItem(storageKey, JSON.stringify(nextModules));
+              setIsDeleteModalOpen(false);
+              setSelectedModule(null);
+              showToast("✓ Module deleted successfully");
+            })
+            .catch((err2) => {
+              console.error("Delete failed on both endpoints. Deleting locally.", err2);
+              const nextModules = modules.filter((m) => m.id !== selectedModule.id);
+              setModules(nextModules);
+              localStorage.setItem(storageKey, JSON.stringify(nextModules));
+              setIsDeleteModalOpen(false);
+              setSelectedModule(null);
+              showToast("✓ Module deleted locally");
+            });
         });
     }
   };
@@ -192,7 +228,7 @@ export default function PrivilegesListPage() {
 
       <div className="table-card" style={{ maxWidth: "1400px", width: "100%" }}>
         <div className="datatable-toolbar" style={{ justifyContent: "space-between" }}>
-          <h1 className="text-2xl font-bold text-white">Privileges List</h1>
+          <h1 className="text-2xl font-bold text-white">Modules List</h1>
           <div className="flex items-center gap-4">
             <div className="datatable-search">
               <span>Search:</span>
@@ -204,9 +240,9 @@ export default function PrivilegesListPage() {
             </div>
             <button 
               className="add-btn-card" 
-              onClick={() => router.push('/masters/privileges-list/add')}
+              onClick={() => router.push('/masters/modules-list/add')}
             >
-              <span className="btn-label">Add Privileges</span>
+              <span className="btn-label">Add Modules</span>
             </button>
           </div>
         </div>
@@ -216,13 +252,14 @@ export default function PrivilegesListPage() {
             <colgroup>
               <col className="w-[12%]" />
               <col className="w-[20%]" />
-              <col className="w-[45%]" />
+              <col className="w-[35%]" />
               <col className="w-[13%]" />
+              <col className="w-[10%]" />
               <col className="w-[10%]" />
             </colgroup>
             <thead>
               <tr>
-                {["PrivilegeID", "Privilege", "Description", "Status", "Action(s)"].map((column) => (
+                {["ModuleID", "Module", "Description", "Short Form", "Status", "Action(s)"].map((column) => (
                   <th key={column}>
                     <div className="flex items-center justify-between gap-3">
                       <span className="truncate">{column}</span>
@@ -235,7 +272,7 @@ export default function PrivilegesListPage() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={5} className="text-center py-8 text-slate-400">
+                  <td colSpan={6} className="text-center py-8 text-slate-400">
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
                       <div className="spinner" style={{
                         width: "16px",
@@ -245,39 +282,40 @@ export default function PrivilegesListPage() {
                         borderRadius: "50%",
                         animation: "spin 1s linear infinite"
                       }}></div>
-                      Loading privileges...
+                      Loading modules...
                     </div>
                   </td>
                 </tr>
               ) : error ? (
                 <tr>
-                  <td colSpan={5} className="text-center py-8 text-red-400" style={{ color: "#ef4444" }}>
+                  <td colSpan={6} className="text-center py-8 text-red-400" style={{ color: "#ef4444" }}>
                     {error}
                   </td>
                 </tr>
-              ) : filteredPrivileges.length === 0 ? (
+              ) : filteredModules.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="text-center py-8 text-slate-400">
-                    Not found in the privileges list
+                  <td colSpan={6} className="text-center py-8 text-slate-400">
+                    Not found in the modules list
                   </td>
                 </tr>
               ) : (
-                filteredPrivileges.map((p, index) => (
+                filteredModules.map((m, index) => (
                   <tr
-                    key={p.id}
+                    key={m.id}
                     className={index % 2 === 0 ? "bg-white/[0.01]" : ""}
                   >
-                    <td><div className="datatable-cell text-center">{p.id}</div></td>
-                    <td><div className="datatable-cell">{p.name}</div></td>
-                    <td><div className="datatable-cell" style={{ whiteSpace: "normal" }}>{p.description}</div></td>
+                    <td><div className="datatable-cell text-center">{m.id}</div></td>
+                    <td><div className="datatable-cell">{m.name}</div></td>
+                    <td><div className="datatable-cell" style={{ whiteSpace: "normal" }}>{m.description}</div></td>
+                    <td><div className="datatable-cell text-center">{m.shortForm}</div></td>
                     <td>
                       <div className="flex justify-center">
-                        <span className="status-pill" data-status={p.status ? "Active" : "Inactive"} style={{
-                          background: p.status ? "rgba(34, 197, 94, 0.15)" : "rgba(239, 68, 68, 0.15)",
-                          borderColor: p.status ? "rgba(34, 197, 94, 0.3)" : "rgba(239, 68, 68, 0.3)",
-                          color: p.status ? "#4ade80" : "#f87171"
+                        <span className="status-pill" data-status={m.status ? "Active" : "Inactive"} style={{
+                          background: m.status ? "rgba(34, 197, 94, 0.15)" : "rgba(239, 68, 68, 0.15)",
+                          borderColor: m.status ? "rgba(34, 197, 94, 0.3)" : "rgba(239, 68, 68, 0.3)",
+                          color: m.status ? "#4ade80" : "#f87171"
                         }}>
-                          {p.status ? "TRUE" : "FALSE"}
+                          {m.status ? "TRUE" : "FALSE"}
                         </span>
                       </div>
                     </td>
@@ -286,16 +324,16 @@ export default function PrivilegesListPage() {
                         <button
                           className="datatable-action"
                           type="button"
-                          title="Edit privilege"
-                          onClick={() => router.push(`/masters/privileges-list/${p.id}/edit`)}
+                          title="Edit module"
+                          onClick={() => router.push(`/masters/modules-list/${m.id}/edit`)}
                         >
                           <Edit size={16} />
                         </button>
                         <button
                           className="datatable-action danger"
                           type="button"
-                          title="Remove privilege"
-                          onClick={() => openDeleteModal(p)}
+                          title="Remove module"
+                          onClick={() => openDeleteModal(m)}
                         >
                           <Trash2 size={16} />
                         </button>
@@ -323,7 +361,7 @@ export default function PrivilegesListPage() {
                 <Trash2 size={48} style={{ margin: "0 auto" }} />
               </div>
               <p style={{ marginBottom: "24px", color: "rgba(255,255,255,0.9)" }}>
-                Are you sure you want to delete this privilege?
+                Are you sure you want to delete this module?
               </p>
               <div className="modal-actions" style={{ justifyContent: "center" }}>
                 <button className="btn-cancel" onClick={() => setIsDeleteModalOpen(false)}>Cancel</button>
