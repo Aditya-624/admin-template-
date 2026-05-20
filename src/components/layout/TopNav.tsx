@@ -61,7 +61,7 @@ const navItems = [
     icon: Users,
     children: [
       {
-        label: "Management",
+        label: "User Management",
         desc: "Manage system users",
         subItems: [
           { href: "/masters/usertype-list", label: "UserType List" },
@@ -76,6 +76,9 @@ const navItems = [
         subItems: [
           { href: "/masters/clients", label: "Clients" },
           { href: "/masters/contacts", label: "Contacts" },
+          { href: "/masters/usertype", label: "UserType" },
+          { href: "/masters/user", label: "User" },
+          { href: "/masters/privileges", label: "Privileges" },
         ]
       }
     ],
