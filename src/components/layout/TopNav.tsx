@@ -57,9 +57,9 @@ const navItems = [
         label: "User Management",
         desc: "Manage system users",
         subItems: [
-          { href: "/masters/usertype", label: "UserType" },
-          { href: "/masters/user", label: "User" },
-          { href: "/masters/privileges", label: "Privileges" },
+          { href: "/masters/usertype-list", label: "UserType" },
+          { href: "/masters/user-list", label: "User" },
+          { href: "/masters/privileges-list", label: "Privileges" },
         ]
       }
     ],
