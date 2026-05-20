@@ -131,32 +131,17 @@ export default function AddModulePage() {
 
         <form className="edit-user-form">
           <div className="edit-user-row">
-            <label htmlFor="module-name">Module Name *</label>
+            <label htmlFor="module-name">Module *</label>
             <div className="edit-user-field">
               <input
                 id="module-name"
                 className={fieldClass("name")}
                 type="text"
-                placeholder="<Enter Module Name>"
+                placeholder="<Enter Module>"
                 value={form.name}
                 onChange={(event) => updateField("name", event.target.value)}
               />
               {errors.name && <p className="edit-user-error">{errors.name}</p>}
-            </div>
-          </div>
-
-          <div className="edit-user-row">
-            <label htmlFor="description">Description *</label>
-            <div className="edit-user-field">
-              <textarea
-                id="description"
-                className={fieldClass("description")}
-                placeholder="<Enter Description>"
-                rows={3}
-                value={form.description}
-                onChange={(event) => updateField("description", event.target.value)}
-              />
-              {errors.description && <p className="edit-user-error">{errors.description}</p>}
             </div>
           </div>
 
@@ -167,7 +152,7 @@ export default function AddModulePage() {
                 id="short-form"
                 className={fieldClass("shortForm")}
                 type="text"
-                placeholder="<Enter Short Form, e.g. LRN>"
+                placeholder="<Enter Short Form>"
                 value={form.shortForm}
                 onChange={(event) => updateField("shortForm", event.target.value)}
               />
@@ -175,25 +160,22 @@ export default function AddModulePage() {
             </div>
           </div>
 
-          <div className="edit-user-row" style={{ alignItems: "center" }}>
-            <label htmlFor="status" style={{ marginBottom: 0 }}>Status</label>
+          <div className="edit-user-row">
+            <label htmlFor="description">Description</label>
             <div className="edit-user-field">
-              <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", width: "fit-content" }}>
-                <input
-                  type="checkbox"
-                  id="status"
-                  checked={form.status}
-                  onChange={(e) => updateField("status", e.target.checked)}
-                  style={{ width: "16px", height: "16px", accentColor: "#8b5cf6" }}
-                />
-                <span style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.85rem" }}>
-                  {form.status ? "True (Active)" : "False (Inactive)"}
-                </span>
-              </label>
+              <textarea
+                id="description"
+                className={fieldClass("description")}
+                placeholder="<Enter Description about Module>"
+                rows={4}
+                value={form.description}
+                onChange={(event) => updateField("description", event.target.value)}
+              />
+              {errors.description && <p className="edit-user-error">{errors.description}</p>}
             </div>
           </div>
 
-          <div className="edit-user-actions">
+          <div className="edit-user-actions" style={{ justifyContent: "flex-end" }}>
             <Link href="/masters/modules-list" className="edit-user-cancel">
               Cancel
             </Link>

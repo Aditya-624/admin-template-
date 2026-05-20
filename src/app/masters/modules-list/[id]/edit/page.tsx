@@ -168,37 +168,35 @@ export default function EditModulePage() {
 
       <section className="edit-user-card">
         <div className="edit-user-header">
-          <h1>✏️ Edit Module</h1>
+          <h1>Modify Module</h1>
         </div>
 
         <form className="edit-user-form">
           <div className="edit-user-row">
-            <label htmlFor="module-name">Module Name *</label>
+            <label htmlFor="module-id">Module ID</label>
+            <div className="edit-user-field">
+              <input
+                id="module-id"
+                className="edit-user-input"
+                type="text"
+                value={form.id}
+                disabled
+              />
+            </div>
+          </div>
+
+          <div className="edit-user-row">
+            <label htmlFor="module-name">Module *</label>
             <div className="edit-user-field">
               <input
                 id="module-name"
                 className={fieldClass("name")}
                 type="text"
-                placeholder="<Enter Module Name>"
+                placeholder="Module"
                 value={form.name}
                 onChange={(event) => updateField("name", event.target.value)}
               />
               {errors.name && <p className="edit-user-error">{errors.name}</p>}
-            </div>
-          </div>
-
-          <div className="edit-user-row">
-            <label htmlFor="description">Description *</label>
-            <div className="edit-user-field">
-              <textarea
-                id="description"
-                className={fieldClass("description")}
-                placeholder="<Enter Description>"
-                rows={3}
-                value={form.description}
-                onChange={(event) => updateField("description", event.target.value)}
-              />
-              {errors.description && <p className="edit-user-error">{errors.description}</p>}
             </div>
           </div>
 
@@ -209,11 +207,26 @@ export default function EditModulePage() {
                 id="short-form"
                 className={fieldClass("shortForm")}
                 type="text"
-                placeholder="<Enter Short Form, e.g. LRN>"
+                placeholder="Short Form"
                 value={form.shortForm}
                 onChange={(event) => updateField("shortForm", event.target.value)}
               />
               {errors.shortForm && <p className="edit-user-error">{errors.shortForm}</p>}
+            </div>
+          </div>
+
+          <div className="edit-user-row">
+            <label htmlFor="description">Description</label>
+            <div className="edit-user-field">
+              <textarea
+                id="description"
+                className={fieldClass("description")}
+                placeholder="<Module Description>"
+                rows={3}
+                value={form.description}
+                onChange={(event) => updateField("description", event.target.value)}
+              />
+              {errors.description && <p className="edit-user-error">{errors.description}</p>}
             </div>
           </div>
 
@@ -229,7 +242,7 @@ export default function EditModulePage() {
                   style={{ width: "16px", height: "16px", accentColor: "#8b5cf6" }}
                 />
                 <span style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.85rem" }}>
-                  {form.status ? "True (Active)" : "False (Inactive)"}
+                  {form.status ? "Yes" : "No"}
                 </span>
               </label>
             </div>
