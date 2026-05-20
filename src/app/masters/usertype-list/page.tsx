@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Edit, Trash2, PlusSquare, CheckCircle, ArrowUpDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
+import API from "@/services/api";
 
 type UserTypeItem = {
   id: number;
@@ -27,15 +28,38 @@ const storageKey = "masters-usertype-list-v1";
 export default function UserTypeListPage() {
   const router = useRouter();
   const [userTypes, setUserTypes] = useState<UserTypeItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const storedRows = localStorage.getItem(storageKey);
-    if (storedRows) {
-      setUserTypes(JSON.parse(storedRows));
-    } else {
-      setUserTypes(initialData);
-      localStorage.setItem(storageKey, JSON.stringify(initialData));
-    }
+    console.log("Fetching user types from backend API /api/master/user-types...");
+    setLoading(true);
+    setError(null);
+    API.get("/api/master/user-types")
+      .then((res) => {
+        console.log("Successfully fetched user types from backend:", res.data);
+        if (Array.isArray(res.data)) {
+          const mapped = res.data.map((ut: any, idx: number) => ({
+            id: typeof ut.id === "number" ? ut.id : parseInt(ut.id ?? ut.user_type_id ?? ut.userTypeId ?? (idx + 1), 10),
+            name: String(ut.name ?? ut.user_type ?? ut.userType ?? "N/A"),
+            description: String(ut.description ?? ""),
+            status: ut.status === true || ut.status === "Active" || ut.status === "active" || ut.status === 1 || String(ut.status).toLowerCase() === "true"
+          }));
+          setUserTypes(mapped);
+        } else {
+          console.warn("Unexpected user types response format, using local storage/placeholder fallback");
+          const storedRows = localStorage.getItem(storageKey);
+          setUserTypes(storedRows ? JSON.parse(storedRows) : initialData);
+        }
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Error fetching user types from backend:", err);
+        setError("Failed to load user types from backend API. Displaying offline data.");
+        const storedRows = localStorage.getItem(storageKey);
+        setUserTypes(storedRows ? JSON.parse(storedRows) : initialData);
+        setLoading(false);
+      });
   }, []);
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -68,12 +92,27 @@ export default function UserTypeListPage() {
 
   const handleDeleteConfirm = () => {
     if (selectedUserType) {
-      const nextTypes = userTypes.filter((p) => p.id !== selectedUserType.id);
-      setUserTypes(nextTypes);
-      localStorage.setItem(storageKey, JSON.stringify(nextTypes));
-      setIsDeleteModalOpen(false);
-      setSelectedUserType(null);
-      showToast("✓ User Type deleted successfully");
+      console.log(`Sending DELETE request for user type ID: ${selectedUserType.id}`);
+      API.delete(`/api/master/user-types/${selectedUserType.id}`)
+        .then((res) => {
+          console.log(`Successfully deleted user type ${selectedUserType.id}:`, res.data);
+          const nextTypes = userTypes.filter((p) => p.id !== selectedUserType.id);
+          setUserTypes(nextTypes);
+          localStorage.setItem(storageKey, JSON.stringify(nextTypes));
+          setIsDeleteModalOpen(false);
+          setSelectedUserType(null);
+          showToast("✓ User Type deleted successfully");
+        })
+        .catch((err) => {
+          console.error(`Error deleting user type ${selectedUserType.id}:`, err);
+          alert("Failed to delete user type on backend. Deleting from offline list.");
+          const nextTypes = userTypes.filter((p) => p.id !== selectedUserType.id);
+          setUserTypes(nextTypes);
+          localStorage.setItem(storageKey, JSON.stringify(nextTypes));
+          setIsDeleteModalOpen(false);
+          setSelectedUserType(null);
+          showToast("✓ User Type deleted locally");
+        });
     }
   };
 
@@ -195,7 +234,29 @@ export default function UserTypeListPage() {
               </tr>
             </thead>
             <tbody>
-              {filteredUserTypes.length === 0 ? (
+              {loading ? (
+                <tr>
+                  <td colSpan={5} className="text-center py-8 text-slate-400">
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
+                      <div className="spinner" style={{
+                        width: "16px",
+                        height: "16px",
+                        border: "2px solid rgba(255,255,255,0.2)",
+                        borderTopColor: "#fff",
+                        borderRadius: "50%",
+                        animation: "spin 1s linear infinite"
+                      }}></div>
+                      Loading user types...
+                    </div>
+                  </td>
+                </tr>
+              ) : error ? (
+                <tr>
+                  <td colSpan={5} className="text-center py-8 text-red-400" style={{ color: "#ef4444" }}>
+                    {error}
+                  </td>
+                </tr>
+              ) : filteredUserTypes.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="text-center py-8 text-slate-400">
                     Not found in the user type list
