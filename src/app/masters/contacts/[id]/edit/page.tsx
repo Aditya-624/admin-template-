@@ -233,16 +233,19 @@ export default function EditContactPage() {
 
             <div className="edit-user-row compact">
               <label htmlFor="status">Status</label>
-              <div className="edit-user-field">
-                <select
-                  id="status"
-                  className="edit-user-input"
-                  value={form.status ? "Yes" : "No"}
-                  onChange={(e) => update("status", e.target.value === "Yes")}
-                >
-                  <option value="Yes">Yes</option>
-                  <option value="No">No</option>
-                </select>
+              <div className="edit-user-field" style={{ display: "flex", alignItems: "center", minHeight: "42px" }}>
+                <label style={{ display: "flex", alignItems: "center", cursor: "pointer", gap: "10px" }}>
+                  <input
+                    id="status"
+                    type="checkbox"
+                    className="edit-user-checkbox"
+                    checked={form.status}
+                    onChange={(e) => update("status", e.target.checked)}
+                  />
+                  <span className="checkbox-text">
+                    {form.status ? "True (Active)" : "False (Inactive)"}
+                  </span>
+                </label>
               </div>
             </div>
 

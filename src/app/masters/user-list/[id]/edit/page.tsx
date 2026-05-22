@@ -297,11 +297,11 @@ export default function EditUserPage() {
                 <input
                   id="status"
                   type="checkbox"
+                  className="edit-user-checkbox"
                   checked={form.status === "Active"}
                   onChange={(e) => updateField("status", e.target.checked ? "Active" : "Inactive")}
-                  style={{ width: "20px", height: "20px", accentColor: "#6366f1" }}
                 />
-                <span style={{ color: "rgba(255,255,255,0.8)", fontSize: "0.9rem" }}>
+                <span className="checkbox-text">
                   {form.status === "Active" ? "True (Active)" : "False (Inactive)"}
                 </span>
               </label>

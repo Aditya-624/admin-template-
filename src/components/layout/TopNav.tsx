@@ -102,8 +102,8 @@ function NestedNavItem({ child, setOpen }: { child: any, setOpen: any }) {
       >
         <div className="flex items-center justify-between px-3 py-3 rounded-xl text-[14px] font-medium text-slate-300 hover:text-white hover:bg-white/[0.08] transition-all cursor-pointer">
           <div className="flex items-start gap-3">
-            <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: "rgba(99,102,241,.15)" }}>
-              <span className="w-1.5 h-1.5 rounded-full bg-indigo-400" />
+            <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: "var(--table-hover-bg)" }}>
+              <span className="w-1.5 h-1.5 rounded-full" style={{ background: "var(--table-accent)" }} />
             </div>
             <div>
               <p className="leading-tight">{child.label}</p>
@@ -120,16 +120,8 @@ function NestedNavItem({ child, setOpen }: { child: any, setOpen: any }) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 6 }}
               transition={{ duration: 0.18, ease: "easeOut" }}
-              className="absolute left-full top-0 ml-2 z-[60]"
-              style={{
-                minWidth: "220px",
-                background: "#171717",
-                backdropFilter: "none",
-                border: "1px solid rgba(255, 255, 255, 0.04)",
-                borderRadius: "18px",
-                boxShadow: "0 12px 30px rgba(0, 0, 0, 0.28)",
-                padding: "10px 14px",
-              }}
+              className="absolute left-full top-0 ml-2 z-[60] submenu-flyout"
+              style={{ minWidth: "220px" }}
             >
               <div className="flex flex-col gap-1">
                 {child.subItems.map((sub: any) => (
@@ -139,7 +131,7 @@ function NestedNavItem({ child, setOpen }: { child: any, setOpen: any }) {
                     onClick={() => setOpen(false)}
                     className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-medium text-slate-300 hover:text-white hover:bg-white/[0.08] transition-all group/sub"
                   >
-                    <div className="w-1.5 h-1.5 rounded-full border border-slate-500 group-hover/sub:border-indigo-400 group-hover/sub:bg-indigo-400 transition-colors flex-shrink-0" />
+                    <span className="nav-sub-bullet" />
                     {sub.label}
                   </Link>
                 ))}
@@ -158,8 +150,8 @@ function NestedNavItem({ child, setOpen }: { child: any, setOpen: any }) {
       onClick={() => setOpen(false)}
       className="flex items-start gap-3 px-3 py-3 rounded-xl text-[14px] font-medium text-slate-300 hover:text-white hover:bg-white/[0.08] transition-all group"
     >
-      <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: "rgba(99,102,241,.15)" }}>
-        <span className="w-1.5 h-1.5 rounded-full bg-indigo-400" />
+      <div className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: "var(--table-hover-bg)" }}>
+        <span className="w-1.5 h-1.5 rounded-full" style={{ background: "var(--table-accent)" }} />
       </div>
       <div>
         <p className="leading-tight">{child.label}</p>
@@ -269,6 +261,14 @@ export default function TopNav() {
   const searchContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // Load persisted theme configurations on mount
+    const savedLabel = localStorage.getItem("theme-label");
+    if (savedLabel) {
+      setActiveColor(savedLabel);
+    }
+  }, []);
+
+  useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
         setShowResults(false);
@@ -327,7 +327,14 @@ export default function TopNav() {
   const applyColor = (shift: typeof colorShifts[0]) => {
     setActiveColor(shift.label);
     setShowPalette(false);
-    window.dispatchEvent(new CustomEvent("theme-color-shift", { detail: { bg: shift.bg, orb: shift.orb } }));
+    window.dispatchEvent(new CustomEvent("theme-color-shift", {
+      detail: {
+        bg: shift.bg,
+        orb: shift.orb,
+        label: shift.label,
+        swatch: shift.swatch,
+      }
+    }));
   };
 
   const unreadCount = notifications.filter((n) => !n.read).length;

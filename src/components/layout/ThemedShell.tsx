@@ -49,10 +49,28 @@ export default function ThemedShell({ children }: ThemedShellProps) {
   }, [bg]);
 
   useEffect(() => {
+    // Load persisted theme configurations on mount
+    const savedBg = localStorage.getItem("theme-bg");
+    const savedLabel = localStorage.getItem("theme-label");
+    const savedSwatch = localStorage.getItem("theme-swatch");
+    if (savedBg) {
+      setBg(savedBg);
+    }
+    if (savedLabel && savedSwatch) {
+      applyTableAccent(savedLabel, savedSwatch);
+    }
+
     const handler = (e: Event) => {
       const { bg: newBg, label, swatch } = (e as CustomEvent).detail;
       setBg(newBg);
-      if (label && swatch) applyTableAccent(label, swatch);
+      if (newBg) {
+        localStorage.setItem("theme-bg", newBg);
+      }
+      if (label && swatch) {
+        applyTableAccent(label, swatch);
+        localStorage.setItem("theme-label", label);
+        localStorage.setItem("theme-swatch", swatch);
+      }
     };
     window.addEventListener("theme-color-shift", handler);
     return () => window.removeEventListener("theme-color-shift", handler);

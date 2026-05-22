@@ -776,6 +776,72 @@ tr.strikethrough {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.01) !important;
 }
 
+select.edit-user-input,
+select.glass-input {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='rgba%28255, 255, 255, 0.65%29' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 14px center !important;
+  background-size: 16px !important;
+  padding-right: 40px !important;
+  cursor: pointer;
+}
+
+[data-bg="light"] select.edit-user-input,
+[data-bg="light"] select.glass-input {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='rgba%2815, 23, 42, 0.65%29' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
+}
+
+select option {
+  background-color: #121824 !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+select option:checked,
+select option:hover {
+  background: var(--table-accent) !important;
+  background-color: var(--table-accent) !important;
+  color: #ffffff !important;
+}
+
+[data-bg="light"] select option {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+[data-bg="light"] select option:checked,
+[data-bg="light"] select option:hover {
+  background: var(--table-accent) !important;
+  background-color: var(--table-accent) !important;
+  color: #ffffff !important;
+}
+
+.checkbox-text {
+  color: rgba(255, 255, 255, 0.8) !important;
+  font-size: 0.9rem;
+  transition: color 0.28s ease;
+}
+
+[data-bg="light"] .checkbox-text {
+  color: #0f172a !important;
+}
+
+.edit-user-checkbox {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--table-accent) !important;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.25s ease;
+}
+
+.edit-user-checkbox:focus-visible {
+  outline: 2px solid var(--table-accent);
+  outline-offset: 2px;
+}
+
 .edit-user-input:focus {
   border-color: rgba(var(--table-accent-rgb), 0.35) !important;
   outline: none !important;
@@ -1357,16 +1423,45 @@ main {
 
 /* Submenu flyout styling for premium dropdowns */
 .submenu-flyout {
-  background: #171717 !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  border: 1px solid rgba(255, 255, 255, 0.04) !important;
+  background: rgba(9, 12, 21, 0.96) !important;
+  backdrop-filter: blur(18px) !important;
+  -webkit-backdrop-filter: blur(18px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
   box-shadow: 
-    0 12px 30px rgba(0, 0, 0, 0.28) !important;
+    0 12px 36px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04) !important;
   border-radius: 18px !important;
   padding: 10px 14px !important;
   font-family: 'Inter', sans-serif !important;
   transition: all 0.18s ease !important;
+}
+
+[data-bg="light"] .submenu-flyout {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Secondary submenu nesting list bullet links */
+.nav-sub-bullet {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: transparent;
+  transition: all 0.25s ease;
+  flex-shrink: 0;
+}
+
+.group\/sub:hover .nav-sub-bullet,
+.group-hover\/sub:hover .nav-sub-bullet {
+  border-color: var(--table-accent) !important;
+  background: var(--table-accent) !important;
+  box-shadow: 0 0 8px var(--table-accent) !important;
+}
+
+[data-bg="light"] .nav-sub-bullet {
+  border-color: rgba(15, 23, 42, 0.35);
 }
 
 /* Category header */
