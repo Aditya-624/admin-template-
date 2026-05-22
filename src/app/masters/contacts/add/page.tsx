@@ -12,12 +12,15 @@ import {
 } from "@/lib/contacts-data";
 
 type FormErrors = Partial<
-  Record<"client" | "mobile" | "email" | "address" | "city" | "state" | "pinCode", string>
+  Record<"client" | "contact" | "designation" | "department" | "mobile" | "email" | "address" | "city" | "state" | "pinCode", string>
 >;
 
 const emptyForm = {
   clientId: 1,
   client: "ABC University",
+  contact: "",
+  designation: "",
+  department: "",
   mobile: "",
   email: "",
   website: "",
@@ -52,12 +55,12 @@ export default function AddContactPage() {
   const validate = () => {
     const next: FormErrors = {};
     if (!form.client.trim()) next.client = "This field is required";
+    if (!form.contact.trim()) next.contact = "This field is required";
+    if (!form.designation.trim()) next.designation = "This field is required";
+    if (!form.department.trim()) next.department = "This field is required";
     if (!form.mobile.trim()) next.mobile = "This field is required";
     if (!form.email.trim()) next.email = "This field is required";
     if (!form.address.trim()) next.address = "This field is required";
-    if (!form.city.trim()) next.city = "This field is required";
-    if (!form.state.trim()) next.state = "This field is required";
-    if (!form.pinCode.trim()) next.pinCode = "This field is required";
     setErrors(next);
     return Object.keys(next).length === 0;
   };
@@ -76,6 +79,9 @@ export default function AddContactPage() {
       id: maxId + 1,
       clientId: form.clientId,
       client: form.client,
+      contact: form.contact.trim(),
+      designation: form.designation.trim(),
+      department: form.department.trim(),
       mobile: form.mobile.trim(),
       email: form.email.trim(),
       website: form.website.trim(),
@@ -107,8 +113,8 @@ export default function AddContactPage() {
           <h1>New Contact</h1>
         </div>
 
-        <form className="contact-form-two-col" onSubmit={(e) => e.preventDefault()}>
-          <div className="contact-form-col">
+        <form onSubmit={(e) => e.preventDefault()}>
+          <div className="contact-form-grid">
             <div className="edit-user-row compact">
               <label htmlFor="client">Client *</label>
               <div className="edit-user-field">
@@ -125,6 +131,48 @@ export default function AddContactPage() {
                   ))}
                 </select>
                 {errors.client && <p className="edit-user-error">{errors.client}</p>}
+              </div>
+            </div>
+
+            <div className="edit-user-row compact">
+              <label htmlFor="contact">Contact Name *</label>
+              <div className="edit-user-field">
+                <input
+                  id="contact"
+                  className={fieldClass("contact")}
+                  placeholder="<Enter Contact Name>"
+                  value={form.contact}
+                  onChange={(e) => update("contact", e.target.value)}
+                />
+                {errors.contact && <p className="edit-user-error">{errors.contact}</p>}
+              </div>
+            </div>
+
+            <div className="edit-user-row compact">
+              <label htmlFor="designation">Designation *</label>
+              <div className="edit-user-field">
+                <input
+                  id="designation"
+                  className={fieldClass("designation")}
+                  placeholder="<Enter Designation>"
+                  value={form.designation}
+                  onChange={(e) => update("designation", e.target.value)}
+                />
+                {errors.designation && <p className="edit-user-error">{errors.designation}</p>}
+              </div>
+            </div>
+
+            <div className="edit-user-row compact">
+              <label htmlFor="department">Department *</label>
+              <div className="edit-user-field">
+                <input
+                  id="department"
+                  className={fieldClass("department")}
+                  placeholder="<Enter Department>"
+                  value={form.department}
+                  onChange={(e) => update("department", e.target.value)}
+                />
+                {errors.department && <p className="edit-user-error">{errors.department}</p>}
               </div>
             </div>
 
@@ -158,21 +206,6 @@ export default function AddContactPage() {
             </div>
 
             <div className="edit-user-row compact">
-              <label htmlFor="website">Website</label>
-              <div className="edit-user-field">
-                <input
-                  id="website"
-                  className="edit-user-input"
-                  placeholder="<Enter Website>"
-                  value={form.website}
-                  onChange={(e) => update("website", e.target.value)}
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="contact-form-col">
-            <div className="edit-user-row compact">
               <label htmlFor="address">Address *</label>
               <div className="edit-user-field">
                 <textarea
@@ -188,59 +221,17 @@ export default function AddContactPage() {
             </div>
 
             <div className="edit-user-row compact">
-              <label htmlFor="city">City *</label>
+              <label htmlFor="notes">Notes</label>
               <div className="edit-user-field">
-                <input
-                  id="city"
-                  className={fieldClass("city")}
-                  placeholder="<Enter City>"
-                  value={form.city}
-                  onChange={(e) => update("city", e.target.value)}
+                <textarea
+                  id="notes"
+                  className="edit-user-input"
+                  placeholder="<Enter Additional Notes about Client>"
+                  rows={2}
+                  value={form.notes}
+                  onChange={(e) => update("notes", e.target.value)}
                 />
-                {errors.city && <p className="edit-user-error">{errors.city}</p>}
               </div>
-            </div>
-
-            <div className="edit-user-row compact">
-              <label htmlFor="state">State *</label>
-              <div className="edit-user-field">
-                <input
-                  id="state"
-                  className={fieldClass("state")}
-                  placeholder="<Enter State>"
-                  value={form.state}
-                  onChange={(e) => update("state", e.target.value)}
-                />
-                {errors.state && <p className="edit-user-error">{errors.state}</p>}
-              </div>
-            </div>
-
-            <div className="edit-user-row compact">
-              <label htmlFor="pinCode">Pin Code *</label>
-              <div className="edit-user-field">
-                <input
-                  id="pinCode"
-                  className={fieldClass("pinCode")}
-                  placeholder="<Enter Pin Code>"
-                  value={form.pinCode}
-                  onChange={(e) => update("pinCode", e.target.value)}
-                />
-                {errors.pinCode && <p className="edit-user-error">{errors.pinCode}</p>}
-              </div>
-            </div>
-          </div>
-
-          <div className="edit-user-row compact contact-form-full">
-            <label htmlFor="notes">Notes</label>
-            <div className="edit-user-field">
-              <textarea
-                id="notes"
-                className="edit-user-input"
-                placeholder="<Enter Additional Notes about Client>"
-                rows={2}
-                value={form.notes}
-                onChange={(e) => update("notes", e.target.value)}
-              />
             </div>
           </div>
 
@@ -258,42 +249,42 @@ export default function AddContactPage() {
       <style>{`
         .contact-form-page { padding: 16px 24px 24px; }
         .contact-form-card {
-          max-width: 960px;
+          max-width: 900px;
           margin: 0 auto;
           padding: 28px 32px !important;
         }
         .contact-form-card .edit-user-header {
-          margin-bottom: 20px !important;
+          margin-bottom: 24px !important;
           padding-bottom: 14px !important;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
-        .contact-form-two-col {
+        .contact-form-grid {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 20px 48px;
-          align-items: start;
+          gap: 20px 32px;
         }
-        .contact-form-col {
-          display: flex;
-          flex-direction: column;
-          gap: 18px;
-        }
-        .contact-form-full { grid-column: 1 / -1; margin-top: 4px; }
         .contact-form-actions {
-          grid-column: 1 / -1;
-          margin-top: 16px;
-          padding-top: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: flex-end;
+          gap: 12px;
+          margin-top: 24px;
+          padding-top: 16px;
+          border-top: 1px solid rgba(255, 255, 255, 0.05);
         }
         .contact-form-page .edit-user-row.compact {
-          display: grid;
-          grid-template-columns: minmax(110px, 32%) 1fr;
-          gap: 14px 16px !important;
-          align-items: start;
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
           margin-bottom: 0 !important;
         }
         .contact-form-page .edit-user-row.compact label {
-          padding-top: 10px;
+          padding-top: 0 !important;
+          margin-bottom: 2px;
           font-size: 0.9rem !important;
           line-height: 1.4;
+          min-width: 0 !important;
+          width: auto !important;
         }
         .contact-form-page .edit-user-row.compact textarea,
         .contact-form-page .edit-user-row.compact input,
@@ -304,8 +295,19 @@ export default function AddContactPage() {
         .contact-form-page .edit-user-row.compact textarea {
           min-height: 72px;
         }
+        .contact-form-actions .edit-user-update {
+          background: linear-gradient(135deg, #10b981, #047857) !important;
+          box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2) !important;
+        }
+        .contact-form-actions .edit-user-update:hover {
+          box-shadow: 0 6px 18px rgba(16, 185, 129, 0.35) !important;
+          transform: translateY(-1px) !important;
+        }
         @media (max-width: 768px) {
-          .contact-form-two-col { grid-template-columns: 1fr; gap: 16px; }
+          .contact-form-grid {
+            grid-template-columns: 1fr;
+            gap: 16px;
+          }
         }
       `}</style>
     </div>

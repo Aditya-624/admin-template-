@@ -70,13 +70,12 @@ export default function ContactsListPage() {
       c.id.toString().includes(q) ||
       c.clientId.toString().includes(q) ||
       c.client.toLowerCase().includes(q) ||
+      c.contact.toLowerCase().includes(q) ||
+      c.designation.toLowerCase().includes(q) ||
+      c.department.toLowerCase().includes(q) ||
       c.mobile.includes(q) ||
       c.email.toLowerCase().includes(q) ||
-      c.website.toLowerCase().includes(q) ||
       c.address.toLowerCase().includes(q) ||
-      c.city.toLowerCase().includes(q) ||
-      c.state.toLowerCase().includes(q) ||
-      c.pinCode.includes(q) ||
       c.notes.toLowerCase().includes(q) ||
       (c.status ? "true" : "false").includes(q)
     );
@@ -172,15 +171,14 @@ export default function ContactsListPage() {
             <thead>
               <tr>
                 {[
-                  "Client ID",
-                  "Client",
+                  "Contact ID",
+                  "Client ID / Client",
+                  "Contact",
+                  "Designation",
+                  "Department",
                   "Mobile",
                   "Email",
-                  "Website",
-                  "Address",
-                  "City",
-                  "State",
-                  "Pin Code",
+                  "Addfress",
                   "Notes",
                   "Status",
                   "Action(s)",
@@ -197,7 +195,7 @@ export default function ContactsListPage() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={12} className="text-center py-8 text-slate-400">
+                  <td colSpan={11} className="text-center py-8 text-slate-400">
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
                       <div
                         style={{
@@ -215,7 +213,7 @@ export default function ContactsListPage() {
                 </tr>
               ) : filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={12} className="text-center py-8 text-slate-400">
+                  <td colSpan={11} className="text-center py-8 text-slate-400">
                     Not found in the list
                   </td>
                 </tr>
@@ -223,10 +221,19 @@ export default function ContactsListPage() {
                 filtered.map((c, index) => (
                   <tr key={c.id} className={index % 2 === 0 ? "bg-white/[0.01]" : ""}>
                     <td>
-                      <div className="datatable-cell text-center">{c.clientId}</div>
+                      <div className="datatable-cell text-center">{c.id}</div>
                     </td>
                     <td>
-                      <div className="datatable-cell">{c.client}</div>
+                      <div className="datatable-cell">{c.clientId} - {c.client}</div>
+                    </td>
+                    <td>
+                      <div className="datatable-cell">{c.contact}</div>
+                    </td>
+                    <td>
+                      <div className="datatable-cell">{c.designation}</div>
+                    </td>
+                    <td>
+                      <div className="datatable-cell">{c.department}</div>
                     </td>
                     <td>
                       <div className="datatable-cell">{c.mobile}</div>
@@ -243,34 +250,9 @@ export default function ContactsListPage() {
                       </div>
                     </td>
                     <td>
-                      <div className="datatable-cell">
-                        {c.website ? (
-                          <a
-                            href={c.website.startsWith("http") ? c.website : `https://${c.website}`}
-                            target="_blank"
-                            rel="noreferrer"
-                            style={linkStyle}
-                          >
-                            {c.website}
-                          </a>
-                        ) : (
-                          ""
-                        )}
-                      </div>
-                    </td>
-                    <td>
                       <div className="datatable-cell" style={{ whiteSpace: "normal" }}>
-                        {c.address}
+                        {c.address || ""}
                       </div>
-                    </td>
-                    <td>
-                      <div className="datatable-cell">{c.city}</div>
-                    </td>
-                    <td>
-                      <div className="datatable-cell">{c.state}</div>
-                    </td>
-                    <td>
-                      <div className="datatable-cell">{c.pinCode}</div>
                     </td>
                     <td>
                       <div className="datatable-cell">{c.notes || ""}</div>

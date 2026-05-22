@@ -76,6 +76,14 @@ const navItems = [
           { href: "/masters/clients", label: "Clients" },
           { href: "/masters/contacts", label: "Contacts" },
         ]
+      },
+      {
+        label: "Courses",
+        desc: "Manage courses and types",
+        subItems: [
+          { href: "/masters/courses/course-type", label: "Course Type" },
+          { href: "/masters/courses/course", label: "Course" },
+        ]
       }
     ],
   },
@@ -224,6 +232,8 @@ function NavDropdown({
 }
 
 const SEARCHABLE_PAGES = [
+  { label: "Course Type", href: "/masters/courses/course-type", category: "Masters" },
+  { label: "Course", href: "/masters/courses/course", category: "Masters" },
   { label: "UserType List", href: "/masters/usertype-list", category: "Masters" },
   { label: "User List", href: "/masters/user-list", category: "Masters" },
   { label: "Privileges List", href: "/masters/privileges-list", category: "Masters" },
