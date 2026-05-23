@@ -67,6 +67,7 @@ const navItems = [
           { href: "/masters/usertype-list", label: "UserType" },
           { href: "/masters/user-list", label: "User" },
           { href: "/masters/privileges-list", label: "Privileges" },
+          { href: "/masters/modules-list", label: "Modules" },
         ]
       },
       {
@@ -83,6 +84,13 @@ const navItems = [
         subItems: [
           { href: "/masters/courses/course-type", label: "Course Type" },
           { href: "/masters/courses/course", label: "Course" },
+        ]
+      },
+      {
+        label: "Branches",
+        desc: "Manage academic branches",
+        subItems: [
+          { href: "/masters/branches", label: "Branches" },
         ]
       }
     ],
@@ -224,6 +232,7 @@ function NavDropdown({
 }
 
 const SEARCHABLE_PAGES = [
+  { label: "Branches", href: "/masters/branches", category: "Masters" },
   { label: "Course Type", href: "/masters/courses/course-type", category: "Masters" },
   { label: "Course", href: "/masters/courses/course", category: "Masters" },
   { label: "UserType List", href: "/masters/usertype-list", category: "Masters" },
