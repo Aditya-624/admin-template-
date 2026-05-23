@@ -83,7 +83,7 @@ export default function CourseListPage() {
       typeLabel.includes(q) ||
       c.externals.toString().includes(q) ||
       c.description.toLowerCase().includes(q) ||
-      (c.status ? "true" : "false").includes(q)
+      (c.status ? "active" : "inactive").includes(q)
     );
   });
 

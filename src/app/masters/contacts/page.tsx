@@ -85,6 +85,7 @@ export default function ContactsListPage() {
       c.department.toLowerCase().includes(q) ||
       c.mobile.includes(q) ||
       c.email.toLowerCase().includes(q) ||
+      c.address.toLowerCase().includes(q) ||
       c.notes.toLowerCase().includes(q) ||
       (c.status ? "active" : "inactive").includes(q)
     );

@@ -89,7 +89,7 @@ export default function UserModulesListPage() {
       m.userName.toLowerCase().includes(q) ||
       m.module.toLowerCase().includes(q) ||
       m.description.toLowerCase().includes(q) ||
-      (m.status ? "true" : "false").includes(q)
+      (m.status ? "active" : "inactive").includes(q)
     );
   });
 
@@ -364,7 +364,7 @@ export default function UserModulesListPage() {
                             color: m.status ? "#4ade80" : "#f87171",
                           }}
                         >
-                          {m.status ? "TRUE" : "FALSE"}
+                          {m.status ? "Active" : "Inactive"}
                         </motion.span>
                       </div>
                     </td>

@@ -54,7 +54,7 @@ export default function CourseTypeListPage() {
       p.name.toLowerCase().includes(q) ||
       (p.shortForm || "").toLowerCase().includes(q) ||
       p.description.toLowerCase().includes(q) ||
-      (p.status ? "true" : "false").includes(q)
+      (p.status ? "active" : "inactive").includes(q)
     );
   });
 

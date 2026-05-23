@@ -81,6 +81,7 @@ export default function PrivilegesListPage() {
     const lowerSearch = search.toLowerCase();
     return (
       p.id.toString().includes(lowerSearch) ||
+      p.name.toLowerCase().includes(lowerSearch) ||
       p.description.toLowerCase().includes(lowerSearch) ||
       (p.status ? "active" : "inactive").includes(lowerSearch)
     );

@@ -107,7 +107,7 @@ export default function ModulesListPage() {
       m.id.toString().includes(lowerSearch) ||
       m.name.toLowerCase().includes(lowerSearch) ||
       m.description.toLowerCase().includes(lowerSearch) ||
-      m.description.toLowerCase().includes(lowerSearch) ||
+      m.shortForm.toLowerCase().includes(lowerSearch) ||
       (m.status ? "active" : "inactive").includes(lowerSearch)
     );
   });

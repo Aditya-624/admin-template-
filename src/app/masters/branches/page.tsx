@@ -74,7 +74,7 @@ export default function BranchListPage() {
       b.name.toLowerCase().includes(q) ||
       b.shortForm.toLowerCase().includes(q) ||
       b.description.toLowerCase().includes(q) ||
-      (b.status ? "true" : "false").includes(q)
+      (b.status ? "active" : "inactive").includes(q)
     );
   });
 

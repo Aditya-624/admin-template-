@@ -30,11 +30,8 @@ const colorShifts = [
 const navItems = [
   {
     label: "Dashboard",
+    href: "/",
     icon: Home,
-    children: [
-      { href: "/", label: "eCommerce", desc: "Sales overview" },
-      { href: "/analytics", label: "Analytics", desc: "Charts & metrics" },
-    ],
   },
 
   {
@@ -42,7 +39,7 @@ const navItems = [
     icon: Table2,
     children: [
       {
-        label: "User Access Privileges",
+        label: "Access Privileges",
         desc: "Manage access rights",
         subItems: [
           { href: "/transaction/user-access-privileges-list", label: "User Access Privileges" },
@@ -65,7 +62,7 @@ const navItems = [
         label: "User Management",
         desc: "Manage system users",
         subItems: [
-          { href: "/masters/usertype-list", label: "User Type" },
+          { href: "/masters/usertype-list", label: "User Types" },
           { href: "/masters/user-list", label: "Users" },
           { href: "/masters/privileges-list", label: "Privileges" },
           { href: "/masters/modules-list", label: "Modules" },
@@ -83,8 +80,8 @@ const navItems = [
         label: "Courses",
         desc: "Manage courses and types",
         subItems: [
-          { href: "/masters/courses/course-type", label: "Course Type" },
-          { href: "/masters/courses/course", label: "Course" },
+          { href: "/masters/courses/course-type", label: "Course Types" },
+          { href: "/masters/courses/course", label: "Courses" },
         ]
       },
       {
@@ -234,15 +231,15 @@ function NavDropdown({
 
 const SEARCHABLE_PAGES = [
   { label: "Branches", href: "/masters/branches", category: "Masters" },
-  { label: "Course Type", href: "/masters/courses/course-type", category: "Masters" },
-  { label: "Course", href: "/masters/courses/course", category: "Masters" },
+  { label: "Course Types", href: "/masters/courses/course-type", category: "Masters" },
+  { label: "Courses", href: "/masters/courses/course", category: "Masters" },
   { label: "User Type List", href: "/masters/usertype-list", category: "Masters" },
   { label: "Users List", href: "/masters/user-list", category: "Masters" },
   { label: "Privileges List", href: "/masters/privileges-list", category: "Masters" },
   { label: "Modules List", href: "/masters/modules-list", category: "Masters" },
   { label: "Clients", href: "/masters/clients", category: "Masters" },
   { label: "Contacts", href: "/masters/contacts", category: "Masters" },
-  { label: "User Access Privileges List", href: "/transaction/user-access-privileges-list", category: "Transaction" },
+  { label: "Access Privileges List", href: "/transaction/user-access-privileges-list", category: "Transaction" },
   { label: "User Modules", href: "/transaction/user-modules-list", category: "Transaction" },
   { label: "eCommerce Dashboard", href: "/", category: "Dashboard" },
   { label: "Analytics Dashboard", href: "/analytics", category: "Dashboard" },
@@ -377,11 +374,20 @@ export default function TopNav() {
             </Link>
           </div>
 
-          {/* MIDDLE: Nav Menu - Single Row */}
           <div className="navbar-menu-single hidden lg:flex">
-            {navItems.map((item) => (
-              <NavDropdown key={item.label} label={item.label} icon={item.icon} children={item.children} />
-            ))}
+            {navItems.map((item) => {
+              if (!item.children) {
+                return (
+                  <Link key={item.label} href={item.href || "/"} className="nav-item">
+                    <item.icon className="nav-icon" />
+                    {item.label}
+                  </Link>
+                );
+              }
+              return (
+                <NavDropdown key={item.label} label={item.label} icon={item.icon} children={item.children} />
+              );
+            })}
           </div>
 
           {/* RIGHT: Icons + User */}
