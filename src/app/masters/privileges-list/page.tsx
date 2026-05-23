@@ -54,7 +54,6 @@ export default function PrivilegesListPage() {
       })
       .catch((err) => {
         console.error("Error fetching privileges from backend:", err);
-        setError("Failed to load privileges from backend API. Displaying offline data.");
         const storedRows = localStorage.getItem(storageKey);
         setPrivileges(storedRows ? JSON.parse(storedRows) : initialData);
         setLoading(false);
@@ -65,6 +64,17 @@ export default function PrivilegesListPage() {
   const [selectedPrivilege, setSelectedPrivilege] = useState<Privilege | null>(null);
 
   const [search, setSearch] = useState("");
+  const [sortColumn, setSortColumn] = useState<string | null>(null);
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+
+  const handleSort = (columnKey: string) => {
+    if (sortColumn === columnKey) {
+      setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortColumn(columnKey);
+      setSortDirection("asc");
+    }
+  };
 
   const filteredPrivileges = privileges.filter((p) => {
     if (!search) return true;
@@ -76,6 +86,23 @@ export default function PrivilegesListPage() {
       (p.status ? "true" : "false").includes(lowerSearch)
     );
   });
+
+  const sortedPrivileges = React.useMemo(() => {
+    const data = [...filteredPrivileges];
+    if (!sortColumn) return data;
+    data.sort((a, b) => {
+      let aVal = a[sortColumn as keyof Privilege];
+      let bVal = b[sortColumn as keyof Privilege];
+      if (typeof aVal === "string") {
+        aVal = aVal.toLowerCase();
+        bVal = (bVal as string).toLowerCase();
+      }
+      if (aVal < bVal) return sortDirection === "asc" ? -1 : 1;
+      if (aVal > bVal) return sortDirection === "asc" ? 1 : -1;
+      return 0;
+    });
+    return data;
+  }, [filteredPrivileges, sortColumn, sortDirection]);
 
   const [toast, setToast] = useState<{ message: string; show: boolean }>({ message: "", show: false });
 
@@ -222,11 +249,31 @@ export default function PrivilegesListPage() {
             </colgroup>
             <thead>
               <tr>
-                {["PrivilegeID", "Privilege", "Description", "Status", "Action(s)"].map((column) => (
-                  <th key={column}>
+                {[
+                  { label: "PrivilegeID", key: "id" },
+                  { label: "Privilege", key: "name" },
+                  { label: "Description", key: "description" },
+                  { label: "Status", key: "status" },
+                  { label: "Action(s)", key: null }
+                ].map((col) => (
+                  <th
+                    key={col.label}
+                    onClick={() => col.key && handleSort(col.key)}
+                    style={{ cursor: col.key ? "pointer" : "default", userSelect: "none" }}
+                  >
                     <div className="flex items-center justify-between gap-3">
-                      <span className="truncate">{column}</span>
-                      {column !== "Action(s)" && <ArrowUpDown className="sort-icon" />}
+                      <span className="truncate">{col.label}</span>
+                      {col.key && (
+                        <ArrowUpDown
+                          className="sort-icon"
+                          style={{
+                            color: sortColumn === col.key ? "var(--table-accent)" : "rgba(255,255,255,0.3)",
+                            opacity: sortColumn === col.key ? 1 : 0.6,
+                            transition: "all 0.2s"
+                          }}
+                          size={14}
+                        />
+                      )}
                     </div>
                   </th>
                 ))}
@@ -255,14 +302,14 @@ export default function PrivilegesListPage() {
                     {error}
                   </td>
                 </tr>
-              ) : filteredPrivileges.length === 0 ? (
+              ) : sortedPrivileges.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="text-center py-8 text-slate-400">
                     Not found in the privileges list
                   </td>
                 </tr>
               ) : (
-                filteredPrivileges.map((p, index) => (
+                sortedPrivileges.map((p, index) => (
                   <tr
                     key={p.id}
                     className={index % 2 === 0 ? "bg-white/[0.01]" : ""}

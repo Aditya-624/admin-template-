@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
 import React, { useState, useEffect } from "react";
+import { Edit } from "lucide-react";
 import {
   Course,
   CourseType,
@@ -17,7 +18,7 @@ type ValidationErrors = Partial<Record<"courseTypeId" | "name" | "externals", st
 export default function EditCoursePage() {
   const router = useRouter();
   const params = useParams();
-  
+
   const idStr = Array.isArray(params.id) ? params.id[0] : params.id;
   const targetId = parseInt(idStr || "0", 10);
 
@@ -31,7 +32,7 @@ export default function EditCoursePage() {
     description: "",
     status: true
   });
-  
+
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [toast, setToast] = useState("");
 
@@ -53,7 +54,17 @@ export default function EditCoursePage() {
 
     // Fetch and populate course by ID
     const storedCourses = localStorage.getItem(COURSE_STORAGE_KEY);
-    const list: Course[] = storedCourses ? JSON.parse(storedCourses) : initialCourses;
+    let list: Course[] = [];
+    if (storedCourses) {
+      try {
+        list = JSON.parse(storedCourses);
+      } catch {
+        list = initialCourses;
+      }
+    } else {
+      list = initialCourses;
+    }
+
     const found = list.find((c) => c.id === targetId);
     if (found) {
       setForm({
@@ -88,6 +99,33 @@ export default function EditCoursePage() {
     if (form.externals === undefined || form.externals === null || isNaN(form.externals) || form.externals < 0) {
       nextErrors.externals = "Number of Externals must be 0 or more";
     }
+
+    // Uniqueness validation (Rule 2)
+    if (form.courseTypeId && form.courseTypeId !== 0 && form.name.trim()) {
+      const stored = localStorage.getItem(COURSE_STORAGE_KEY);
+      let list: Course[] = [];
+      if (stored) {
+        try {
+          list = JSON.parse(stored);
+        } catch {
+          list = initialCourses;
+        }
+      } else {
+        list = initialCourses;
+      }
+
+      const isDuplicate = list.some(
+        (c) =>
+          c.id !== targetId &&
+          c.courseTypeId === form.courseTypeId &&
+          c.name.toLowerCase().trim() === form.name.toLowerCase().trim()
+      );
+
+      if (isDuplicate) {
+        nextErrors.name = "Course name must be unique for the selected Course Type";
+      }
+    }
+
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
   };
@@ -97,7 +135,7 @@ export default function EditCoursePage() {
 
     const stored = localStorage.getItem(COURSE_STORAGE_KEY);
     const list: Course[] = stored ? JSON.parse(stored) : initialCourses;
-    
+
     const updated: Course = {
       id: targetId,
       name: form.name.trim(),
@@ -131,7 +169,7 @@ export default function EditCoursePage() {
 
       <section className="edit-user-card" style={{ maxWidth: "600px", width: "100%" }}>
         <div className="edit-user-header" style={{ borderBottom: "1px solid rgba(255, 255, 255, 0.08)", paddingBottom: "14px", marginBottom: "24px" }}>
-          <h1 style={{ fontSize: "1.5rem", fontWeight: "bold", color: "white" }}>Modify Course</h1>
+          <h1 style={{ fontSize: "1.5rem", fontWeight: "bold", color: "white" }}><span style={{ display: "flex", alignItems: "center", gap: "10px" }}><Edit size={24} /> Modify Course</span></h1>
         </div>
 
         <form className="edit-user-form">
@@ -160,7 +198,7 @@ export default function EditCoursePage() {
                 onChange={(event) => updateField("courseTypeId", parseInt(event.target.value, 10))}
                 style={{ cursor: "pointer" }}
               >
-                <option value="0">-- Select Course Type --</option>
+                <option value="0">Select</option>
                 {courseTypes.map((type) => (
                   <option key={type.id} value={type.id}>
                     {type.name}
@@ -192,8 +230,7 @@ export default function EditCoursePage() {
               <input
                 id="externals"
                 className={fieldClass("externals")}
-                type="number"
-                min="0"
+                type="text"
                 placeholder="<Enter Number of Externals>"
                 value={form.externals}
                 onChange={(event) => updateField("externals", event.target.value === "" ? "" : parseInt(event.target.value, 10))}
@@ -219,18 +256,51 @@ export default function EditCoursePage() {
           <div className="edit-user-row">
             <label htmlFor="status">Status</label>
             <div className="edit-user-field" style={{ display: "flex", alignItems: "center", minHeight: "42px" }}>
-              <label style={{ display: "flex", alignItems: "center", cursor: "pointer", gap: "10px" }}>
-                <input
+              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                <button
+                  type="button"
                   id="status"
-                  type="checkbox"
-                  className="edit-user-checkbox"
-                  checked={form.status}
-                  onChange={(event) => updateField("status", event.target.checked)}
-                />
-                <span className="checkbox-text">
-                  {form.status ? "True (Active)" : "False (Inactive)"}
+                  onClick={() => updateField("status", !form.status)}
+                  className={`status-toggle ${form.status ? "active" : ""}`}
+                  aria-pressed={form.status}
+                  style={{
+                    position: "relative",
+                    width: "48px",
+                    height: "24px",
+                    borderRadius: "9999px",
+                    background: form.status ? "#34c759" : "#4b5563",
+                    border: "none",
+                    cursor: "pointer",
+                    transition: "background-color 0.2s ease, transform 0.1s ease",
+                    padding: "0"
+                  }}
+                >
+                  <span
+                    style={{
+                      display: "block",
+                      width: "18px",
+                      height: "18px",
+                      borderRadius: "50%",
+                      background: "#ffffff",
+                      position: "absolute",
+                      top: "3px",
+                      left: form.status ? "27px" : "3px",
+                      transition: "left 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+                      boxShadow: "0 1px 3px rgba(0,0,0,0.2)"
+                    }}
+                  />
+                </button>
+                <span
+                  style={{
+                    color: form.status ? "#34c759" : "#9ca3af",
+                    fontWeight: "600",
+                    fontSize: "0.95rem",
+                    transition: "color 0.2s ease"
+                  }}
+                >
+                  {form.status ? "Active" : "Inactive"}
                 </span>
-              </label>
+              </div>
             </div>
           </div>
 

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
 import React, { useState, useEffect } from "react";
 import API from "@/services/api";
+import { Edit } from "lucide-react";
 
 const initialData = [
   { id: 1, userType: "1 - Super", userName: "1 - Vamsi", module: "1 - Learn", description: "Learn Module Access", status: true },
@@ -227,7 +228,7 @@ export default function EditUserModulePage() {
 
       <section className="edit-user-card">
         <div className="edit-user-header">
-          <h1>Update User Module(s)</h1>
+          <h1><span style={{ display: "flex", alignItems: "center", gap: "10px" }}><Edit size={24} /> Update User Module(s)</span></h1>
         </div>
 
         <form className="edit-user-form">
@@ -248,9 +249,7 @@ export default function EditUserModulePage() {
                     if (errors.userType) setErrors((p) => ({ ...p, userType: undefined }));
                   }}
                 >
-                  <option value="" disabled>
-                    -- Select User Type --
-                  </option>
+                  <option value="">Select</option>
                   {userTypeOptions.map((opt) => {
                     const val = `${opt.id} - ${opt.name}`;
                     return (
@@ -282,9 +281,7 @@ export default function EditUserModulePage() {
                     if (errors.userName) setErrors((p) => ({ ...p, userName: undefined }));
                   }}
                 >
-                  <option value="" disabled>
-                    -- Select User --
-                  </option>
+                  <option value="">Select</option>
                   {userOptions.map((opt) => {
                     const val = `${opt.id} - ${opt.name}`;
                     return (

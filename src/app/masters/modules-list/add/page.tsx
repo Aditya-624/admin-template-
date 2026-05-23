@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
 import API from "@/services/api";
+import { Plus } from "lucide-react";
 
 type Module = {
   id: number;
@@ -126,7 +127,7 @@ export default function AddModulePage() {
 
       <section className="edit-user-card">
         <div className="edit-user-header">
-          <h1>📦 Create Module</h1>
+          <h1><span style={{ display: "flex", alignItems: "center", gap: "10px" }}><Plus size={24} /> Create Module</span></h1>
         </div>
 
         <form className="edit-user-form">

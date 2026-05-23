@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
 import API from "@/services/api";
+import { Plus } from "lucide-react";
 
 const initialData = [
   { id: 1, userType: "1 - Super", userName: "1 - Vamsi", module: "1 - Learn", description: "Learn Module Access", status: true },
@@ -136,9 +137,7 @@ export default function AddUserModulePage() {
   }, []);
 
   useEffect(() => {
-    if (!userTypeOptions.length) return;
-    const defaultType = `${userTypeOptions[0].id} - ${userTypeOptions[0].name}`;
-    setUserType((v) => v || defaultType);
+    // Keep it empty by default to let user select freely
   }, [userTypeOptions]);
 
   useEffect(() => {
@@ -161,7 +160,6 @@ export default function AddUserModulePage() {
               name: String(u.name ?? u.userName ?? "N/A"),
             }));
             setUserOptions(opts);
-            setUserName((v) => v || `${opts[0].id} - ${opts[0].name}`);
             setUsersLoading(false);
             return;
           }
@@ -174,14 +172,11 @@ export default function AddUserModulePage() {
             name: String(u.name ?? u.userName ?? "N/A"),
           }));
           setUserOptions(opts);
-          setUserName((v) => v || `${opts[0].id} - ${opts[0].name}`);
         } else {
           setUserOptions(fallbackUsers);
-          setUserName((v) => v || `${fallbackUsers[0].id} - ${fallbackUsers[0].name}`);
         }
       } catch {
         setUserOptions(fallbackUsers);
-        setUserName((v) => v || `${fallbackUsers[0].id} - ${fallbackUsers[0].name}`);
       } finally {
         setUsersLoading(false);
       }
@@ -235,7 +230,7 @@ export default function AddUserModulePage() {
 
       <section className="edit-user-card">
         <div className="edit-user-header">
-          <h1>New User Module(s)</h1>
+          <h1><span style={{ display: "flex", alignItems: "center", gap: "10px" }}><Plus size={24} /> New User Module(s)</span></h1>
         </div>
 
         <form className="edit-user-form">
@@ -257,9 +252,7 @@ export default function AddUserModulePage() {
                     if (errors.userType) setErrors((p) => ({ ...p, userType: undefined }));
                   }}
                 >
-                  <option value="" disabled>
-                    -- Select User Type --
-                  </option>
+                  <option value="">Select</option>
                   {userTypeOptions.map((opt) => {
                     const val = `${opt.id} - ${opt.name}`;
                     return (
@@ -291,9 +284,7 @@ export default function AddUserModulePage() {
                     if (errors.userName) setErrors((p) => ({ ...p, userName: undefined }));
                   }}
                 >
-                  <option value="" disabled>
-                    -- Select User --
-                  </option>
+                  <option value="">Select</option>
                   {userOptions.map((opt) => {
                     const val = `${opt.id} - ${opt.name}`;
                     return (

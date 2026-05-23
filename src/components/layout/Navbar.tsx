@@ -14,6 +14,10 @@ import { cn } from "@/lib/utils";
 
 const colorShifts = [
   { label: "Cyan", bg: "linear-gradient(145deg, #021a1f 0%, #164e63 50%, #021a1f 100%)", orb: "radial-gradient(ellipse 80% 70% at 40% 40%, rgba(34,211,238,.9) 0%, rgba(6,182,212,.65) 45%, transparent 75%)", swatch: "#06b6d4" },
+  { label: "Sky", bg: "linear-gradient(145deg, #040f1f 0%, #0c4a6e 50%, #040f1f 100%)", orb: "radial-gradient(ellipse 80% 70% at 40% 40%, rgba(56,189,248,.9) 0%, rgba(14,165,233,.65) 45%, transparent 75%)", swatch: "#0ea5e9" },
+  { label: "Smoke Dark", bg: "radial-gradient(ellipse at 50% 0%, #3b495c 0%, #263344 100%)", orb: "none", swatch: "#3b495c" },
+  { label: "Periwinkle", bg: "linear-gradient(135deg, #6366f1 0%, #818cf8 50%, #a5b4fc 100%)", orb: "none", swatch: "#818cf8" },
+  { label: "Pinkish", bg: "linear-gradient(145deg, #FFF5F7 0%, #FFE4E6 50%, #FECDD3 100%)", orb: "radial-gradient(ellipse 80% 70% at 40% 40%, rgba(251,113,133,.4) 0%, rgba(244,63,94,.25) 45%, transparent 75%)", swatch: "#fb7185" },
 ];
 
 export default function Navbar() {

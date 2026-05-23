@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
 import React, { useState, useEffect } from "react";
 import API from "@/services/api";
+import { Edit } from "lucide-react";
 
 const initialData = [
   { id: 1, userType: "1 - Super", userName: "1 - Vamsi", privilege: "1 - SyllabusUpload", description: "User can upload Syllabus", status: true },
@@ -368,7 +369,7 @@ export default function EditUserAccessPrivilegePage() {
 
       <section className="edit-user-card">
         <div className="edit-user-header">
-          <h1>✏️ Edit Privilege Access</h1>
+          <h1><span style={{ display: "flex", alignItems: "center", gap: "10px" }}><Edit size={24} /> Edit Privilege Access</span></h1>
         </div>
 
         <form className="edit-user-form">
@@ -407,7 +408,7 @@ export default function EditUserAccessPrivilegePage() {
                   value={form.userType}
                   onChange={(e) => updateField("userType", e.target.value)}
                 >
-                  <option value="" disabled>-- Select User Type --</option>
+                  <option value="">Select</option>
                   {userTypeOptions.map((opt) => {
                     const optionVal = `${opt.id} - ${opt.name}`;
                     return (
@@ -456,7 +457,7 @@ export default function EditUserAccessPrivilegePage() {
                   value={form.userName}
                   onChange={(e) => updateField("userName", e.target.value)}
                 >
-                  <option value="" disabled>-- Select User --</option>
+                  <option value="">Select</option>
                   {userOptions.map((opt) => {
                     const optionVal = `${opt.id} - ${opt.name}`;
                     return (

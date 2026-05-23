@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
+import { Plus } from "lucide-react";
 
 const initialUserTypes = [
   { id: 1, name: "Super", description: "User can upload Syllabus", status: true },
@@ -97,7 +98,7 @@ export default function AddUserTypePage() {
 
       <section className="edit-user-card">
         <div className="edit-user-header">
-          <h1>👤 Create User Type</h1>
+          <h1><span style={{ display: "flex", alignItems: "center", gap: "10px" }}><Plus size={24} /> Create User Type</span></h1>
         </div>
 
         <form className="edit-user-form">
@@ -133,19 +134,52 @@ export default function AddUserTypePage() {
 
           <div className="edit-user-row" style={{ alignItems: "center" }}>
             <label htmlFor="status" style={{ marginBottom: 0 }}>Status</label>
-            <div className="edit-user-field">
-              <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", width: "fit-content" }}>
-                <input
-                  type="checkbox"
+            <div className="edit-user-field" style={{ display: "flex", alignItems: "center", minHeight: "42px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                <button
+                  type="button"
                   id="status"
-                  checked={form.status}
-                  onChange={(e) => updateField("status", e.target.checked)}
-                  style={{ width: "16px", height: "16px", accentColor: "#8b5cf6" }}
-                />
-                <span style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.85rem" }}>
-                  {form.status ? "True (Active)" : "False (Inactive)"}
+                  onClick={() => updateField("status", !form.status)}
+                  className={`status-toggle ${form.status ? "active" : ""}`}
+                  aria-pressed={form.status}
+                  style={{
+                    position: "relative",
+                    width: "48px",
+                    height: "24px",
+                    borderRadius: "9999px",
+                    background: form.status ? "#34c759" : "#4b5563",
+                    border: "none",
+                    cursor: "pointer",
+                    transition: "background-color 0.2s ease, transform 0.1s ease",
+                    padding: "0"
+                  }}
+                >
+                  <span
+                    style={{
+                      display: "block",
+                      width: "18px",
+                      height: "18px",
+                      borderRadius: "50%",
+                      background: "#ffffff",
+                      position: "absolute",
+                      top: "3px",
+                      left: form.status ? "27px" : "3px",
+                      transition: "left 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+                      boxShadow: "0 1px 3px rgba(0,0,0,0.2)"
+                    }}
+                  />
+                </button>
+                <span
+                  style={{
+                    color: form.status ? "#34c759" : "#9ca3af",
+                    fontWeight: "600",
+                    fontSize: "0.95rem",
+                    transition: "color 0.2s ease"
+                  }}
+                >
+                  {form.status ? "Active" : "Inactive"}
                 </span>
-              </label>
+              </div>
             </div>
           </div>
 

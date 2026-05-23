@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
 import React, { useState, useEffect } from "react";
+import { Edit } from "lucide-react";
 import {
   CourseType,
   COURSE_TYPE_STORAGE_KEY,
@@ -104,7 +105,7 @@ export default function EditCourseTypePage() {
 
       <section className="edit-user-card" style={{ maxWidth: "600px", width: "100%" }}>
         <div className="edit-user-header" style={{ borderBottom: "1px solid rgba(255, 255, 255, 0.08)", paddingBottom: "14px", marginBottom: "24px" }}>
-          <h1 style={{ fontSize: "1.5rem", fontWeight: "bold", color: "white" }}>Modify Course Type</h1>
+          <h1 style={{ fontSize: "1.5rem", fontWeight: "bold", color: "white" }}><span style={{ display: "flex", alignItems: "center", gap: "10px" }}><Edit size={24} /> Modify Course Type</span></h1>
         </div>
 
         <form className="edit-user-form">
@@ -170,18 +171,51 @@ export default function EditCourseTypePage() {
           <div className="edit-user-row">
             <label htmlFor="status">Status</label>
             <div className="edit-user-field" style={{ display: "flex", alignItems: "center", minHeight: "42px" }}>
-              <label style={{ display: "flex", alignItems: "center", cursor: "pointer", gap: "10px" }}>
-                <input
+              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                <button
+                  type="button"
                   id="status"
-                  type="checkbox"
-                  className="edit-user-checkbox"
-                  checked={form.status}
-                  onChange={(event) => updateField("status", event.target.checked)}
-                />
-                <span className="checkbox-text">
-                  {form.status ? "True (Active)" : "False (Inactive)"}
+                  onClick={() => updateField("status", !form.status)}
+                  className={`status-toggle ${form.status ? "active" : ""}`}
+                  aria-pressed={form.status}
+                  style={{
+                    position: "relative",
+                    width: "48px",
+                    height: "24px",
+                    borderRadius: "9999px",
+                    background: form.status ? "#34c759" : "#4b5563",
+                    border: "none",
+                    cursor: "pointer",
+                    transition: "background-color 0.2s ease, transform 0.1s ease",
+                    padding: "0"
+                  }}
+                >
+                  <span
+                    style={{
+                      display: "block",
+                      width: "18px",
+                      height: "18px",
+                      borderRadius: "50%",
+                      background: "#ffffff",
+                      position: "absolute",
+                      top: "3px",
+                      left: form.status ? "27px" : "3px",
+                      transition: "left 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+                      boxShadow: "0 1px 3px rgba(0,0,0,0.2)"
+                    }}
+                  />
+                </button>
+                <span
+                  style={{
+                    color: form.status ? "#34c759" : "#9ca3af",
+                    fontWeight: "600",
+                    fontSize: "0.95rem",
+                    transition: "color 0.2s ease"
+                  }}
+                >
+                  {form.status ? "Active" : "Inactive"}
                 </span>
-              </label>
+              </div>
             </div>
           </div>
 

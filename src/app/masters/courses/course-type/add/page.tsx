@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
+import { Plus } from "lucide-react";
 import {
   CourseType,
   COURSE_TYPE_STORAGE_KEY,
@@ -84,7 +85,7 @@ export default function AddCourseTypePage() {
 
       <section className="edit-user-card" style={{ maxWidth: "600px", width: "100%" }}>
         <div className="edit-user-header" style={{ borderBottom: "1px solid rgba(255, 255, 255, 0.08)", paddingBottom: "14px", marginBottom: "24px" }}>
-          <h1 style={{ fontSize: "1.5rem", fontWeight: "bold", color: "white" }}>New Course Type</h1>
+          <h1 style={{ fontSize: "1.5rem", fontWeight: "bold", color: "white" }}><span style={{ display: "flex", alignItems: "center", gap: "10px" }}><Plus size={24} /> New Course Type</span></h1>
         </div>
 
         <form className="edit-user-form">

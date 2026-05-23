@@ -27,6 +27,17 @@ export default function ClientsListPage() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [toast, setToast] = useState<{ message: string; show: boolean }>({ message: "", show: false });
+  const [sortColumn, setSortColumn] = useState<string | null>(null);
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+
+  const handleSort = (columnKey: string) => {
+    if (sortColumn === columnKey) {
+      setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortColumn(columnKey);
+      setSortDirection("asc");
+    }
+  };
 
   const loadOfflineData = () => {
     const stored = localStorage.getItem(CLIENTS_STORAGE_KEY);
@@ -58,7 +69,6 @@ export default function ClientsListPage() {
         }
       })
       .catch(() => {
-        setError("Using offline demo data — API not connected.");
         setClients(offline);
       });
   }, []);
@@ -78,6 +88,23 @@ export default function ClientsListPage() {
       c.pinCode.includes(q)
     );
   });
+
+  const sorted = React.useMemo(() => {
+    const data = [...filtered];
+    if (!sortColumn) return data;
+    data.sort((a, b) => {
+      let aVal = a[sortColumn as keyof Client] ?? "";
+      let bVal = b[sortColumn as keyof Client] ?? "";
+      if (typeof aVal === "string") {
+        aVal = aVal.toLowerCase();
+        bVal = String(bVal).toLowerCase();
+      }
+      if (aVal < bVal) return sortDirection === "asc" ? -1 : 1;
+      if (aVal > bVal) return sortDirection === "asc" ? 1 : -1;
+      return 0;
+    });
+    return data;
+  }, [filtered, sortColumn, sortDirection]);
 
   const showToast = (message: string) => {
     setToast({ message, show: true });
@@ -169,22 +196,36 @@ export default function ClientsListPage() {
             <thead>
               <tr>
                 {[
-                  "Client ID",
-                  "Client",
-                  "Mobile",
-                  "Email",
-                  "Website",
-                  "Address",
-                  "City",
-                  "State",
-                  "Pin Code",
-                  "GST Number",
-                  "Action(s)",
+                  { label: "Client ID", key: "clientId" },
+                  { label: "Client", key: "clientName" },
+                  { label: "Mobile", key: "mobile" },
+                  { label: "Email", key: "email" },
+                  { label: "Website", key: "website" },
+                  { label: "Address", key: "address" },
+                  { label: "City", key: "city" },
+                  { label: "State", key: "state" },
+                  { label: "Pin Code", key: "pinCode" },
+                  { label: "GST Number", key: "gstNumber" },
+                  { label: "Action(s)", key: null }
                 ].map((col) => (
-                  <th key={col}>
+                  <th
+                    key={col.label}
+                    onClick={() => col.key && handleSort(col.key)}
+                    style={{ cursor: col.key ? "pointer" : "default", userSelect: "none" }}
+                  >
                     <div className="flex items-center justify-between gap-2">
-                      <span className="truncate">{col}</span>
-                      {col !== "Action(s)" && <ArrowUpDown className="sort-icon" />}
+                      <span className="truncate">{col.label}</span>
+                      {col.key && (
+                        <ArrowUpDown
+                          className="sort-icon"
+                          style={{
+                            color: sortColumn === col.key ? "var(--table-accent)" : "rgba(255,255,255,0.3)",
+                            opacity: sortColumn === col.key ? 1 : 0.6,
+                            transition: "all 0.2s"
+                          }}
+                          size={14}
+                        />
+                      )}
                     </div>
                   </th>
                 ))}
@@ -193,7 +234,7 @@ export default function ClientsListPage() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={10} className="text-center py-8 text-slate-400">
+                  <td colSpan={11} className="text-center py-8 text-slate-400">
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
                       <div
                         style={{
@@ -209,14 +250,14 @@ export default function ClientsListPage() {
                     </div>
                   </td>
                 </tr>
-              ) : filtered.length === 0 ? (
+              ) : sorted.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="text-center py-8 text-slate-400">
+                  <td colSpan={11} className="text-center py-8 text-slate-400">
                     Not found in the list
                   </td>
                 </tr>
               ) : (
-                filtered.map((c, index) => (
+                sorted.map((c, index) => (
                   <tr key={c.id} className={index % 2 === 0 ? "bg-white/[0.01]" : ""}>
                     <td>
                       <div className="datatable-cell text-center">{c.clientId}</div>

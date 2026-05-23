@@ -19,6 +19,8 @@ export default function CourseListPage() {
   const [courseTypes, setCourseTypes] = useState<CourseType[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [sortColumn, setSortColumn] = useState<string | null>(null);
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [toast, setToast] = useState<{ message: string; show: boolean }>({ message: "", show: false });
@@ -57,6 +59,15 @@ export default function CourseListPage() {
     setLoading(false);
   }, []);
 
+  const handleSort = (columnKey: string) => {
+    if (sortColumn === columnKey) {
+      setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortColumn(columnKey);
+      setSortDirection("asc");
+    }
+  };
+
   const getCourseTypeLabel = (typeId: number) => {
     const found = courseTypes.find((t) => t.id === typeId);
     return found ? `${found.id} - ${found.name}` : `${typeId} - Unknown`;
@@ -75,6 +86,30 @@ export default function CourseListPage() {
       (c.status ? "true" : "false").includes(q)
     );
   });
+
+  const sortedCourses = React.useMemo(() => {
+    const data = [...filteredCourses];
+    if (!sortColumn) return data;
+    data.sort((a, b) => {
+      let aVal: any;
+      let bVal: any;
+      if (sortColumn === "courseTypeId") {
+        aVal = getCourseTypeLabel(a.courseTypeId).toLowerCase();
+        bVal = getCourseTypeLabel(b.courseTypeId).toLowerCase();
+      } else {
+        aVal = a[sortColumn as keyof Course];
+        bVal = b[sortColumn as keyof Course];
+        if (typeof aVal === "string") {
+          aVal = aVal.toLowerCase();
+          bVal = (bVal as string ?? "").toLowerCase();
+        }
+      }
+      if (aVal < bVal) return sortDirection === "asc" ? -1 : 1;
+      if (aVal > bVal) return sortDirection === "asc" ? 1 : -1;
+      return 0;
+    });
+    return data;
+  }, [filteredCourses, sortColumn, sortDirection, courseTypes]);
 
   const showToast = (message: string) => {
     setToast({ message, show: true });
@@ -167,11 +202,33 @@ export default function CourseListPage() {
             </colgroup>
             <thead>
               <tr>
-                {["Course ID", "ID / Course Type", "Course", "Number of Externals", "Description", "Status", "Action(s)"].map((column) => (
-                  <th key={column}>
+                {[
+                  { label: "Course ID", key: "id" },
+                  { label: "ID / Course Type", key: "courseTypeId" },
+                  { label: "Course", key: "name" },
+                  { label: "Number of Externals", key: "externals" },
+                  { label: "Description", key: "description" },
+                  { label: "Status", key: "status" },
+                  { label: "Action(s)", key: null }
+                ].map((col) => (
+                  <th
+                    key={col.label}
+                    onClick={() => col.key && handleSort(col.key)}
+                    style={{ cursor: col.key ? "pointer" : "default", userSelect: "none" }}
+                  >
                     <div className="flex items-center justify-between gap-3">
-                      <span className="truncate">{column}</span>
-                      {column !== "Action(s)" && <ArrowUpDown className="sort-icon" />}
+                      <span className="truncate">{col.label}</span>
+                      {col.key && (
+                        <ArrowUpDown
+                          className="sort-icon"
+                          style={{
+                            color: sortColumn === col.key ? "var(--table-accent)" : "rgba(255,255,255,0.3)",
+                            opacity: sortColumn === col.key ? 1 : 0.6,
+                            transition: "all 0.2s"
+                          }}
+                          size={14}
+                        />
+                      )}
                     </div>
                   </th>
                 ))}
@@ -191,15 +248,19 @@ export default function CourseListPage() {
                     </div>
                   </td>
                 </tr>
-              ) : filteredCourses.length === 0 ? (
+              ) : sortedCourses.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="text-center py-8 text-slate-400">
                     Not found in the courses list
                   </td>
                 </tr>
               ) : (
-                filteredCourses.map((c, index) => (
-                  <tr key={c.id} className={index % 2 === 0 ? "bg-white/[0.01]" : ""}>
+                sortedCourses.map((c, index) => (
+                  <tr 
+                    key={c.id} 
+                    className={index % 2 === 0 ? "bg-white/[0.01]" : ""}
+                    style={!c.status ? { opacity: 0.5, filter: "grayscale(100%)" } : undefined}
+                  >
                     <td><div className="datatable-cell text-center">{c.id}</div></td>
                     <td><div className="datatable-cell font-semibold text-white">{getCourseTypeLabel(c.courseTypeId)}</div></td>
                     <td><div className="datatable-cell font-semibold text-white">{c.name}</div></td>
@@ -212,7 +273,7 @@ export default function CourseListPage() {
                           borderColor: c.status ? "rgba(34, 197, 94, 0.3)" : "rgba(239, 68, 68, 0.3)",
                           color: c.status ? "#4ade80" : "#f87171"
                         }}>
-                          {c.status ? "TRUE" : "FALSE"}
+                          {c.status ? "Active" : "Inactive"}
                         </span>
                       </div>
                     </td>

@@ -74,7 +74,6 @@ export default function ModulesListPage() {
           })
           .catch((err2) => {
             console.error("All module endpoints failed, using localStorage fallback:", err2);
-            setError("Failed to load modules from backend API. Displaying offline data.");
             const storedRows = localStorage.getItem(storageKey);
             if (storedRows) {
               setModules(JSON.parse(storedRows));
@@ -89,6 +88,17 @@ export default function ModulesListPage() {
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedModule, setSelectedModule] = useState<Module | null>(null);
+  const [sortColumn, setSortColumn] = useState<string | null>(null);
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+
+  const handleSort = (columnKey: string) => {
+    if (sortColumn === columnKey) {
+      setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortColumn(columnKey);
+      setSortDirection("asc");
+    }
+  };
 
   const filteredModules = modules.filter((m) => {
     if (!search) return true;
@@ -101,6 +111,23 @@ export default function ModulesListPage() {
       (m.status ? "true" : "false").includes(lowerSearch)
     );
   });
+
+  const sortedModules = React.useMemo(() => {
+    const data = [...filteredModules];
+    if (!sortColumn) return data;
+    data.sort((a, b) => {
+      let aVal = a[sortColumn as keyof Module];
+      let bVal = b[sortColumn as keyof Module];
+      if (typeof aVal === "string") {
+        aVal = aVal.toLowerCase();
+        bVal = (bVal as string).toLowerCase();
+      }
+      if (aVal < bVal) return sortDirection === "asc" ? -1 : 1;
+      if (aVal > bVal) return sortDirection === "asc" ? 1 : -1;
+      return 0;
+    });
+    return data;
+  }, [filteredModules, sortColumn, sortDirection]);
 
   const [toast, setToast] = useState<{ message: string; show: boolean }>({ message: "", show: false });
 
@@ -259,11 +286,32 @@ export default function ModulesListPage() {
             </colgroup>
             <thead>
               <tr>
-                {["ModuleID", "Module", "Description", "Short Form", "Status", "Action(s)"].map((column) => (
-                  <th key={column}>
+                {[
+                  { label: "ModuleID", key: "id" },
+                  { label: "Module", key: "name" },
+                  { label: "Description", key: "description" },
+                  { label: "Short Form", key: "shortForm" },
+                  { label: "Status", key: "status" },
+                  { label: "Action(s)", key: null }
+                ].map((col) => (
+                  <th
+                    key={col.label}
+                    onClick={() => col.key && handleSort(col.key)}
+                    style={{ cursor: col.key ? "pointer" : "default", userSelect: "none" }}
+                  >
                     <div className="flex items-center justify-between gap-3">
-                      <span className="truncate">{column}</span>
-                      {column !== "Action(s)" && <ArrowUpDown className="sort-icon" />}
+                      <span className="truncate">{col.label}</span>
+                      {col.key && (
+                        <ArrowUpDown
+                          className="sort-icon"
+                          style={{
+                            color: sortColumn === col.key ? "var(--table-accent)" : "rgba(255,255,255,0.3)",
+                            opacity: sortColumn === col.key ? 1 : 0.6,
+                            transition: "all 0.2s"
+                          }}
+                          size={14}
+                        />
+                      )}
                     </div>
                   </th>
                 ))}
@@ -292,14 +340,14 @@ export default function ModulesListPage() {
                     {error}
                   </td>
                 </tr>
-              ) : filteredModules.length === 0 ? (
+              ) : sortedModules.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="text-center py-8 text-slate-400">
                     Not found in the modules list
                   </td>
                 </tr>
               ) : (
-                filteredModules.map((m, index) => (
+                sortedModules.map((m, index) => (
                   <tr
                     key={m.id}
                     className={index % 2 === 0 ? "bg-white/[0.01]" : ""}

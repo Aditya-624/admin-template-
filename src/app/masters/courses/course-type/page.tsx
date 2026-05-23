@@ -15,6 +15,8 @@ export default function CourseTypeListPage() {
   const [courseTypes, setCourseTypes] = useState<CourseType[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [sortColumn, setSortColumn] = useState<string | null>(null);
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedType, setSelectedType] = useState<CourseType | null>(null);
   const [toast, setToast] = useState<{ message: string; show: boolean }>({ message: "", show: false });
@@ -35,6 +37,15 @@ export default function CourseTypeListPage() {
     setLoading(false);
   }, []);
 
+  const handleSort = (columnKey: string) => {
+    if (sortColumn === columnKey) {
+      setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortColumn(columnKey);
+      setSortDirection("asc");
+    }
+  };
+
   const filteredTypes = courseTypes.filter((p) => {
     if (!search) return true;
     const q = search.toLowerCase();
@@ -46,6 +57,23 @@ export default function CourseTypeListPage() {
       (p.status ? "true" : "false").includes(q)
     );
   });
+
+  const sortedTypes = React.useMemo(() => {
+    const data = [...filteredTypes];
+    if (!sortColumn) return data;
+    data.sort((a, b) => {
+      let aVal = a[sortColumn as keyof CourseType];
+      let bVal = b[sortColumn as keyof CourseType];
+      if (typeof aVal === "string") {
+        aVal = aVal.toLowerCase();
+        bVal = (bVal as string ?? "").toLowerCase();
+      }
+      if (aVal < bVal) return sortDirection === "asc" ? -1 : 1;
+      if (aVal > bVal) return sortDirection === "asc" ? 1 : -1;
+      return 0;
+    });
+    return data;
+  }, [filteredTypes, sortColumn, sortDirection]);
 
   const showToast = (message: string) => {
     setToast({ message, show: true });
@@ -137,11 +165,32 @@ export default function CourseTypeListPage() {
             </colgroup>
             <thead>
               <tr>
-                {["Course Type ID", "Course Type", "Short Form", "Description", "Status", "Action(s)"].map((column) => (
-                  <th key={column}>
+                {[
+                  { label: "Course Type ID", key: "id" },
+                  { label: "Course Type", key: "name" },
+                  { label: "Short Form", key: "shortForm" },
+                  { label: "Description", key: "description" },
+                  { label: "Status", key: "status" },
+                  { label: "Action(s)", key: null }
+                ].map((col) => (
+                  <th
+                    key={col.label}
+                    onClick={() => col.key && handleSort(col.key)}
+                    style={{ cursor: col.key ? "pointer" : "default", userSelect: "none" }}
+                  >
                     <div className="flex items-center justify-between gap-3">
-                      <span className="truncate">{column}</span>
-                      {column !== "Action(s)" && <ArrowUpDown className="sort-icon" />}
+                      <span className="truncate">{col.label}</span>
+                      {col.key && (
+                        <ArrowUpDown
+                          className="sort-icon"
+                          style={{
+                            color: sortColumn === col.key ? "var(--table-accent)" : "rgba(255,255,255,0.3)",
+                            opacity: sortColumn === col.key ? 1 : 0.6,
+                            transition: "all 0.2s"
+                          }}
+                          size={14}
+                        />
+                      )}
                     </div>
                   </th>
                 ))}
@@ -161,15 +210,19 @@ export default function CourseTypeListPage() {
                     </div>
                   </td>
                 </tr>
-              ) : filteredTypes.length === 0 ? (
+              ) : sortedTypes.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="text-center py-8 text-slate-400">
                     Not found in the course types list
                   </td>
                 </tr>
               ) : (
-                filteredTypes.map((p, index) => (
-                  <tr key={p.id} className={index % 2 === 0 ? "bg-white/[0.01]" : ""}>
+                sortedTypes.map((p, index) => (
+                  <tr 
+                    key={p.id} 
+                    className={index % 2 === 0 ? "bg-white/[0.01]" : ""}
+                    style={!p.status ? { opacity: 0.5, filter: "grayscale(100%)" } : undefined}
+                  >
                     <td><div className="datatable-cell text-center">{p.id}</div></td>
                     <td><div className="datatable-cell font-semibold text-white">{p.name}</div></td>
                     <td><div className="datatable-cell font-semibold text-white">{p.shortForm}</div></td>
@@ -181,7 +234,7 @@ export default function CourseTypeListPage() {
                           borderColor: p.status ? "rgba(34, 197, 94, 0.3)" : "rgba(239, 68, 68, 0.3)",
                           color: p.status ? "#4ade80" : "#f87171"
                         }}>
-                          {p.status ? "TRUE" : "FALSE"}
+                          {p.status ? "Active" : "Inactive"}
                         </span>
                       </div>
                     </td>

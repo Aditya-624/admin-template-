@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import React, { useMemo, useState, useEffect } from "react";
 import API from "@/services/api";
+import { Edit } from "lucide-react";
 
 const users = [
   { id: "1", type: "Super Admin", name: "Airi Satou", mobile: "+1 (555) 010-1001", email: "airi.satou@example.com", loginId: "airi.satou", description: "Manages platform accounts", status: "Active" },
@@ -163,152 +164,194 @@ export default function EditUserPage() {
     <div className="edit-user-page">
       {toast && <div className="edit-user-toast">{toast}</div>}
 
-      <section className="edit-user-card">
+      <section className="edit-user-card wide-card">
         <div className="edit-user-header">
-          <h1>✏️ Edit User</h1>
+          <h1><span style={{ display: "flex", alignItems: "center", gap: "10px" }}><Edit size={24} /> Edit User</span></h1>
         </div>
 
-        <form className="edit-user-form">
-          {/* ── User Type — dynamic dropdown from DB ── */}
-          <div className="edit-user-row">
-            <label htmlFor="user-type">User Type *</label>
-            <div className="edit-user-field">
-              {userTypesLoading ? (
-                <div
-                  className="edit-user-input"
+        <form className="form-three-col" onSubmit={(e) => e.preventDefault()}>
+          {/* Column 1 */}
+          <div className="form-col">
+            {/* ── User Type — dynamic dropdown from DB ── */}
+            <div className="edit-user-row compact">
+              <label htmlFor="user-type">User Type *</label>
+              <div className="edit-user-field">
+                {userTypesLoading ? (
+                  <div
+                    className="edit-user-input"
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                      color: "rgba(255,255,255,0.5)",
+                      cursor: "not-allowed",
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: "14px",
+                        height: "14px",
+                        border: "2px solid rgba(255,255,255,0.2)",
+                        borderTopColor: "rgba(255,255,255,0.6)",
+                        borderRadius: "50%",
+                        animation: "spin 1s linear infinite",
+                        flexShrink: 0,
+                      }}
+                    ></div>
+                    Loading user types...
+                    <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+                  </div>
+                ) : (
+                  <select
+                    id="user-type"
+                    className="edit-user-input"
+                    value={form.type}
+                    onChange={(e) => updateField("type", e.target.value)}
+                  >
+                    <option value="">Select</option>
+                    {userTypeOptions.map((opt) => (
+                      <option key={opt.id} value={opt.name}>
+                        {opt.id} - {opt.name}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </div>
+            </div>
+
+            <div className="edit-user-row compact">
+              <label htmlFor="user-name">Name of User *</label>
+              <div className="edit-user-field">
+                <input
+                  id="user-name"
+                  className={fieldClass("name")}
+                  type="text"
+                  placeholder="<Enter Name>"
+                  value={form.name}
+                  onChange={(event) => updateField("name", event.target.value)}
+                />
+                {errors.name && <p className="edit-user-error">{errors.name}</p>}
+              </div>
+            </div>
+
+            <div className="edit-user-row compact">
+              <label htmlFor="status">Status</label>
+            <div className="edit-user-field" style={{ display: "flex", alignItems: "center", minHeight: "42px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                <button
+                  type="button"
+                  id="status"
+                  onClick={() => updateField("status", form.status === "Active" ? "Inactive" : "Active")}
+                  className={`status-toggle ${form.status === "Active" ? "active" : ""}`}
+                  aria-pressed={form.status === "Active"}
                   style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "8px",
-                    color: "rgba(255,255,255,0.5)",
-                    cursor: "not-allowed",
+                    position: "relative",
+                    width: "48px",
+                    height: "24px",
+                    borderRadius: "9999px",
+                    background: form.status === "Active" ? "#34c759" : "#4b5563",
+                    border: "none",
+                    cursor: "pointer",
+                    transition: "background-color 0.2s ease, transform 0.1s ease",
+                    padding: "0"
                   }}
                 >
-                  <div
+                  <span
                     style={{
-                      width: "14px",
-                      height: "14px",
-                      border: "2px solid rgba(255,255,255,0.2)",
-                      borderTopColor: "rgba(255,255,255,0.6)",
+                      display: "block",
+                      width: "18px",
+                      height: "18px",
                       borderRadius: "50%",
-                      animation: "spin 1s linear infinite",
-                      flexShrink: 0,
+                      background: "#ffffff",
+                      position: "absolute",
+                      top: "3px",
+                      left: form.status === "Active" ? "27px" : "3px",
+                      transition: "left 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+                      boxShadow: "0 1px 3px rgba(0,0,0,0.2)"
                     }}
-                  ></div>
-                  Loading user types...
-                  <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-                </div>
-              ) : (
-                <select
-                  id="user-type"
-                  className="edit-user-input"
-                  value={form.type}
-                  onChange={(e) => updateField("type", e.target.value)}
+                  />
+                </button>
+                <span
+                  style={{
+                    color: form.status === "Active" ? "#34c759" : "#9ca3af",
+                    fontWeight: "600",
+                    fontSize: "0.95rem",
+                    transition: "color 0.2s ease"
+                  }}
                 >
-                  <option value="" disabled>-- Select User Type --</option>
-                  {userTypeOptions.map((opt) => (
-                    <option key={opt.id} value={opt.name}>
-                      {opt.id} - {opt.name}
-                    </option>
-                  ))}
-                </select>
-              )}
-            </div>
-          </div>
-
-          <div className="edit-user-row">
-            <label htmlFor="user-name">Name of User *</label>
-            <div className="edit-user-field">
-              <input
-                id="user-name"
-                className={fieldClass("name")}
-                type="text"
-                placeholder="<Enter Name>"
-                value={form.name}
-                onChange={(event) => updateField("name", event.target.value)}
-              />
-              {errors.name && <p className="edit-user-error">{errors.name}</p>}
-            </div>
-          </div>
-
-          <div className="edit-user-row">
-            <label htmlFor="mobile-number">Mobile *</label>
-            <div className="edit-user-field">
-              <input
-                id="mobile-number"
-                className={fieldClass("mobile")}
-                type="tel"
-                placeholder="<Enter Mobile #>"
-                value={form.mobile}
-                onChange={(event) => updateField("mobile", event.target.value)}
-              />
-              {errors.mobile && <p className="edit-user-error">{errors.mobile}</p>}
-            </div>
-          </div>
-
-          <div className="edit-user-row">
-            <label htmlFor="email-address">Email *</label>
-            <div className="edit-user-field">
-              <input
-                id="email-address"
-                className={fieldClass("email")}
-                type="email"
-                placeholder="<Enter Email>"
-                value={form.email}
-                onChange={(event) => updateField("email", event.target.value)}
-              />
-              {errors.email && <p className="edit-user-error">{errors.email}</p>}
-            </div>
-          </div>
-
-          <div className="edit-user-row">
-            <label htmlFor="login-id">Login ID *</label>
-            <div className="edit-user-field">
-              <input
-                id="login-id"
-                className={fieldClass("loginId")}
-                type="text"
-                placeholder="Email ID"
-                value={form.loginId}
-                onChange={(event) => updateField("loginId", event.target.value)}
-              />
-              {errors.loginId && <p className="edit-user-error">{errors.loginId}</p>}
-            </div>
-          </div>
-
-          <div className="edit-user-row">
-            <label htmlFor="description">Description</label>
-            <div className="edit-user-field">
-              <textarea
-                id="description"
-                className="edit-user-input"
-                placeholder="<Enter Description about User>"
-                rows={3}
-                value={form.description}
-                onChange={(event) => updateField("description", event.target.value)}
-              />
-            </div>
-          </div>
-
-          <div className="edit-user-row">
-            <label htmlFor="status">Status</label>
-            <div className="edit-user-field" style={{ display: "flex", alignItems: "center", height: "100%" }}>
-              <label style={{ display: "flex", alignItems: "center", cursor: "pointer", gap: "10px" }}>
-                <input
-                  id="status"
-                  type="checkbox"
-                  className="edit-user-checkbox"
-                  checked={form.status === "Active"}
-                  onChange={(e) => updateField("status", e.target.checked ? "Active" : "Inactive")}
-                />
-                <span className="checkbox-text">
-                  {form.status === "Active" ? "True (Active)" : "False (Inactive)"}
+                  {form.status === "Active" ? "Active" : "Inactive"}
                 </span>
-              </label>
+              </div>
+            </div>
             </div>
           </div>
 
-          <div className="edit-user-actions">
+          {/* Column 2 */}
+          <div className="form-col">
+            <div className="edit-user-row compact">
+              <label htmlFor="mobile-number">Mobile *</label>
+              <div className="edit-user-field">
+                <input
+                  id="mobile-number"
+                  className={fieldClass("mobile")}
+                  type="tel"
+                  placeholder="<Enter Mobile #>"
+                  value={form.mobile}
+                  onChange={(event) => updateField("mobile", event.target.value)}
+                />
+                {errors.mobile && <p className="edit-user-error">{errors.mobile}</p>}
+              </div>
+            </div>
+
+            <div className="edit-user-row compact">
+              <label htmlFor="email-address">Email *</label>
+              <div className="edit-user-field">
+                <input
+                  id="email-address"
+                  className={fieldClass("email")}
+                  type="email"
+                  placeholder="<Enter Email>"
+                  value={form.email}
+                  onChange={(event) => updateField("email", event.target.value)}
+                />
+                {errors.email && <p className="edit-user-error">{errors.email}</p>}
+              </div>
+            </div>
+          </div>
+
+          {/* Column 3 */}
+          <div className="form-col">
+            <div className="edit-user-row compact">
+              <label htmlFor="login-id">Login ID *</label>
+              <div className="edit-user-field">
+                <input
+                  id="login-id"
+                  className={fieldClass("loginId")}
+                  type="text"
+                  placeholder="Email ID"
+                  value={form.loginId}
+                  onChange={(event) => updateField("loginId", event.target.value)}
+                />
+                {errors.loginId && <p className="edit-user-error">{errors.loginId}</p>}
+              </div>
+            </div>
+
+            <div className="edit-user-row compact">
+              <label htmlFor="description">Description</label>
+              <div className="edit-user-field">
+                <textarea
+                  id="description"
+                  className="edit-user-input"
+                  placeholder="<Enter Description about User>"
+                  rows={2}
+                  value={form.description}
+                  onChange={(event) => updateField("description", event.target.value)}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="edit-user-actions form-actions-row">
             <Link href="/masters/user-list" className="edit-user-cancel">
               Cancel
             </Link>

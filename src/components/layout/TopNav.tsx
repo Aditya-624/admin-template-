@@ -22,6 +22,7 @@ const colorShifts = [
   { label: "Sky", bg: "linear-gradient(145deg, #040f1f 0%, #0c4a6e 50%, #040f1f 100%)", orb: "radial-gradient(ellipse 80% 70% at 40% 40%, rgba(56,189,248,.9) 0%, rgba(14,165,233,.65) 45%, transparent 75%)", swatch: "#0ea5e9" },
   { label: "Smoke Dark", bg: "radial-gradient(ellipse at 50% 0%, #3b495c 0%, #263344 100%)", orb: "none", swatch: "#3b495c" },
   { label: "Periwinkle", bg: "linear-gradient(135deg, #6366f1 0%, #818cf8 50%, #a5b4fc 100%)", orb: "none", swatch: "#818cf8" },
+  { label: "Classic White", bg: "#f8fafc", orb: "none", swatch: "#64748b" },
 ];
 
 
@@ -367,7 +368,12 @@ export default function TopNav() {
             </Link>
           </div>
 
-
+          {/* MIDDLE: Nav Menu - Single Row */}
+          <div className="navbar-menu-single hidden lg:flex">
+            {navItems.map((item) => (
+              <NavDropdown key={item.label} label={item.label} icon={item.icon} children={item.children} />
+            ))}
+          </div>
 
           {/* RIGHT: Icons + User */}
           <div className="navbar-right">
@@ -491,14 +497,6 @@ export default function TopNav() {
             </div>
           </div>
         </nav>
-
-        {/* ══ ROW 2 — Nav menu ══ */}
-        <div className="navbar-menu hidden lg:flex">
-          {navItems.map((item) => (
-            <NavDropdown key={item.label} label={item.label} icon={item.icon} children={item.children} />
-          ))}
-        </div>
-
       </header>
 
       {/* Overlay */}
