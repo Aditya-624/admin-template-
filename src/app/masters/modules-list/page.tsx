@@ -107,8 +107,8 @@ export default function ModulesListPage() {
       m.id.toString().includes(lowerSearch) ||
       m.name.toLowerCase().includes(lowerSearch) ||
       m.description.toLowerCase().includes(lowerSearch) ||
-      m.shortForm.toLowerCase().includes(lowerSearch) ||
-      (m.status ? "true" : "false").includes(lowerSearch)
+      m.description.toLowerCase().includes(lowerSearch) ||
+      (m.status ? "active" : "inactive").includes(lowerSearch)
     );
   });
 
@@ -363,7 +363,7 @@ export default function ModulesListPage() {
                           borderColor: m.status ? "rgba(34, 197, 94, 0.3)" : "rgba(239, 68, 68, 0.3)",
                           color: m.status ? "#4ade80" : "#f87171"
                         }}>
-                          {m.status ? "TRUE" : "FALSE"}
+                          {m.status ? "Active" : "Inactive"}
                         </span>
                       </div>
                     </td>

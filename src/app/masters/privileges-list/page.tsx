@@ -81,9 +81,8 @@ export default function PrivilegesListPage() {
     const lowerSearch = search.toLowerCase();
     return (
       p.id.toString().includes(lowerSearch) ||
-      p.name.toLowerCase().includes(lowerSearch) ||
       p.description.toLowerCase().includes(lowerSearch) ||
-      (p.status ? "true" : "false").includes(lowerSearch)
+      (p.status ? "active" : "inactive").includes(lowerSearch)
     );
   });
 
@@ -324,7 +323,7 @@ export default function PrivilegesListPage() {
                           borderColor: p.status ? "rgba(34, 197, 94, 0.3)" : "rgba(239, 68, 68, 0.3)",
                           color: p.status ? "#4ade80" : "#f87171"
                         }}>
-                          {p.status ? "TRUE" : "FALSE"}
+                          {p.status ? "Active" : "Inactive"}
                         </span>
                       </div>
                     </td>

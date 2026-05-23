@@ -61,6 +61,7 @@ export default function AddUserModulePage() {
   const [userType, setUserType] = useState("");
   const [userName, setUserName] = useState("");
   const [description, setDescription] = useState("");
+  const [status, setStatus] = useState(true);
   const [selectedModules, setSelectedModules] = useState<string[]>([]);
   const [userTypeOptions, setUserTypeOptions] = useState<DropdownOption[]>([]);
   const [userOptions, setUserOptions] = useState<DropdownOption[]>([]);
@@ -210,7 +211,7 @@ export default function AddUserModulePage() {
       userName,
       module: mod,
       description: description.trim() || `${mod.split(" - ")[1] ?? mod} Module Access`,
-      status: true,
+      status,
     }));
 
     const nextData = [...currentData, ...newRecords];
@@ -309,7 +310,16 @@ export default function AddUserModulePage() {
                   Loading modules...
                 </div>
               ) : (
-                <div className="privilege-checkboxes-container module-checkboxes-grid">
+                <div 
+                  className="privilege-checkboxes-container"
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
+                    gap: "12px",
+                    marginTop: "8px",
+                    width: "100%"
+                  }}
+                >
                   {moduleOptions.map((opt) => {
                     const optionVal = `${opt.id} - ${opt.name}`;
                     const isChecked = selectedModules.includes(optionVal);
@@ -317,10 +327,29 @@ export default function AddUserModulePage() {
                       <label
                         key={opt.id}
                         className={`privilege-checkbox-item ${isChecked ? "checked" : ""}`}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "10px",
+                          padding: "10px 14px",
+                          borderRadius: "8px",
+                          background: isChecked ? "rgba(139, 92, 246, 0.15)" : "rgba(255, 255, 255, 0.03)",
+                          border: `1px solid ${isChecked ? "rgba(139, 92, 246, 0.5)" : "rgba(255, 255, 255, 0.1)"}`,
+                          cursor: "pointer",
+                          transition: "all 0.2s ease",
+                          width: "100%"
+                        }}
                       >
                         <input
                           type="checkbox"
                           checked={isChecked}
+                          style={{
+                            width: "18px",
+                            height: "18px",
+                            accentColor: "#8b5cf6",
+                            cursor: "pointer",
+                            flexShrink: 0
+                          }}
                           onChange={() => {
                             setSelectedModules((prev) => {
                               const next = prev.includes(optionVal)
@@ -333,7 +362,14 @@ export default function AddUserModulePage() {
                             });
                           }}
                         />
-                        <span className="privilege-checkbox-label">{opt.name}</span>
+                        <span className="privilege-checkbox-label" style={{ 
+                          color: isChecked ? "#c4b5fd" : "rgba(255, 255, 255, 0.7)", 
+                          fontSize: "0.9rem", 
+                          fontWeight: isChecked ? 500 : 400,
+                          wordBreak: "break-word"
+                        }}>
+                          {opt.name}
+                        </span>
                       </label>
                     );
                   })}
@@ -354,6 +390,59 @@ export default function AddUserModulePage() {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
               />
+            </div>
+          </div>
+
+          <div className="edit-user-row" style={{ alignItems: "center" }}>
+            <label htmlFor="status" style={{ marginBottom: 0 }}>
+              Status
+            </label>
+            <div className="edit-user-field" style={{ display: "flex", alignItems: "center", minHeight: "42px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                <button
+                  type="button"
+                  id="status"
+                  onClick={() => setStatus(!status)}
+                  className={`status-toggle ${status ? "active" : ""}`}
+                  aria-pressed={status}
+                  style={{
+                    position: "relative",
+                    width: "48px",
+                    height: "24px",
+                    borderRadius: "9999px",
+                    background: status ? "#34c759" : "#4b5563",
+                    border: "none",
+                    cursor: "pointer",
+                    transition: "background-color 0.2s ease, transform 0.1s ease",
+                    padding: "0"
+                  }}
+                >
+                  <span
+                    style={{
+                      display: "block",
+                      width: "18px",
+                      height: "18px",
+                      borderRadius: "50%",
+                      background: "#ffffff",
+                      position: "absolute",
+                      top: "3px",
+                      left: status ? "27px" : "3px",
+                      transition: "left 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+                      boxShadow: "0 1px 3px rgba(0,0,0,0.2)"
+                    }}
+                  />
+                </button>
+                <span
+                  style={{
+                    color: status ? "#34c759" : "#9ca3af",
+                    fontWeight: "600",
+                    fontSize: "0.95rem",
+                    transition: "color 0.2s ease"
+                  }}
+                >
+                  {status ? "Active" : "Inactive"}
+                </span>
+              </div>
             </div>
           </div>
 

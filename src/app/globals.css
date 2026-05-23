@@ -1862,3 +1862,42 @@ main {
 }
 [data-bg="light"] .search-wrapper input { color: #0f172a !important; }
 [data-bg="light"] .search-wrapper input::placeholder { color: #64748b !important; }
+
+/* ── Deep Specific Light Theme Overrides ── */
+[data-bg="light"] .submenu-flyout button.w-full span.text-\[13px\],
+[data-bg="light"] .submenu-flyout button.w-full div p:first-child {
+  color: #0f172a !important;
+}
+[data-bg="light"] .submenu-flyout button.w-full span.text-\[11px\],
+[data-bg="light"] .submenu-flyout button.w-full div p:last-child {
+  color: #64748b !important;
+}
+[data-bg="light"] .submenu-flyout .group > div:first-child:hover,
+[data-bg="light"] .submenu-flyout .group:hover svg,
+[data-bg="light"] .submenu-flyout .group a:hover {
+  color: #0f172a !important;
+}
+[data-bg="light"] .navbar-left span,
+[data-bg="light"] .navbar-left span.text-white {
+  color: #0f172a !important;
+}
+[data-bg="light"] .nav-item.active {
+  color: #0f172a !important;
+  background: rgba(15, 23, 42, 0.08) !important;
+}
+[data-bg="light"] .nav-item {
+  color: #334155 !important;
+}
+[data-bg="light"] .nav-item:hover {
+  color: #0f172a !important;
+}
+[data-bg="light"] .submenu-flyout a p:first-of-type,
+[data-bg="light"] .submenu-flyout .group p:first-of-type,
+[data-bg="light"] .submenu-flyout a p.leading-tight,
+[data-bg="light"] .submenu-flyout .group p.leading-tight {
+  color: #0f172a !important;
+}
+[data-bg="light"] .submenu-flyout a p:last-child:not(:first-child),
+[data-bg="light"] .submenu-flyout .group p:last-child:not(:first-child) {
+  color: #64748b !important;
+}

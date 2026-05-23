@@ -49,10 +49,10 @@ const navItems = [
         ]
       },
       {
-        label: "User Modules List",
+        label: "User Modules",
         desc: "Manage user modules",
         subItems: [
-          { href: "/transaction/user-modules-list", label: "User Modules List" },
+          { href: "/transaction/user-modules-list", label: "User Modules" },
         ]
       }
     ],
@@ -65,9 +65,10 @@ const navItems = [
         label: "User Management",
         desc: "Manage system users",
         subItems: [
-          { href: "/masters/usertype-list", label: "UserType" },
-          { href: "/masters/user-list", label: "User" },
+          { href: "/masters/usertype-list", label: "User Type" },
+          { href: "/masters/user-list", label: "Users" },
           { href: "/masters/privileges-list", label: "Privileges" },
+          { href: "/masters/modules-list", label: "Modules" },
         ]
       },
       {
@@ -84,6 +85,13 @@ const navItems = [
         subItems: [
           { href: "/masters/courses/course-type", label: "Course Type" },
           { href: "/masters/courses/course", label: "Course" },
+        ]
+      },
+      {
+        label: "Branches",
+        desc: "Manage academic branches",
+        subItems: [
+          { href: "/masters/branches", label: "Branches" },
         ]
       }
     ],
@@ -210,7 +218,7 @@ function NavDropdown({
             <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-3">{label}</p>
             <div style={{
               display: "grid",
-              gridTemplateColumns: children.length > 3 ? "1fr 1fr" : "1fr",
+              gridTemplateColumns: "1fr",
               gap: "4px",
             }}>
               {children.map((child) => (
@@ -225,16 +233,17 @@ function NavDropdown({
 }
 
 const SEARCHABLE_PAGES = [
+  { label: "Branches", href: "/masters/branches", category: "Masters" },
   { label: "Course Type", href: "/masters/courses/course-type", category: "Masters" },
   { label: "Course", href: "/masters/courses/course", category: "Masters" },
-  { label: "UserType List", href: "/masters/usertype-list", category: "Masters" },
-  { label: "User List", href: "/masters/user-list", category: "Masters" },
+  { label: "User Type List", href: "/masters/usertype-list", category: "Masters" },
+  { label: "Users List", href: "/masters/user-list", category: "Masters" },
   { label: "Privileges List", href: "/masters/privileges-list", category: "Masters" },
   { label: "Modules List", href: "/masters/modules-list", category: "Masters" },
   { label: "Clients", href: "/masters/clients", category: "Masters" },
   { label: "Contacts", href: "/masters/contacts", category: "Masters" },
   { label: "User Access Privileges List", href: "/transaction/user-access-privileges-list", category: "Transaction" },
-  { label: "User Modules List", href: "/transaction/user-modules-list", category: "Transaction" },
+  { label: "User Modules", href: "/transaction/user-modules-list", category: "Transaction" },
   { label: "eCommerce Dashboard", href: "/", category: "Dashboard" },
   { label: "Analytics Dashboard", href: "/analytics", category: "Dashboard" },
   { label: "Students", href: "/students", category: "Apps & Pages" },

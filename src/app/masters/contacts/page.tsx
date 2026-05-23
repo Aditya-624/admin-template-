@@ -85,9 +85,8 @@ export default function ContactsListPage() {
       c.department.toLowerCase().includes(q) ||
       c.mobile.includes(q) ||
       c.email.toLowerCase().includes(q) ||
-      c.address.toLowerCase().includes(q) ||
       c.notes.toLowerCase().includes(q) ||
-      (c.status ? "true" : "false").includes(q)
+      (c.status ? "active" : "inactive").includes(q)
     );
   });
 
@@ -305,10 +304,7 @@ export default function ContactsListPage() {
                           style={{
                             background: c.status ? "rgba(34,197,94,0.15)" : "rgba(239,68,68,0.15)",
                             borderColor: c.status ? "rgba(34,197,94,0.3)" : "rgba(239,68,68,0.3)",
-                            color: c.status ? "#4ade80" : "#f87171",
-                          }}
-                        >
-                          {c.status ? "TRUE" : "FALSE"}
+                            {c.status ? "Active" : "Inactive"}
                         </span>
                       </div>
                     </td>
