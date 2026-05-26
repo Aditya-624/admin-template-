@@ -53,14 +53,15 @@ export default function ClientsListPage() {
   };
 
   useEffect(() => {
-    const offline = loadOfflineData();
+    const offline = loadOfflineData().filter((c) => c.status === true);
     setClients(offline);
     setLoading(false);
 
     API.get("/api/master/clients")
       .then((res) => {
         if (Array.isArray(res.data) && res.data.length > 0) {
-          const mapped = res.data.map((row: Record<string, unknown>, idx: number) =>
+          const activeOnly = res.data.filter((row: any) => row.status === undefined || row.status === true || row.status === "Active" || row.status === "active" || row.status === 1 || String(row.status).toLowerCase() === "true");
+          const mapped = activeOnly.map((row: Record<string, unknown>, idx: number) =>
             mapApiClient(row, idx)
           );
           setClients(mapped);
@@ -113,7 +114,7 @@ export default function ClientsListPage() {
 
   const handleDeleteConfirm = () => {
     if (!selectedClient) return;
-    API.delete(`/api/master/clients/${selectedClient.id}`).catch(() => undefined);
+    API.patch(`/api/master/clients/${selectedClient.id}`, { Status: false }).catch(() => undefined);
     const next = clients.filter((c) => c.id !== selectedClient.id);
     setClients(next);
     localStorage.setItem(CLIENTS_STORAGE_KEY, JSON.stringify(next));
@@ -206,7 +207,7 @@ export default function ClientsListPage() {
                   { label: "State", key: "state" },
                   { label: "Pin Code", key: "pinCode" },
                   { label: "GST Number", key: "gstNumber" },
-                  { label: "Action(s)", key: null }
+                  { label: "Actions", key: null }
                 ].map((col) => (
                   <th
                     key={col.label}

@@ -15,14 +15,7 @@ type UserModule = {
   status: boolean;
 };
 
-const initialData: UserModule[] = [
-  { id: 1, userType: "1 - Super", userName: "1 - Vamsi", module: "1 - Learn", description: "Learn Module Access", status: true },
-  { id: 2, userType: "1 - Super", userName: "1 - Vamsi", module: "2 - Evaluate", description: "Evaluate Module Access", status: true },
-  { id: 3, userType: "4 - Expert", userName: "4 - KORA", module: "3 - Teach", description: "User can validate and approve course co", status: true },
-  { id: 4, userType: "3 - Associate", userName: "5 - Raghu", module: "3 - Teach", description: "User can review Course Content", status: true },
-  { id: 5, userType: "3 - Associate", userName: "6 - Mohan", module: "3 - Teach", description: "User can review Course Content", status: true },
-  { id: 6, userType: "4 - Evaluator", userName: "7 - Krishna", module: "6 - Evaluate", description: "User can perform final evaluation", status: true },
-];
+const initialData: UserModule[] = [];
 
 const storageKey = "transaction-user-modules-list-v1";
 
@@ -42,7 +35,8 @@ export default function UserModulesListPage() {
     API.get("/api/user-modules")
       .then((res) => {
         if (Array.isArray(res.data)) {
-          const mapped = res.data.map((um: Record<string, unknown>, idx: number) => ({
+          const activeOnly = res.data.filter((um: any) => um.status === undefined || um.status === true || um.status === "Active" || um.status === "active" || um.status === 1 || String(um.status).toLowerCase() === "true");
+          const mapped = activeOnly.map((um: Record<string, unknown>, idx: number) => ({
             id: typeof um.id === "number" ? um.id : parseInt(String(um.id ?? um.user_module_id ?? um.userModuleId ?? idx + 1), 10),
             userType: String(um.userType ?? um.user_type ?? "N/A"),
             userName: String(um.userName ?? um.user_name ?? "N/A"),
@@ -57,13 +51,15 @@ export default function UserModulesListPage() {
           setModules(mapped);
         } else {
           const storedRows = localStorage.getItem(storageKey);
-          setModules(storedRows ? JSON.parse(storedRows) : initialData);
+          const rawList = storedRows ? JSON.parse(storedRows) : initialData;
+          setModules(rawList.filter((um: any) => um.status === undefined || um.status === true || um.status === "Active" || um.status === "active"));
         }
         setLoading(false);
       })
       .catch(() => {
         const storedRows = localStorage.getItem(storageKey);
-        setModules(storedRows ? JSON.parse(storedRows) : initialData);
+        const rawList = storedRows ? JSON.parse(storedRows) : initialData;
+        setModules(rawList.filter((um: any) => um.status === undefined || um.status === true || um.status === "Active" || um.status === "active"));
         setLoading(false);
       });
   }, []);
@@ -123,7 +119,7 @@ export default function UserModulesListPage() {
   const handleDeleteConfirm = () => {
     if (!selectedModule) return;
 
-    API.delete(`/api/user-modules/${selectedModule.id}`)
+    API.patch(`/api/user-modules/${selectedModule.id}`, { Status: false })
       .then(() => {
         const next = modules.filter((m) => m.id !== selectedModule.id);
         setModules(next);
@@ -268,7 +264,7 @@ export default function UserModulesListPage() {
                   { label: "Module ID / Module", key: "module" },
                   { label: "Description", key: "description" },
                   { label: "Status", key: "status" },
-                  { label: "Action(s)", key: null }
+                  { label: "Actions", key: null }
                 ].map((col) => (
                   <th key={col.label} onClick={() => col.key && handleSort(col.key)} style={{ cursor: col.key ? "pointer" : "default", userSelect: "none" }}>
                     <motion.div
@@ -357,6 +353,7 @@ export default function UserModulesListPage() {
                       <div className="flex justify-center">
                         <motion.span
                           className="status-pill"
+                          data-status={m.status ? "Active" : "Inactive"}
                           whileHover={{ scale: 1.05 }}
                           style={{
                             background: m.status ? "rgba(34, 197, 94, 0.15)" : "rgba(239, 68, 68, 0.15)",

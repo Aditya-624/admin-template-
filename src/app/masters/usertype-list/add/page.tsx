@@ -3,17 +3,10 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
+import API from "@/services/api";
 import { Plus } from "lucide-react";
 
-const initialUserTypes = [
-  { id: 1, name: "Super", description: "User can upload Syllabus", status: true },
-  { id: 2, name: "Admin", description: "User can review Syllabus", status: true },
-  { id: 3, name: "Associate", description: "User can Approval Syllabus", status: true },
-  { id: 4, name: "Expert", description: "User can upload Course", status: true },
-  { id: 5, name: "ClientAdmin", description: "User can review Course", status: true },
-  { id: 6, name: "Evaluator", description: "User can Aoorive Course", status: true },
-  { id: 7, name: "Student", description: "User can Aoorive Course", status: true },
-];
+const initialUserTypes: { id: number; name: string; description: string; status: boolean }[] = [];
 
 const storageKey = "masters-usertype-list-v1";
 
@@ -73,16 +66,36 @@ export default function AddUserTypePage() {
   const saveUserType = () => {
     if (!validateForm()) return;
 
-    const storedTypes = localStorage.getItem(storageKey);
-    const currentTypes = storedTypes ? JSON.parse(storedTypes) as UserTypeItem[] : initialUserTypes;
-    
-    const nextTypes = [...currentTypes, form];
-    localStorage.setItem(storageKey, JSON.stringify(nextTypes));
-    setToast("✓ User Type created successfully");
+    const payload = {
+      UserType: form.name,
+      Description: form.description,
+      Status: form.status
+    };
 
-    window.setTimeout(() => {
-      router.push("/masters/usertype-list");
-    }, 1000);
+    console.log("Sending POST to /api/master/user-types with payload:", payload);
+    API.post("/api/master/user-types", payload)
+      .then((res) => {
+        console.log("Successfully created user type in backend:", res.data);
+        const storedTypes = localStorage.getItem(storageKey);
+        const currentTypes = storedTypes ? JSON.parse(storedTypes) as UserTypeItem[] : initialUserTypes;
+        const nextTypes = [...currentTypes, { ...form, id: res.data.id ?? form.id }];
+        localStorage.setItem(storageKey, JSON.stringify(nextTypes));
+        setToast("✓ User Type created successfully");
+        window.setTimeout(() => {
+          router.push("/masters/usertype-list");
+        }, 1000);
+      })
+      .catch((err) => {
+        console.error("Failed to create user type in backend, saving locally:", err);
+        const storedTypes = localStorage.getItem(storageKey);
+        const currentTypes = storedTypes ? JSON.parse(storedTypes) as UserTypeItem[] : initialUserTypes;
+        const nextTypes = [...currentTypes, form];
+        localStorage.setItem(storageKey, JSON.stringify(nextTypes));
+        setToast("✓ User Type created locally");
+        window.setTimeout(() => {
+          router.push("/masters/usertype-list");
+        }, 1000);
+      });
   };
 
   const fieldClass = (field: keyof ValidationErrors) =>

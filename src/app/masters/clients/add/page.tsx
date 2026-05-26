@@ -45,7 +45,11 @@ export default function AddClientPage() {
     const next: FormErrors = {};
     if (!form.clientName.trim()) next.clientName = "This field is required";
     if (!form.mobile.trim()) next.mobile = "This field is required";
+    else if (!/^\d{10}$/.test(form.mobile.trim())) next.mobile = "Enter a valid 10-digit mobile number";
+
     if (!form.email.trim()) next.email = "This field is required";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) next.email = "Enter a valid email address";
+
     if (!form.address.trim()) next.address = "This field is required";
     if (!form.city.trim()) next.city = "This field is required";
     if (!form.state.trim()) next.state = "This field is required";
@@ -80,12 +84,35 @@ export default function AddClientPage() {
       status: true,
     };
 
+    // Save to localStorage immediately
     const next = [...list, record];
     localStorage.setItem(CLIENTS_STORAGE_KEY, JSON.stringify(next));
-    API.post("/api/master/clients", record).catch(() => undefined);
 
-    setToast("✓ Client created successfully");
-    window.setTimeout(() => router.push("/masters/clients"), 900);
+    // Send PascalCase payload to backend
+    const payload = {
+      UserID: null, // No authenticated user context available
+      Client: record.clientName,
+      Mobile: record.mobile,
+      Email: record.email,
+      Address: record.address,
+      City: record.city,
+      State: record.state,
+      PinCode: record.pinCode,
+      GSTNumber: record.gstNumber,
+    };
+
+    API.post("/api/master/clients", payload)
+      .then((res) => {
+        console.log("Client created in backend:", res.data);
+        setToast("✓ Client created successfully");
+      })
+      .catch((err) => {
+        console.error("Backend POST /api/master/clients failed:", err);
+        setToast("✓ Client saved locally (backend unavailable)");
+      })
+      .finally(() => {
+        window.setTimeout(() => router.push("/masters/clients"), 900);
+      });
   };
 
   const fieldClass = (field: keyof FormErrors) =>
@@ -124,7 +151,7 @@ export default function AddClientPage() {
                 className={fieldClass("mobile")}
                 placeholder="<Enter Mobile #>"
                 value={form.mobile}
-                onChange={(e) => update("mobile", e.target.value)}
+                onChange={(e) => update("mobile", e.target.value.replace(/\D/g, '').slice(0, 10))}
               />
               {errors.mobile && <p className="edit-user-error">{errors.mobile}</p>}
             </div>

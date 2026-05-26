@@ -3,16 +3,10 @@
 import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
 import React, { useState, useEffect } from "react";
+import API from "@/services/api";
 import { Edit } from "lucide-react";
 
-const initialPrivileges = [
-  { id: 1, name: "SyllabusUpload", description: "User can upload Syllabus", status: true },
-  { id: 2, name: "SyllabusReview", description: "User can review Syllabus", status: true },
-  { id: 3, name: "SyllabusApproval", description: "User can Approval Syllabus", status: true },
-  { id: 4, name: "CourseUpload", description: "User can upload Course", status: true },
-  { id: 5, name: "CourseReview", description: "User can review Course", status: true },
-  { id: 6, name: "CourseApproval", description: "User can Approve Course", status: true },
-];
+const initialPrivileges: { id: number; name: string; description: string; status: boolean }[] = [];
 
 const storageKey = "masters-privileges-list-v1";
 
@@ -42,16 +36,34 @@ export default function EditPrivilegePage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const storedRows = localStorage.getItem(storageKey);
-    const existingPrivileges = storedRows ? JSON.parse(storedRows) : initialPrivileges;
-    
-    const found = existingPrivileges.find((p: Privilege) => p.id === targetId);
-    if (found) {
-      setForm(found);
-    } else {
-      router.push("/masters/privileges-list");
-    }
-    setLoading(false);
+    console.log(`Fetching privilege details for ID: ${targetId}...`);
+    setLoading(true);
+    API.get(`/api/master/access-privileges/${targetId}`)
+      .then((res) => {
+        if (res.data) {
+          console.log("Successfully fetched privilege details:", res.data);
+          const p = res.data;
+          setForm({
+            id: typeof p.id === "number" ? p.id : targetId,
+            name: String(p.name ?? p.privilege ?? p.accessPrivilege ?? p.access_privilege ?? ""),
+            description: String(p.description ?? ""),
+            status: p.status === true || p.status === "Active" || p.status === "active" || p.status === 1 || String(p.status).toLowerCase() === "true"
+          });
+        }
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.warn("Backend fetch failed, trying local storage/fallback:", err);
+        const storedRows = localStorage.getItem(storageKey);
+        const existingPrivileges = storedRows ? JSON.parse(storedRows) : initialPrivileges;
+        const found = existingPrivileges.find((p: Privilege) => p.id === targetId);
+        if (found) {
+          setForm(found);
+        } else {
+          router.push("/masters/privileges-list");
+        }
+        setLoading(false);
+      });
   }, [targetId, router]);
 
   const [errors, setErrors] = useState<ValidationErrors>({});
@@ -78,17 +90,36 @@ export default function EditPrivilegePage() {
   const savePrivilege = () => {
     if (!validateForm()) return;
 
-    const storedPrivileges = localStorage.getItem(storageKey);
-    const currentPrivileges = storedPrivileges ? JSON.parse(storedPrivileges) as Privilege[] : initialPrivileges;
-    
-    const nextPrivileges = currentPrivileges.map((p) => (p.id === targetId ? form : p));
-    
-    localStorage.setItem(storageKey, JSON.stringify(nextPrivileges));
-    setToast("✓ Privilege updated successfully");
+    const payload = {
+      AccessPrivilege: form.name,
+      Description: form.description,
+      Status: form.status
+    };
 
-    window.setTimeout(() => {
-      router.push("/masters/privileges-list");
-    }, 1000);
+    console.log("Sending PUT to /api/master/access-privileges/" + targetId + " with payload:", payload);
+    API.put(`/api/master/access-privileges/${targetId}`, payload)
+      .then((res) => {
+        console.log("Successfully updated privilege in backend:", res.data);
+        const storedPrivileges = localStorage.getItem(storageKey);
+        const currentPrivileges = storedPrivileges ? JSON.parse(storedPrivileges) as Privilege[] : initialPrivileges;
+        const nextPrivileges = currentPrivileges.map((p) => (p.id === targetId ? form : p));
+        localStorage.setItem(storageKey, JSON.stringify(nextPrivileges));
+        setToast("✓ Privilege updated successfully");
+        window.setTimeout(() => {
+          router.push("/masters/privileges-list");
+        }, 1000);
+      })
+      .catch((err) => {
+        console.error("Failed to update privilege in backend, saving locally:", err);
+        const storedPrivileges = localStorage.getItem(storageKey);
+        const currentPrivileges = storedPrivileges ? JSON.parse(storedPrivileges) as Privilege[] : initialPrivileges;
+        const nextPrivileges = currentPrivileges.map((p) => (p.id === targetId ? form : p));
+        localStorage.setItem(storageKey, JSON.stringify(nextPrivileges));
+        setToast("✓ Privilege updated locally");
+        window.setTimeout(() => {
+          router.push("/masters/privileges-list");
+        }, 1000);
+      });
   };
 
   const fieldClass = (field: keyof ValidationErrors) =>

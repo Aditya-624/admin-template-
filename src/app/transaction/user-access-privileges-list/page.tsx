@@ -15,14 +15,7 @@ type UserAccessPrivilege = {
   status: boolean;
 };
 
-const initialData: UserAccessPrivilege[] = [
-  { id: 1, userType: "1 - Super", userName: "1 - Vamsi", privilege: "1 - SyllabusUpload", description: "User can upload Syllabus", status: true },
-  { id: 2, userType: "1 - Super", userName: "1 - Vamsi", privilege: "2 - SyllabusReview", description: "User can review Syllabus", status: true },
-  { id: 3, userType: "4 - Expert", userName: "4 - Venu", privilege: "3 - SyllabusApproval", description: "User can Approval Syllabus", status: true },
-  { id: 4, userType: "3 - Associate", userName: "3 - Sameer", privilege: "4 - CourseUpload", description: "User can upload Course", status: true },
-  { id: 5, userType: "3 - Associate", userName: "3 - Sameer", privilege: "5 - CourseReview", description: "User can review Course", status: true },
-  { id: 6, userType: "4 - Expert", userName: "4 - Venu", privilege: "6 - SyllabusApproval", description: "User can Aoorive Course", status: true },
-];
+const initialData: UserAccessPrivilege[] = [];
 
 const storageKey = "transaction-user-access-privileges-v1";
 
@@ -40,7 +33,8 @@ export default function UserAccessPrivilegesListPage() {
       .then((res) => {
         console.log("Successfully fetched user access privileges from backend:", res.data);
         if (Array.isArray(res.data)) {
-          const mapped = res.data.map((uap: any, idx: number) => ({
+          const activeOnly = res.data.filter((uap: any) => uap.status === undefined || uap.status === true || uap.status === "Active" || uap.status === "active" || uap.status === 1 || String(uap.status).toLowerCase() === "true");
+          const mapped = activeOnly.map((uap: any, idx: number) => ({
             id: typeof uap.id === "number" ? uap.id : parseInt(uap.id ?? uap.uap_id ?? uap.userAccessPrivilegeId ?? (idx + 1), 10),
             userType: String(uap.userType ?? uap.user_type ?? uap.usertype ?? "N/A"),
             userName: String(uap.userName ?? uap.user_name ?? uap.username ?? "N/A"),
@@ -52,14 +46,16 @@ export default function UserAccessPrivilegesListPage() {
         } else {
           console.warn("Unexpected privileges response format, using local storage/placeholder fallback");
           const storedRows = localStorage.getItem(storageKey);
-          setPrivileges(storedRows ? JSON.parse(storedRows) : initialData);
+          const rawList = storedRows ? JSON.parse(storedRows) : initialData;
+          setPrivileges(rawList.filter((uap: any) => uap.status === undefined || uap.status === true || uap.status === "Active" || uap.status === "active"));
         }
         setLoading(false);
       })
       .catch((err) => {
         console.error("Error fetching user access privileges from backend:", err);
         const storedRows = localStorage.getItem(storageKey);
-        setPrivileges(storedRows ? JSON.parse(storedRows) : initialData);
+        const rawList = storedRows ? JSON.parse(storedRows) : initialData;
+        setPrivileges(rawList.filter((uap: any) => uap.status === undefined || uap.status === true || uap.status === "Active" || uap.status === "active"));
         setLoading(false);
       });
   }, []);
@@ -124,10 +120,10 @@ export default function UserAccessPrivilegesListPage() {
 
   const handleDeleteConfirm = () => {
     if (selectedPrivilege) {
-      console.log(`Sending DELETE request for user access privilege ID: ${selectedPrivilege.id}`);
-      API.delete(`/api/user-access-privileges/${selectedPrivilege.id}`)
+      console.log(`Sending PATCH request for user access privilege ID: ${selectedPrivilege.id} to soft-delete`);
+      API.patch(`/api/user-access-privileges/${selectedPrivilege.id}`, { Status: false })
         .then((res) => {
-          console.log(`Successfully deleted user access privilege ${selectedPrivilege.id}:`, res.data);
+          console.log(`Successfully soft-deleted user access privilege ${selectedPrivilege.id}:`, res.data);
           const nextPrivileges = privileges.filter((p) => p.id !== selectedPrivilege.id);
           setPrivileges(nextPrivileges);
           localStorage.setItem(storageKey, JSON.stringify(nextPrivileges));
@@ -136,8 +132,7 @@ export default function UserAccessPrivilegesListPage() {
           showToast("✓ Record deleted successfully");
         })
         .catch((err) => {
-          console.error(`Error deleting user access privilege ${selectedPrivilege.id}:`, err);
-          alert("Failed to delete record on backend. Deleting from offline list.");
+          console.error(`Error soft-deleting user access privilege ${selectedPrivilege.id}:`, err);
           const nextPrivileges = privileges.filter((p) => p.id !== selectedPrivilege.id);
           setPrivileges(nextPrivileges);
           localStorage.setItem(storageKey, JSON.stringify(nextPrivileges));
@@ -264,7 +259,7 @@ export default function UserAccessPrivilegesListPage() {
                   { label: "PrivilegeID / Privilege", key: "privilege" },
                   { label: "Description", key: "description" },
                   { label: "Status", key: "status" },
-                  { label: "Action(s)", key: null }
+                  { label: "Actions", key: null }
                 ].map((col) => (
                   <th
                     key={col.label}

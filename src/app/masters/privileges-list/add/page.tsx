@@ -3,16 +3,10 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
+import API from "@/services/api";
 import { Plus } from "lucide-react";
 
-const initialPrivileges = [
-  { id: 1, name: "SyllabusUpload", description: "User can upload Syllabus", status: true },
-  { id: 2, name: "SyllabusReview", description: "User can review Syllabus", status: true },
-  { id: 3, name: "SyllabusApproval", description: "User can Approval Syllabus", status: true },
-  { id: 4, name: "CourseUpload", description: "User can upload Course", status: true },
-  { id: 5, name: "CourseReview", description: "User can review Course", status: true },
-  { id: 6, name: "CourseApproval", description: "User can Approve Course", status: true },
-];
+const initialPrivileges: { id: number; name: string; description: string; status: boolean }[] = [];
 
 const storageKey = "masters-privileges-list-v1";
 
@@ -72,16 +66,36 @@ export default function AddPrivilegePage() {
   const savePrivilege = () => {
     if (!validateForm()) return;
 
-    const storedPrivileges = localStorage.getItem(storageKey);
-    const currentPrivileges = storedPrivileges ? JSON.parse(storedPrivileges) as Privilege[] : initialPrivileges;
-    
-    const nextPrivileges = [...currentPrivileges, form];
-    localStorage.setItem(storageKey, JSON.stringify(nextPrivileges));
-    setToast("✓ Privilege created successfully");
+    const payload = {
+      AccessPrivilege: form.name,
+      Description: form.description,
+      Status: form.status
+    };
 
-    window.setTimeout(() => {
-      router.push("/masters/privileges-list");
-    }, 1000);
+    console.log("Sending POST to /api/master/access-privileges with payload:", payload);
+    API.post("/api/master/access-privileges", payload)
+      .then((res) => {
+        console.log("Successfully created privilege in backend:", res.data);
+        const storedPrivileges = localStorage.getItem(storageKey);
+        const currentPrivileges = storedPrivileges ? JSON.parse(storedPrivileges) as Privilege[] : initialPrivileges;
+        const nextPrivileges = [...currentPrivileges, { ...form, id: res.data.id ?? form.id }];
+        localStorage.setItem(storageKey, JSON.stringify(nextPrivileges));
+        setToast("✓ Privilege created successfully");
+        window.setTimeout(() => {
+          router.push("/masters/privileges-list");
+        }, 1000);
+      })
+      .catch((err) => {
+        console.error("Failed to create privilege in backend, saving locally:", err);
+        const storedPrivileges = localStorage.getItem(storageKey);
+        const currentPrivileges = storedPrivileges ? JSON.parse(storedPrivileges) as Privilege[] : initialPrivileges;
+        const nextPrivileges = [...currentPrivileges, form];
+        localStorage.setItem(storageKey, JSON.stringify(nextPrivileges));
+        setToast("✓ Privilege created locally");
+        window.setTimeout(() => {
+          router.push("/masters/privileges-list");
+        }, 1000);
+      });
   };
 
   const fieldClass = (field: keyof ValidationErrors) =>

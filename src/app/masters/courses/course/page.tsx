@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Edit, Trash2, ArrowUpDown, CheckCircle } from "lucide-react";
+import API from "@/services/api";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import {
@@ -29,34 +30,50 @@ export default function CourseListPage() {
     setLoading(true);
     
     // Fetch Course Types
-    const storedTypes = localStorage.getItem(COURSE_TYPE_STORAGE_KEY);
-    let types: CourseType[] = [];
-    if (storedTypes) {
-      try {
-        types = JSON.parse(storedTypes);
-      } catch {
-        types = initialCourseTypes;
-      }
-    } else {
-      types = initialCourseTypes;
-      localStorage.setItem(COURSE_TYPE_STORAGE_KEY, JSON.stringify(initialCourseTypes));
-    }
-    setCourseTypes(types);
+    API.get("/api/master/course-types")
+      .then((res) => {
+        const rawData = res.data;
+        const data = Array.isArray(rawData) ? rawData : (rawData && Array.isArray(rawData.data) ? rawData.data : []);
+        const mappedTypes: CourseType[] = data.map((t: any, idx: number) => ({
+          id: typeof t.id === "number" ? t.id : parseInt(t.id ?? t.course_type_id ?? t.courseTypeId ?? (idx + 1), 10),
+          name: String(t.name ?? t.course_type ?? t.courseType ?? "N/A"),
+          shortForm: String(t.shortForm ?? t.short_form ?? t.shortName ?? ""),
+          description: String(t.description ?? ""),
+          status: t.status === true || t.status === "Active" || t.status === "active" || t.status === 1 || String(t.status).toLowerCase() === "true"
+        }));
+        setCourseTypes(mappedTypes);
+        localStorage.setItem(COURSE_TYPE_STORAGE_KEY, JSON.stringify(mappedTypes));
+      })
+      .catch((err) => {
+        console.error("Error fetching course types:", err);
+        const storedTypes = localStorage.getItem(COURSE_TYPE_STORAGE_KEY);
+        setCourseTypes(storedTypes ? JSON.parse(storedTypes) : []);
+      });
 
     // Fetch Courses
-    const storedCourses = localStorage.getItem(COURSE_STORAGE_KEY);
-    if (storedCourses) {
-      try {
-        setCourses(JSON.parse(storedCourses));
-      } catch {
-        setCourses(initialCourses);
-      }
-    } else {
-      setCourses(initialCourses);
-      localStorage.setItem(COURSE_STORAGE_KEY, JSON.stringify(initialCourses));
-    }
-    
-    setLoading(false);
+    API.get("/api/master/courses")
+      .then((res) => {
+        const rawData = res.data;
+        const data = Array.isArray(rawData) ? rawData : (rawData && Array.isArray(rawData.data) ? rawData.data : []);
+        const activeOnly = data.filter((c: any) => c.status === undefined || c.status === true || c.status === "Active" || c.status === "active" || c.status === 1 || String(c.status).toLowerCase() === "true");
+        const mappedCourses: Course[] = activeOnly.map((c: any, idx: number) => ({
+          id: typeof c.id === "number" ? c.id : parseInt(c.id ?? c.course_id ?? c.courseId ?? (idx + 1), 10),
+          name: String(c.name ?? c.course ?? c.courseName ?? "N/A"),
+          courseTypeId: typeof c.courseTypeId === "number" ? c.courseTypeId : (typeof c.course_type_id === "number" ? c.course_type_id : parseInt(c.courseTypeId ?? c.course_type_id ?? 1, 10)),
+          externals: typeof c.externals === "number" ? c.externals : parseInt(c.externals ?? 0, 10),
+          description: String(c.description ?? ""),
+          status: c.status === true || c.status === "Active" || c.status === "active" || c.status === 1 || String(c.status).toLowerCase() === "true"
+        }));
+        setCourses(mappedCourses);
+        localStorage.setItem(COURSE_STORAGE_KEY, JSON.stringify(mappedCourses));
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Error fetching courses:", err);
+        const storedCourses = localStorage.getItem(COURSE_STORAGE_KEY);
+        setCourses(storedCourses ? JSON.parse(storedCourses) : []);
+        setLoading(false);
+      });
   }, []);
 
   const handleSort = (columnKey: string) => {
@@ -123,6 +140,7 @@ export default function CourseListPage() {
 
   const handleDeleteConfirm = () => {
     if (selectedCourse) {
+      API.patch(`/api/master/courses/${selectedCourse.id}`, { Status: false }).catch(() => undefined);
       const nextCourses = courses.filter((c) => c.id !== selectedCourse.id);
       setCourses(nextCourses);
       localStorage.setItem(COURSE_STORAGE_KEY, JSON.stringify(nextCourses));
@@ -209,7 +227,7 @@ export default function CourseListPage() {
                   { label: "Number of Externals", key: "externals" },
                   { label: "Description", key: "description" },
                   { label: "Status", key: "status" },
-                  { label: "Action(s)", key: null }
+                  { label: "Actions", key: null }
                 ].map((col) => (
                   <th
                     key={col.label}
@@ -268,7 +286,7 @@ export default function CourseListPage() {
                     <td><div className="datatable-cell text-slate-300" style={{ whiteSpace: "normal" }}>{c.description}</div></td>
                     <td>
                       <div className="flex justify-center">
-                        <span className="status-pill" style={{
+                        <span className="status-pill" data-status={c.status ? "Active" : "Inactive"} style={{
                           background: c.status ? "rgba(34, 197, 94, 0.15)" : "rgba(239, 68, 68, 0.15)",
                           borderColor: c.status ? "rgba(34, 197, 94, 0.3)" : "rgba(239, 68, 68, 0.3)",
                           color: c.status ? "#4ade80" : "#f87171"

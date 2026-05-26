@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
 import React, { useState, useEffect } from "react";
 import { Edit } from "lucide-react";
+import API from "@/services/api";
 import {
   Branch,
   BRANCHES_STORAGE_KEY,
@@ -40,33 +41,63 @@ export default function EditBranchPage() {
 
   useEffect(() => {
     // Load courses
-    const storedCourses = localStorage.getItem(COURSE_STORAGE_KEY);
-    let courseList: Course[] = [];
-    if (storedCourses) {
-      try { courseList = JSON.parse(storedCourses); } catch { courseList = initialCourses; }
-    } else {
-      courseList = initialCourses;
-      localStorage.setItem(COURSE_STORAGE_KEY, JSON.stringify(initialCourses));
-    }
-    setCourses(courseList);
-
-    // Load branch by ID
-    const storedBranches = localStorage.getItem(BRANCHES_STORAGE_KEY);
-    const list: Branch[] = storedBranches ? JSON.parse(storedBranches) : initialBranches;
-    const found = list.find((b) => b.id === targetId);
-    if (found) {
-      setForm({
-        id: found.id,
-        courseId: found.courseId || 0,
-        name: found.name || "",
-        shortForm: found.shortForm || "",
-        description: found.description || "",
-        status: found.status !== undefined ? found.status : true,
+    API.get("/api/master/courses")
+      .then((res) => {
+        const rawData = res.data;
+        const data = Array.isArray(rawData) ? rawData : (rawData && Array.isArray(rawData.data) ? rawData.data : []);
+        const mappedCourses: Course[] = data.map((c: any, idx: number) => ({
+          id: typeof c.id === "number" ? c.id : parseInt(c.id ?? c.course_id ?? c.courseId ?? (idx + 1), 10),
+          name: String(c.name ?? c.course ?? c.courseName ?? "N/A"),
+          courseTypeId: typeof c.courseTypeId === "number" ? c.courseTypeId : (typeof c.course_type_id === "number" ? c.course_type_id : parseInt(c.courseTypeId ?? c.course_type_id ?? 1, 10)),
+          externals: typeof c.externals === "number" ? c.externals : parseInt(c.externals ?? 0, 10),
+          description: String(c.description ?? ""),
+          status: c.status === true || c.status === "Active" || c.status === "active" || c.status === 1 || String(c.status).toLowerCase() === "true"
+        }));
+        setCourses(mappedCourses);
+      })
+      .catch((err) => {
+        console.error("Error fetching courses dropdown:", err);
+        const storedCourses = localStorage.getItem(COURSE_STORAGE_KEY);
+        setCourses(storedCourses ? JSON.parse(storedCourses) : []);
       });
-    } else {
-      router.push("/masters/branches");
-    }
-    setLoading(false);
+
+    // Load branch details from backend API
+    API.get(`/api/master/branches/${targetId}`)
+      .then((res) => {
+        const b = res.data;
+        if (b) {
+          setForm({
+            id: targetId,
+            courseId: typeof b.courseId === "number" ? b.courseId : (typeof b.course_id === "number" ? b.course_id : parseInt(b.courseId ?? b.course_id ?? 0, 10)),
+            name: String(b.name ?? b.branch ?? b.branchName ?? ""),
+            shortForm: String(b.shortForm ?? b.short_form ?? b.shortName ?? ""),
+            description: String(b.description ?? ""),
+            status: b.status === true || b.status === "Active" || b.status === "active" || b.status === 1 || String(b.status).toLowerCase() === "true"
+          });
+          setLoading(false);
+        } else {
+          throw new Error("No branch data returned");
+        }
+      })
+      .catch((err) => {
+        console.error(`Error fetching branch details for id ${targetId} from backend, falling back to local storage:`, err);
+        const storedBranches = localStorage.getItem(BRANCHES_STORAGE_KEY);
+        const list: Branch[] = storedBranches ? JSON.parse(storedBranches) : [];
+        const found = list.find((b) => b.id === targetId);
+        if (found) {
+          setForm({
+            id: found.id,
+            courseId: found.courseId || 0,
+            name: found.name || "",
+            shortForm: found.shortForm || "",
+            description: found.description || "",
+            status: found.status !== undefined ? found.status : true,
+          });
+        } else {
+          router.push("/masters/branches");
+        }
+        setLoading(false);
+      });
   }, [targetId, router]);
 
   const updateField = (field: keyof Branch, value: any) => {
@@ -88,7 +119,7 @@ export default function EditBranchPage() {
   const saveBranch = () => {
     if (!validateForm()) return;
     const stored = localStorage.getItem(BRANCHES_STORAGE_KEY);
-    const list: Branch[] = stored ? JSON.parse(stored) : initialBranches;
+    const list: Branch[] = stored ? JSON.parse(stored) : [];
     const updated: Branch = {
       id: targetId,
       courseId: form.courseId,
@@ -98,8 +129,29 @@ export default function EditBranchPage() {
       status: form.status,
     };
     localStorage.setItem(BRANCHES_STORAGE_KEY, JSON.stringify(list.map(b => (b.id === targetId ? updated : b))));
-    setToast("✓ Branch updated successfully");
-    window.setTimeout(() => router.push("/masters/branches"), 1000);
+
+    const payload = {
+      CourseId: form.courseId,
+      Branch: form.name.trim(),
+      ShortForm: form.shortForm.trim(),
+      Description: form.description.trim(),
+      Status: form.status,
+    };
+
+    console.log(`Sending PUT request to /api/master/branches/${targetId} with payload:`, payload);
+
+    API.put(`/api/master/branches/${targetId}`, payload)
+      .then((res) => {
+        console.log("Successfully updated branch in backend:", res.data);
+        setToast("✓ Branch updated successfully");
+      })
+      .catch((err) => {
+        console.error("Backend PUT /api/master/branches failed:", err);
+        setToast("✓ Branch updated locally (backend unavailable)");
+      })
+      .finally(() => {
+        window.setTimeout(() => router.push("/masters/branches"), 1000);
+      });
   };
 
   const fieldClass = (field: keyof ValidationErrors) =>

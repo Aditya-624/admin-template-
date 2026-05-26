@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Edit, Trash2, ArrowUpDown, CheckCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
+import API from "@/services/api";
 import {
   CourseType,
   COURSE_TYPE_STORAGE_KEY,
@@ -23,18 +24,28 @@ export default function CourseTypeListPage() {
 
   useEffect(() => {
     setLoading(true);
-    const stored = localStorage.getItem(COURSE_TYPE_STORAGE_KEY);
-    if (stored) {
-      try {
-        setCourseTypes(JSON.parse(stored));
-      } catch {
-        setCourseTypes(initialCourseTypes);
-      }
-    } else {
-      setCourseTypes(initialCourseTypes);
-      localStorage.setItem(COURSE_TYPE_STORAGE_KEY, JSON.stringify(initialCourseTypes));
-    }
-    setLoading(false);
+    API.get("/api/master/course-types")
+      .then((res) => {
+        const rawData = res.data;
+        const data = Array.isArray(rawData) ? rawData : (rawData && Array.isArray(rawData.data) ? rawData.data : []);
+        const activeOnly = data.filter((t: any) => t.status === undefined || t.status === true || t.status === "Active" || t.status === "active" || t.status === 1 || String(t.status).toLowerCase() === "true");
+        const mappedTypes: CourseType[] = activeOnly.map((t: any, idx: number) => ({
+          id: typeof t.id === "number" ? t.id : parseInt(t.id ?? t.course_type_id ?? t.courseTypeId ?? (idx + 1), 10),
+          name: String(t.name ?? t.course_type ?? t.courseType ?? "N/A"),
+          shortForm: String(t.shortForm ?? t.short_form ?? t.shortName ?? ""),
+          description: String(t.description ?? ""),
+          status: t.status === true || t.status === "Active" || t.status === "active" || t.status === 1 || String(t.status).toLowerCase() === "true"
+        }));
+        setCourseTypes(mappedTypes);
+        localStorage.setItem(COURSE_TYPE_STORAGE_KEY, JSON.stringify(mappedTypes));
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Error fetching course types:", err);
+        const stored = localStorage.getItem(COURSE_TYPE_STORAGE_KEY);
+        setCourseTypes(stored ? JSON.parse(stored) : []);
+        setLoading(false);
+      });
   }, []);
 
   const handleSort = (columnKey: string) => {
@@ -87,12 +98,26 @@ export default function CourseTypeListPage() {
 
   const handleDeleteConfirm = () => {
     if (selectedType) {
-      const nextTypes = courseTypes.filter((p) => p.id !== selectedType.id);
-      setCourseTypes(nextTypes);
-      localStorage.setItem(COURSE_TYPE_STORAGE_KEY, JSON.stringify(nextTypes));
-      setIsDeleteModalOpen(false);
-      setSelectedType(null);
-      showToast("✓ Course Type deleted successfully");
+      console.log(`Sending PATCH request to soft-delete course type ${selectedType.id}`);
+      API.patch(`/api/master/course-types/${selectedType.id}`, { Status: false })
+        .then((res) => {
+          console.log(`Successfully soft-deleted course type ${selectedType.id}:`, res.data);
+          const nextTypes = courseTypes.filter((p) => p.id !== selectedType.id);
+          setCourseTypes(nextTypes);
+          localStorage.setItem(COURSE_TYPE_STORAGE_KEY, JSON.stringify(nextTypes));
+          setIsDeleteModalOpen(false);
+          setSelectedType(null);
+          showToast("✓ Course Type deleted successfully");
+        })
+        .catch((err) => {
+          console.error(`Error soft-deleting course type ${selectedType.id}:`, err);
+          const nextTypes = courseTypes.filter((p) => p.id !== selectedType.id);
+          setCourseTypes(nextTypes);
+          localStorage.setItem(COURSE_TYPE_STORAGE_KEY, JSON.stringify(nextTypes));
+          setIsDeleteModalOpen(false);
+          setSelectedType(null);
+          showToast("✓ Course Type deleted locally");
+        });
     }
   };
 
@@ -171,7 +196,7 @@ export default function CourseTypeListPage() {
                   { label: "Short Form", key: "shortForm" },
                   { label: "Description", key: "description" },
                   { label: "Status", key: "status" },
-                  { label: "Action(s)", key: null }
+                  { label: "Actions", key: null }
                 ].map((col) => (
                   <th
                     key={col.label}
@@ -229,7 +254,7 @@ export default function CourseTypeListPage() {
                     <td><div className="datatable-cell text-slate-300" style={{ whiteSpace: "normal" }}>{p.description}</div></td>
                     <td>
                       <div className="flex justify-center">
-                        <span className="status-pill" style={{
+                        <span className="status-pill" data-status={p.status ? "Active" : "Inactive"} style={{
                           background: p.status ? "rgba(34, 197, 94, 0.15)" : "rgba(239, 68, 68, 0.15)",
                           borderColor: p.status ? "rgba(34, 197, 94, 0.3)" : "rgba(239, 68, 68, 0.3)",
                           color: p.status ? "#4ade80" : "#f87171"

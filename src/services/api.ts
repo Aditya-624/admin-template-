@@ -1,7 +1,10 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "https://e05f-2401-4900-1cb4-bb16-e871-d39-75f1-effa.ngrok-free.app",
+  // Use relative URL in browser to route through Next.js rewrite proxy (bypassing CORS preflight/OPTIONS restrictions of the backend)
+  baseURL: typeof window === "undefined" 
+    ? (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000").replace(/\/$/, "") 
+    : "",
   headers: {
     "Content-Type": "application/json",
     "ngrok-skip-browser-warning": "69420",

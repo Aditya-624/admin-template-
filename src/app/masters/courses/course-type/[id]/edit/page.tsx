@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
 import React, { useState, useEffect } from "react";
 import { Edit } from "lucide-react";
+import API from "@/services/api";
 import {
   CourseType,
   COURSE_TYPE_STORAGE_KEY,
@@ -32,21 +33,40 @@ export default function EditCourseTypePage() {
   const [toast, setToast] = useState("");
 
   useEffect(() => {
-    const stored = localStorage.getItem(COURSE_TYPE_STORAGE_KEY);
-    const list: CourseType[] = stored ? JSON.parse(stored) : initialCourseTypes;
-    const found = list.find((c) => c.id === targetId);
-    if (found) {
-      setForm({
-        ...found,
-        name: found.name || "",
-        shortForm: found.shortForm || "",
-        description: found.description || "",
-        status: found.status !== undefined ? found.status : true
+    API.get(`/api/master/course-types/${targetId}`)
+      .then((res) => {
+        const c = res.data;
+        if (c) {
+          setForm({
+            id: targetId,
+            name: String(c.name ?? c.courseType ?? c.course_type ?? ""),
+            shortForm: String(c.shortForm ?? c.short_form ?? c.shortName ?? ""),
+            description: String(c.description ?? ""),
+            status: c.status === true || c.status === "Active" || c.status === "active" || c.status === 1 || String(c.status).toLowerCase() === "true"
+          });
+          setLoading(false);
+        } else {
+          throw new Error("No course type details returned");
+        }
+      })
+      .catch((err) => {
+        console.error(`Error fetching course type details for id ${targetId} from backend, falling back to local storage:`, err);
+        const stored = localStorage.getItem(COURSE_TYPE_STORAGE_KEY);
+        const list: CourseType[] = stored ? JSON.parse(stored) : [];
+        const found = list.find((c) => c.id === targetId);
+        if (found) {
+          setForm({
+            id: found.id,
+            name: found.name || "",
+            shortForm: found.shortForm || "",
+            description: found.description || "",
+            status: found.status !== undefined ? found.status : true
+          });
+        } else {
+          router.push("/masters/courses/course-type");
+        }
+        setLoading(false);
       });
-    } else {
-      router.push("/masters/courses/course-type");
-    }
-    setLoading(false);
   }, [targetId, router]);
 
   const updateField = (field: keyof CourseType, value: any) => {
@@ -71,7 +91,7 @@ export default function EditCourseTypePage() {
     if (!validateForm()) return;
 
     const stored = localStorage.getItem(COURSE_TYPE_STORAGE_KEY);
-    const list: CourseType[] = stored ? JSON.parse(stored) : initialCourseTypes;
+    const list: CourseType[] = stored ? JSON.parse(stored) : [];
     
     const updated: CourseType = {
       id: targetId,
@@ -83,11 +103,28 @@ export default function EditCourseTypePage() {
 
     const next = list.map((c) => (c.id === targetId ? updated : c));
     localStorage.setItem(COURSE_TYPE_STORAGE_KEY, JSON.stringify(next));
-    setToast("✓ Course Type updated successfully");
 
-    window.setTimeout(() => {
-      router.push("/masters/courses/course-type");
-    }, 1000);
+    const payload = {
+      CourseType: form.name.trim(),
+      ShortForm: form.shortForm.trim(),
+      Description: form.description.trim(),
+      Status: form.status,
+    };
+
+    console.log(`Sending PUT request to /api/master/course-types/${targetId} with payload:`, payload);
+
+    API.put(`/api/master/course-types/${targetId}`, payload)
+      .then((res) => {
+        console.log("Successfully updated course type in backend:", res.data);
+        setToast("✓ Course Type updated successfully");
+      })
+      .catch((err) => {
+        console.error("Backend PUT /api/master/course-types failed:", err);
+        setToast("✓ Course Type updated locally (backend unavailable)");
+      })
+      .finally(() => {
+        window.setTimeout(() => router.push("/masters/courses/course-type"), 1000);
+      });
   };
 
   const fieldClass = (field: keyof ValidationErrors) =>

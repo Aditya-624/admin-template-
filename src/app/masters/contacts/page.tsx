@@ -53,14 +53,15 @@ export default function ContactsListPage() {
   };
 
   useEffect(() => {
-    const offline = loadOfflineData();
+    const offline = loadOfflineData().filter((c) => c.status === true);
     setContacts(offline);
     setLoading(false);
 
     API.get("/api/master/contacts")
       .then((res) => {
         if (Array.isArray(res.data) && res.data.length > 0) {
-          const mapped = res.data.map((row: Record<string, unknown>, idx: number) =>
+          const activeOnly = res.data.filter((row: any) => row.status === undefined || row.status === true || row.status === "Active" || row.status === "active" || row.status === 1 || String(row.status).toLowerCase() === "true");
+          const mapped = activeOnly.map((row: Record<string, unknown>, idx: number) =>
             mapApiContact(row, idx)
           );
           setContacts(mapped);
@@ -115,7 +116,7 @@ export default function ContactsListPage() {
 
   const handleDeleteConfirm = () => {
     if (!selectedContact) return;
-    API.delete(`/api/master/contacts/${selectedContact.id}`).catch(() => undefined);
+    API.patch(`/api/master/contacts/${selectedContact.id}`, { Status: false }).catch(() => undefined);
     const next = contacts.filter((c) => c.id !== selectedContact.id);
     setContacts(next);
     localStorage.setItem(CONTACTS_STORAGE_KEY, JSON.stringify(next));
@@ -208,7 +209,7 @@ export default function ContactsListPage() {
                   { label: "Address", key: "address" },
                   { label: "Notes", key: "notes" },
                   { label: "Status", key: "status" },
-                  { label: "Action(s)", key: null }
+                  { label: "Actions", key: null }
                 ].map((col) => (
                   <th
                     key={col.label}
@@ -302,10 +303,14 @@ export default function ContactsListPage() {
                       <div className="flex justify-center">
                         <span
                           className="status-pill"
+                          data-status={c.status ? "Active" : "Inactive"}
                           style={{
                             background: c.status ? "rgba(34,197,94,0.15)" : "rgba(239,68,68,0.15)",
                             borderColor: c.status ? "rgba(34,197,94,0.3)" : "rgba(239,68,68,0.3)",
-                            {c.status ? "Active" : "Inactive"}
+                            color: c.status ? "#4ade80" : "#f87171"
+                          }}
+                        >
+                          {c.status ? "Active" : "Inactive"}
                         </span>
                       </div>
                     </td>

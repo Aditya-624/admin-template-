@@ -6,22 +6,19 @@ import React, { useState, useEffect } from "react";
 import API from "@/services/api";
 import { Plus } from "lucide-react";
 
-const users = [
-  { id: "1", type: "Super Admin", name: "Airi Satou", mobile: "+1 (555) 010-1001", email: "airi.satou@example.com", loginId: "airi.satou", description: "Manages platform accounts", status: "Active" },
-  { id: "2", type: "Associate", name: "Angelica Ramos", mobile: "+1 (555) 010-1002", email: "angelica.ramos@example.com", loginId: "angelica.ramos", description: "Creates course content", status: "Active" },
-  { id: "3", type: "Expert", name: "Ashton Cox", mobile: "+1 (555) 010-1003", email: "ashton.cox@example.com", loginId: "ashton.cox", description: "Enrolled learner account", status: "Inactive" },
-  { id: "4", type: "ClientAdmin", name: "Bradley Greer", mobile: "+1 (555) 010-1004", email: "bradley.greer@example.com", loginId: "bradley.greer", description: "Reviews quizzes and lessons", status: "Active" },
-  { id: "5", type: "Evaluator", name: "Brenden Wagner", mobile: "+1 (555) 010-1005", email: "brenden.wagner@example.com", loginId: "brenden.wagner", description: "Handles user queries", status: "Pending" },
-  { id: "6", type: "Student", name: "Brielle Williamson", mobile: "+1 (555) 010-1006", email: "brielle.williamson@example.com", loginId: "brielle.williamson", description: "Controls master data", status: "Active" },
-  { id: "7", type: "Associate", name: "Bruno Nash", mobile: "+1 (555) 010-1007", email: "bruno.nash@example.com", loginId: "bruno.nash", description: "Premium learner account", status: "Active" },
-  { id: "8", type: "Expert", name: "Caesar Vance", mobile: "+1 (555) 010-1008", email: "caesar.vance@example.com", loginId: "caesar.vance", description: "Assists onboarding", status: "Inactive" },
-  { id: "9", type: "Evaluator", name: "Cara Stevens", mobile: "+1 (555) 010-1009", email: "cara.stevens@example.com", loginId: "cara.stevens", description: "Publishes assessments", status: "Active" },
-  { id: "10", type: "Student", name: "Cedric Kelly", mobile: "+1 (555) 010-1010", email: "cedric.kelly@example.com", loginId: "cedric.kelly", description: "Trial learner account", status: "Pending" },
-];
+type User = {
+  id: string;
+  type: string;
+  name: string;
+  mobile: string;
+  email: string;
+  loginId: string;
+  description: string;
+  status: string;
+};
 
+const users: User[] = [];
 const storageKey = "masters-user-list-v4";
-
-type User = typeof users[number];
 type ValidationErrors = Partial<Record<"name" | "mobile" | "email" | "loginId", string>>;
 
 type UserTypeOption = {
@@ -46,8 +43,10 @@ export default function AddUserPage() {
     API.get("/api/users/user-types-dropdown")
       .then((res) => {
         console.log("User types dropdown response:", res.data);
-        const data = Array.isArray(res.data) ? res.data : [];
-        const opts: UserTypeOption[] = data.map((ut: any, idx: number) => ({
+        const rawData = res.data;
+        const data = Array.isArray(rawData) ? rawData : (rawData && Array.isArray(rawData.data) ? rawData.data : []);
+        const activeData = data.filter((ut: any) => ut.status === undefined || ut.status === true || ut.status === "Active" || ut.status === "active" || ut.status === 1 || String(ut.status).toLowerCase() === "true");
+        const opts: UserTypeOption[] = activeData.map((ut: any, idx: number) => ({
           id: typeof ut.id === "number" ? ut.id : parseInt(ut.id ?? ut.user_type_id ?? ut.userTypeId ?? (idx + 1), 10),
           name: String(ut.name ?? ut.user_type ?? ut.userType ?? ut.label ?? ut.value ?? "N/A"),
         }));
@@ -60,8 +59,10 @@ export default function AddUserPage() {
         API.get("/api/master/user-types")
           .then((res) => {
             console.log("Fallback user types response:", res.data);
-            const data = Array.isArray(res.data) ? res.data : [];
-            const opts: UserTypeOption[] = data.map((ut: any, idx: number) => ({
+            const rawData = res.data;
+            const data = Array.isArray(rawData) ? rawData : (rawData && Array.isArray(rawData.data) ? rawData.data : []);
+            const activeData = data.filter((ut: any) => ut.status === undefined || ut.status === true || ut.status === "Active" || ut.status === "active" || ut.status === 1 || String(ut.status).toLowerCase() === "true");
+            const opts: UserTypeOption[] = activeData.map((ut: any, idx: number) => ({
               id: typeof ut.id === "number" ? ut.id : parseInt(ut.id ?? ut.user_type_id ?? (idx + 1), 10),
               name: String(ut.name ?? ut.user_type ?? ut.userType ?? "N/A"),
             }));
@@ -76,10 +77,12 @@ export default function AddUserPage() {
               try {
                 const parsed = JSON.parse(localData);
                 if (Array.isArray(parsed)) {
-                  fallback = parsed.map((ut: any) => ({
-                    id: ut.id,
-                    name: ut.name
-                  }));
+                  fallback = parsed
+                    .filter((ut: any) => ut.status === undefined || ut.status === true || ut.status === "Active" || ut.status === "active" || ut.status === 1 || String(ut.status).toLowerCase() === "true")
+                    .map((ut: any) => ({
+                      id: ut.id,
+                      name: ut.name
+                    }));
                 }
               } catch (e) {
                 console.error("Error parsing local storage user types:", e);
@@ -146,8 +149,8 @@ export default function AddUserPage() {
       }
     });
 
-    if (form.mobile.trim() && !/^\d{10}$/.test(form.mobile.trim())) {
-      nextErrors.mobile = "Enter valid mobile number";
+    if (form.mobile.trim() && !/^\d{7,15}$/.test(form.mobile.trim())) {
+      nextErrors.mobile = "Enter a valid mobile number (digits only, 7-15 digits)";
     }
 
     if (form.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
@@ -161,15 +164,38 @@ export default function AddUserPage() {
   const saveUser = () => {
     if (!validateForm()) return;
 
+    // Always save to localStorage immediately so the list page shows it
     const storedUsers = localStorage.getItem(storageKey);
     const currentUsers = storedUsers ? (JSON.parse(storedUsers) as User[]) : users;
     const nextUsers = [form, ...currentUsers];
     localStorage.setItem(storageKey, JSON.stringify(nextUsers));
-    setToast("✓ User created successfully");
 
-    window.setTimeout(() => {
-      router.push("/masters/user-list");
-    }, 1000);
+    const payload = {
+      UserTypeId: userTypeOptions.find(ut => ut.name === form.type)?.id ?? null,
+      UserType: form.type,
+      FullName: form.name,
+      Mobile: form.mobile,
+      Email: form.email,
+      Login: form.loginId,
+      Description: form.description,
+      Status: true
+    };
+
+    console.log("Sending POST to /api/users with payload:", payload);
+    API.post("/api/users", payload)
+      .then((res) => {
+        console.log("Successfully created user in backend DB:", res.data);
+        setToast("✓ User created successfully");
+      })
+      .catch((err) => {
+        console.error("Backend POST failed, user saved locally:", err);
+        setToast("✓ User saved locally (backend unavailable)");
+      })
+      .finally(() => {
+        window.setTimeout(() => {
+          router.push("/masters/user-list");
+        }, 1000);
+      });
   };
 
   const fieldClass = (field: keyof ValidationErrors) =>
@@ -261,7 +287,7 @@ export default function AddUserPage() {
                   type="number"
                   placeholder="<Enter Mobile #>"
                   value={form.mobile}
-                  onChange={(event) => updateField("mobile", event.target.value)}
+                  onChange={(event) => updateField("mobile", event.target.value.replace(/\D/g, '').slice(0, 10))}
                 />
                 {errors.mobile && <p className="edit-user-error">{errors.mobile}</p>}
               </div>

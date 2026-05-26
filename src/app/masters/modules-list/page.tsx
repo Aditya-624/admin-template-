@@ -14,13 +14,7 @@ type Module = {
   status: boolean;
 };
 
-const initialData: Module[] = [
-  { id: 1, name: "Learn", description: "Saral Vidhya", shortForm: "LRN", status: true },
-  { id: 2, name: "Evaluate", description: "Saral Nirnayah", shortForm: "EVL", status: true },
-  { id: 3, name: "Teach", description: "Saral Bhodhana", shortForm: "TCH", status: true },
-  { id: 4, name: "Train", description: "Saral Shikshana", shortForm: "TRN", status: true },
-  { id: 5, name: "Compete", description: "Saral Pratiyogita", shortForm: "CMP", status: true },
-];
+const initialData: Module[] = [];
 
 const storageKey = "masters-modules-list-v1";
 
@@ -39,7 +33,8 @@ export default function ModulesListPage() {
       .then((res) => {
         console.log("Successfully fetched modules from backend:", res.data);
         if (Array.isArray(res.data)) {
-          const mapped = res.data.map((m: any, idx: number) => ({
+          const activeOnly = res.data.filter((m: any) => m.status === undefined || m.status === true || m.status === "Active" || m.status === "active" || m.status === 1 || String(m.status).toLowerCase() === "true");
+          const mapped = activeOnly.map((m: any, idx: number) => ({
             id: typeof m.id === "number" ? m.id : parseInt(m.id ?? m.module_id ?? m.moduleId ?? (idx + 1), 10),
             name: String(m.name ?? m.module ?? "N/A"),
             description: String(m.description ?? ""),
@@ -50,7 +45,8 @@ export default function ModulesListPage() {
         } else {
           console.warn("Unexpected modules response format, using local storage/placeholder fallback");
           const storedRows = localStorage.getItem(storageKey);
-          setModules(storedRows ? JSON.parse(storedRows) : initialData);
+          const rawList = storedRows ? JSON.parse(storedRows) : initialData;
+          setModules(rawList.filter((m: any) => m.status === undefined || m.status === true || m.status === "Active" || m.status === "active"));
         }
         setLoading(false);
       })
@@ -59,7 +55,8 @@ export default function ModulesListPage() {
         API.get("/api/modules")
           .then((res) => {
             if (Array.isArray(res.data)) {
-              const mapped = res.data.map((m: any, idx: number) => ({
+              const activeOnly = res.data.filter((m: any) => m.status === undefined || m.status === true || m.status === "Active" || m.status === "active" || m.status === 1);
+              const mapped = activeOnly.map((m: any, idx: number) => ({
                 id: typeof m.id === "number" ? m.id : parseInt(m.id ?? m.module_id ?? (idx + 1), 10),
                 name: String(m.name ?? m.module ?? "N/A"),
                 description: String(m.description ?? ""),
@@ -76,9 +73,10 @@ export default function ModulesListPage() {
             console.error("All module endpoints failed, using localStorage fallback:", err2);
             const storedRows = localStorage.getItem(storageKey);
             if (storedRows) {
-              setModules(JSON.parse(storedRows));
+              const rawList = JSON.parse(storedRows);
+              setModules(rawList.filter((m: any) => m.status === undefined || m.status === true || m.status === "Active" || m.status === "active"));
             } else {
-              setModules(initialData);
+              setModules(initialData.filter((m: any) => m.status === undefined || m.status === true));
               localStorage.setItem(storageKey, JSON.stringify(initialData));
             }
             setLoading(false);
@@ -143,10 +141,10 @@ export default function ModulesListPage() {
 
   const handleDeleteConfirm = () => {
     if (selectedModule) {
-      console.log(`Sending DELETE request for module ID: ${selectedModule.id}`);
-      API.delete(`/api/master/modules/${selectedModule.id}`)
+      console.log(`Sending PATCH request for module ID: ${selectedModule.id} to soft-delete`);
+      API.patch(`/api/master/modules/${selectedModule.id}`, { Status: false })
         .then((res) => {
-          console.log(`Successfully deleted module ${selectedModule.id}:`, res.data);
+          console.log(`Successfully soft-deleted module ${selectedModule.id}:`, res.data);
           const nextModules = modules.filter((m) => m.id !== selectedModule.id);
           setModules(nextModules);
           localStorage.setItem(storageKey, JSON.stringify(nextModules));
@@ -155,8 +153,8 @@ export default function ModulesListPage() {
           showToast("✓ Module deleted successfully");
         })
         .catch((err) => {
-          console.warn(`Failed to delete module on backend, trying /api/modules/${selectedModule.id}...`, err);
-          API.delete(`/api/modules/${selectedModule.id}`)
+          console.warn(`Failed to soft-delete module on backend, trying /api/modules/${selectedModule.id}...`, err);
+          API.patch(`/api/modules/${selectedModule.id}`, { Status: false })
             .then(() => {
               const nextModules = modules.filter((m) => m.id !== selectedModule.id);
               setModules(nextModules);
@@ -166,7 +164,7 @@ export default function ModulesListPage() {
               showToast("✓ Module deleted successfully");
             })
             .catch((err2) => {
-              console.error("Delete failed on both endpoints. Deleting locally.", err2);
+              console.error("Soft-delete failed on both endpoints. Deleting locally.", err2);
               const nextModules = modules.filter((m) => m.id !== selectedModule.id);
               setModules(nextModules);
               localStorage.setItem(storageKey, JSON.stringify(nextModules));
@@ -292,7 +290,7 @@ export default function ModulesListPage() {
                   { label: "Description", key: "description" },
                   { label: "Short Form", key: "shortForm" },
                   { label: "Status", key: "status" },
-                  { label: "Action(s)", key: null }
+                  { label: "Actions", key: null }
                 ].map((col) => (
                   <th
                     key={col.label}

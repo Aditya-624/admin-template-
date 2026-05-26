@@ -6,14 +6,7 @@ import React, { useState, useEffect } from "react";
 import API from "@/services/api";
 import { Plus } from "lucide-react";
 
-const initialData = [
-  { id: 1, userType: "1 - Super", userName: "1 - Vamsi", module: "1 - Learn", description: "Learn Module Access", status: true },
-  { id: 2, userType: "1 - Super", userName: "1 - Vamsi", module: "2 - Evaluate", description: "Evaluate Module Access", status: true },
-  { id: 3, userType: "4 - Expert", userName: "4 - KORA", module: "3 - Teach", description: "User can validate and approve course co", status: true },
-  { id: 4, userType: "3 - Associate", userName: "5 - Raghu", module: "3 - Teach", description: "User can review Course Content", status: true },
-  { id: 5, userType: "3 - Associate", userName: "6 - Mohan", module: "3 - Teach", description: "User can review Course Content", status: true },
-  { id: 6, userType: "4 - Evaluator", userName: "7 - Krishna", module: "6 - Evaluate", description: "User can perform final evaluation", status: true },
-];
+const initialData: { id: number; userType: string; userName: string; module: string; description: string; status: boolean }[] = [];
 
 const storageKey = "transaction-user-modules-list-v1";
 
@@ -77,7 +70,8 @@ export default function AddUserModulePage() {
     API.get("/api/master/user-types")
       .then((res) => {
         const data = Array.isArray(res.data) ? res.data : [];
-        const opts = data.map((ut: Record<string, unknown>, idx: number) => ({
+        const activeData = data.filter((ut: any) => ut.status === undefined || ut.status === true || ut.status === "Active" || ut.status === "active" || ut.status === 1 || String(ut.status).toLowerCase() === "true");
+        const opts = activeData.map((ut: Record<string, unknown>, idx: number) => ({
           id: typeof ut.id === "number" ? ut.id : parseInt(String(ut.id ?? idx + 1), 10),
           name: String(ut.name ?? ut.user_type ?? "N/A"),
         }));
@@ -89,7 +83,8 @@ export default function AddUserModulePage() {
           try {
             const parsed = JSON.parse(local);
             if (Array.isArray(parsed)) {
-              setUserTypeOptions(parsed.map((ut: { id: number; name: string }) => ({ id: ut.id, name: ut.name })));
+              const activeData = parsed.filter((ut: any) => ut.status === undefined || ut.status === true || ut.status === "Active" || ut.status === "active" || ut.status === 1 || String(ut.status).toLowerCase() === "true");
+              setUserTypeOptions(activeData.map((ut: { id: number; name: string }) => ({ id: ut.id, name: ut.name })));
               return;
             }
           } catch {
@@ -104,7 +99,8 @@ export default function AddUserModulePage() {
     API.get("/api/master/modules")
       .then((res) => {
         const data = Array.isArray(res.data) ? res.data : [];
-        const opts = data.map((m: Record<string, unknown>, idx: number) => ({
+        const activeData = data.filter((m: any) => m.status === undefined || m.status === true || m.status === "Active" || m.status === "active" || m.status === 1 || String(m.status).toLowerCase() === "true");
+        const opts = activeData.map((m: Record<string, unknown>, idx: number) => ({
           id: typeof m.id === "number" ? m.id : parseInt(String(m.id ?? idx + 1), 10),
           name: String(m.name ?? m.module ?? "N/A"),
         }));
@@ -120,7 +116,8 @@ export default function AddUserModulePage() {
           try {
             const parsed = JSON.parse(local);
             if (Array.isArray(parsed)) {
-              const opts = parsed.map((m: { id: number; name: string }) => ({ id: m.id, name: m.name }));
+              const activeData = parsed.filter((m: any) => m.status === undefined || m.status === true || m.status === "Active" || m.status === "active" || m.status === 1 || String(m.status).toLowerCase() === "true");
+              const opts = activeData.map((m: { id: number; name: string }) => ({ id: m.id, name: m.name }));
               const unique = opts.filter(
                 (opt: DropdownOption, i: number, arr: DropdownOption[]) =>
                   arr.findIndex((o) => o.name === opt.name) === i
@@ -156,7 +153,8 @@ export default function AddUserModulePage() {
           const res = await API.get(`/api/user-access-privileges/users-by-type-dropdown/${typeId}`);
           const data = Array.isArray(res.data) ? res.data : [];
           if (data.length) {
-            const opts = data.map((u: Record<string, unknown>, idx: number) => ({
+            const activeData = data.filter((u: any) => u.status === undefined || u.status === true || u.status === "Active" || u.status === "active" || u.status === 1 || String(u.status).toLowerCase() === "true");
+            const opts = activeData.map((u: Record<string, unknown>, idx: number) => ({
               id: typeof u.id === "number" ? u.id : parseInt(String(u.id ?? idx + 1), 10),
               name: String(u.name ?? u.userName ?? "N/A"),
             }));
@@ -168,7 +166,8 @@ export default function AddUserModulePage() {
         const res = await API.get("/api/users");
         const data = Array.isArray(res.data) ? res.data : [];
         if (data.length) {
-          const opts = data.map((u: Record<string, unknown>, idx: number) => ({
+          const activeData = data.filter((u: any) => u.status === undefined || u.status === true || u.status === "Active" || u.status === "active" || u.status === 1 || String(u.status).toLowerCase() === "true");
+          const opts = activeData.map((u: Record<string, unknown>, idx: number) => ({
             id: typeof u.id === "number" ? u.id : parseInt(String(u.id ?? idx + 1), 10),
             name: String(u.name ?? u.userName ?? "N/A"),
           }));
@@ -214,12 +213,27 @@ export default function AddUserModulePage() {
       status,
     }));
 
-    const nextData = [...currentData, ...newRecords];
-    localStorage.setItem(storageKey, JSON.stringify(nextData));
-    newRecords.forEach((record) => API.post("/api/user-modules", record).catch(() => undefined));
+    const userTypeId = parseInt(userType.split(" - ")[0], 10) || null;
+    const userNameId = parseInt(userName.split(" - ")[0], 10) || null;
 
-    setToast(`✓ ${newRecords.length} user module record(s) created successfully`);
-    window.setTimeout(() => router.push("/transaction/user-modules-list"), 1000);
+    const apiCalls = newRecords.map((record) => {
+      const modId = parseInt(record.module.split(" - ")[0], 10) || null;
+      const payload = {
+        UserTypeId: userTypeId,
+        UserId: userNameId,
+        ModuleId: modId,
+        Description: record.description,
+        Status: record.status
+      };
+      return API.post("/api/user-modules", payload).catch(() => undefined);
+    });
+
+    Promise.all(apiCalls).then(() => {
+      const nextData = [...currentData, ...newRecords];
+      localStorage.setItem(storageKey, JSON.stringify(nextData));
+      setToast(`✓ ${newRecords.length} user module record(s) created successfully`);
+      window.setTimeout(() => router.push("/transaction/user-modules-list"), 1000);
+    });
   };
 
   const fieldClass = (field: keyof ValidationErrors) =>

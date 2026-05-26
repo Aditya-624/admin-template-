@@ -5,18 +5,18 @@ import React, { useState, useEffect } from "react";
 import { ArrowUpDown, Edit, Trash2 } from "lucide-react";
 import API from "@/services/api";
 
-const placeholderData = [
-  { id: "1", type: "Super Admin", name: "Airi Satou", mobile: "+1 (555) 010-1001", email: "airi.satou@example.com", loginId: "airi.satou", description: "Manages platform accounts", status: "Active" },
-  { id: "2", type: "Associate", name: "Angelica Ramos", mobile: "+1 (555) 010-1002", email: "angelica.ramos@example.com", loginId: "angelica.ramos", description: "Creates course content", status: "Active" },
-  { id: "3", type: "Expert", name: "Ashton Cox", mobile: "+1 (555) 010-1003", email: "ashton.cox@example.com", loginId: "ashton.cox", description: "Enrolled learner account", status: "Inactive" },
-  { id: "4", type: "ClientAdmin", name: "Bradley Greer", mobile: "+1 (555) 010-1004", email: "bradley.greer@example.com", loginId: "bradley.greer", description: "Reviews quizzes and lessons", status: "Active" },
-  { id: "5", type: "Evaluator", name: "Brenden Wagner", mobile: "+1 (555) 010-1005", email: "brenden.wagner@example.com", loginId: "brenden.wagner", description: "Handles user queries", status: "Pending" },
-  { id: "6", type: "Student", name: "Brielle Williamson", mobile: "+1 (555) 010-1006", email: "brielle.williamson@example.com", loginId: "brielle.williamson", description: "Controls master data", status: "Active" },
-  { id: "7", type: "Associate", name: "Bruno Nash", mobile: "+1 (555) 010-1007", email: "bruno.nash@example.com", loginId: "bruno.nash", description: "Premium learner account", status: "Active" },
-  { id: "8", type: "Expert", name: "Caesar Vance", mobile: "+1 (555) 010-1008", email: "caesar.vance@example.com", loginId: "caesar.vance", description: "Assists onboarding", status: "Inactive" },
-  { id: "9", type: "Evaluator", name: "Cara Stevens", mobile: "+1 (555) 010-1009", email: "cara.stevens@example.com", loginId: "cara.stevens", description: "Publishes assessments", status: "Active" },
-  { id: "10", type: "Student", name: "Cedric Kelly", mobile: "+1 (555) 010-1010", email: "cedric.kelly@example.com", loginId: "cedric.kelly", description: "Trial learner account", status: "Pending" },
-];
+type UserItem = {
+  id: string;
+  type: string;
+  name: string;
+  mobile: string;
+  email: string;
+  loginId: string;
+  description: string;
+  status: string;
+};
+
+const placeholderData: UserItem[] = [];
 
 const columns = [
   "User ID",
@@ -31,15 +31,15 @@ const columns = [
 const storageKey = "masters-user-list-v4";
 
 const getInitialRows = () => {
-  if (typeof window === "undefined") return placeholderData;
+  if (typeof window === "undefined") return placeholderData.filter(row => row.status === "Active" || row.status === "active");
 
   const storedRows = localStorage.getItem(storageKey);
-  if (!storedRows) return placeholderData;
+  if (!storedRows) return placeholderData.filter(row => row.status === "Active" || row.status === "active");
 
   try {
-    return JSON.parse(storedRows) as typeof placeholderData;
+    return (JSON.parse(storedRows) as typeof placeholderData).filter(row => row.status === "Active" || row.status === "active");
   } catch {
-    return placeholderData;
+    return placeholderData.filter(row => row.status === "Active" || row.status === "active");
   }
 };
 
@@ -57,20 +57,28 @@ export default function UserListPage() {
     API.get("/api/users")
       .then((res) => {
         console.log("Successfully fetched users from backend:", res.data);
-        if (Array.isArray(res.data)) {
-          const mapped = res.data.map((u: any, idx: number) => ({
+        if (Array.isArray(res.data) && res.data.length > 0) {
+          const activeOnly = res.data.filter((u: any) => u.status === true || u.status === "Active" || u.status === "active");
+          const mapped = activeOnly.map((u: any, idx: number) => ({
             id: String(u.id ?? u.user_id ?? u.userId ?? (idx + 1)),
             type: String(u.type ?? u.user_type ?? u.usertype ?? u.userType ?? "Student"),
             name: String(u.name ?? u.user_name ?? u.username ?? "N/A"),
             mobile: String(u.mobile ?? u.mobile_number ?? u.phone ?? "N/A"),
             email: String(u.email ?? u.email_id ?? u.emailAddress ?? "N/A"),
-            loginId: String(u.loginId ?? u.login_id ?? u.username ?? "N/A"),
+            loginId: String(u.loginId ?? u.login_id ?? u.login ?? u.username ?? "N/A"),
             description: String(u.description ?? ""),
             status: u.status === true || u.status === "Active" || u.status === "active" ? "Active" : "Inactive"
           }));
-          setRows(mapped);
+
+          // Merge: combine backend rows with any locally-added rows not yet in backend
+          const localRaw = localStorage.getItem(storageKey);
+          const localRows: typeof placeholderData = localRaw ? JSON.parse(localRaw) : [];
+          const backendIds = new Set(mapped.map(r => r.id));
+          const localOnlyRows = localRows.filter(r => !backendIds.has(r.id) && (r.status === "Active" || r.status === "active"));
+          setRows([...mapped, ...localOnlyRows]);
         } else {
-          console.warn("Unexpected response format, setting placeholder as fallback");
+          // Backend returned empty or no data — show localStorage fallback
+          console.warn("Backend returned empty list, falling back to localStorage");
           setRows(getInitialRows());
         }
         setLoading(false);
@@ -126,10 +134,10 @@ export default function UserListPage() {
 
   const removeRow = (id: string) => {
     if (window.confirm("Do you really want to delete this user?")) {
-      console.log(`Sending DELETE request for user with ID: ${id}`);
-      API.delete(`/api/users/${id}`)
+      console.log(`Sending PATCH request for user with ID: ${id} to soft-delete`);
+      API.patch(`/api/users/${id}`, { Status: false })
         .then((res) => {
-          console.log(`Successfully deleted user ${id} on backend:`, res.data);
+          console.log(`Successfully soft-deleted user ${id} on backend:`, res.data);
           setRows((currentRows) => {
             const nextRows = currentRows.filter((row) => row.id !== id);
             localStorage.setItem(storageKey, JSON.stringify(nextRows));
@@ -137,8 +145,8 @@ export default function UserListPage() {
           });
         })
         .catch((err) => {
-          console.error(`Error deleting user ${id}:`, err);
-          alert("Failed to delete user on the backend. Deleting from offline list.");
+          console.error(`Error soft-deleting user ${id}:`, err);
+          // Even if backend fails, remove locally so frontend remains consistent
           setRows((currentRows) => {
             const nextRows = currentRows.filter((row) => row.id !== id);
             localStorage.setItem(storageKey, JSON.stringify(nextRows));

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
 import React, { useState, useEffect } from "react";
 import { Edit } from "lucide-react";
+import API from "@/services/api";
 import {
   Course,
   CourseType,
@@ -38,47 +39,62 @@ export default function EditCoursePage() {
 
   useEffect(() => {
     // Load course types
-    const storedTypes = localStorage.getItem(COURSE_TYPE_STORAGE_KEY);
-    let types: CourseType[] = [];
-    if (storedTypes) {
-      try {
-        types = JSON.parse(storedTypes);
-      } catch {
-        types = initialCourseTypes;
-      }
-    } else {
-      types = initialCourseTypes;
-      localStorage.setItem(COURSE_TYPE_STORAGE_KEY, JSON.stringify(initialCourseTypes));
-    }
-    setCourseTypes(types);
+    API.get("/api/master/course-types")
+      .then((res) => {
+        const rawData = res.data;
+        const data = Array.isArray(rawData) ? rawData : (rawData && Array.isArray(rawData.data) ? rawData.data : []);
+        const mappedTypes: CourseType[] = data.map((t: any, idx: number) => ({
+          id: typeof t.id === "number" ? t.id : parseInt(t.id ?? t.course_type_id ?? t.courseTypeId ?? (idx + 1), 10),
+          name: String(t.name ?? t.course_type ?? t.courseType ?? "N/A"),
+          shortForm: String(t.shortForm ?? t.short_form ?? t.shortName ?? ""),
+          description: String(t.description ?? ""),
+          status: t.status === true || t.status === "Active" || t.status === "active" || t.status === 1 || String(t.status).toLowerCase() === "true"
+        }));
+        setCourseTypes(mappedTypes);
+      })
+      .catch((err) => {
+        console.error("Error fetching course types dropdown:", err);
+        const storedTypes = localStorage.getItem(COURSE_TYPE_STORAGE_KEY);
+        setCourseTypes(storedTypes ? JSON.parse(storedTypes) : []);
+      });
 
     // Fetch and populate course by ID
-    const storedCourses = localStorage.getItem(COURSE_STORAGE_KEY);
-    let list: Course[] = [];
-    if (storedCourses) {
-      try {
-        list = JSON.parse(storedCourses);
-      } catch {
-        list = initialCourses;
-      }
-    } else {
-      list = initialCourses;
-    }
-
-    const found = list.find((c) => c.id === targetId);
-    if (found) {
-      setForm({
-        ...found,
-        name: found.name || "",
-        courseTypeId: found.courseTypeId || 0,
-        externals: found.externals !== undefined ? found.externals : 0,
-        description: found.description || "",
-        status: found.status !== undefined ? found.status : true
+    API.get(`/api/master/courses/${targetId}`)
+      .then((res) => {
+        const c = res.data;
+        if (c) {
+          setForm({
+            id: targetId,
+            name: String(c.name ?? c.course ?? c.courseName ?? ""),
+            courseTypeId: typeof c.courseTypeId === "number" ? c.courseTypeId : (typeof c.course_type_id === "number" ? c.course_type_id : parseInt(c.courseTypeId ?? c.course_type_id ?? 0, 10)),
+            externals: typeof c.externals === "number" ? c.externals : parseInt(c.externals ?? 0, 10),
+            description: String(c.description ?? ""),
+            status: c.status === true || c.status === "Active" || c.status === "active" || c.status === 1 || String(c.status).toLowerCase() === "true"
+          });
+          setLoading(false);
+        } else {
+          throw new Error("No course details returned");
+        }
+      })
+      .catch((err) => {
+        console.error(`Error fetching course details for id ${targetId} from backend, falling back to local storage:`, err);
+        const storedCourses = localStorage.getItem(COURSE_STORAGE_KEY);
+        const list: Course[] = storedCourses ? JSON.parse(storedCourses) : [];
+        const found = list.find((c) => c.id === targetId);
+        if (found) {
+          setForm({
+            id: found.id,
+            name: found.name || "",
+            courseTypeId: found.courseTypeId || 0,
+            externals: found.externals !== undefined ? found.externals : 0,
+            description: found.description || "",
+            status: found.status !== undefined ? found.status : true
+          });
+        } else {
+          router.push("/masters/courses/course");
+        }
+        setLoading(false);
       });
-    } else {
-      router.push("/masters/courses/course");
-    }
-    setLoading(false);
   }, [targetId, router]);
 
   const updateField = (field: keyof Course, value: any) => {
@@ -134,7 +150,7 @@ export default function EditCoursePage() {
     if (!validateForm()) return;
 
     const stored = localStorage.getItem(COURSE_STORAGE_KEY);
-    const list: Course[] = stored ? JSON.parse(stored) : initialCourses;
+    const list: Course[] = stored ? JSON.parse(stored) : [];
 
     const updated: Course = {
       id: targetId,
@@ -147,11 +163,29 @@ export default function EditCoursePage() {
 
     const next = list.map((c) => (c.id === targetId ? updated : c));
     localStorage.setItem(COURSE_STORAGE_KEY, JSON.stringify(next));
-    setToast("✓ Course updated successfully");
 
-    window.setTimeout(() => {
-      router.push("/masters/courses/course");
-    }, 1000);
+    const payload = {
+      CourseTypeId: form.courseTypeId,
+      Course: form.name.trim(),
+      Externals: form.externals,
+      Description: form.description.trim(),
+      Status: form.status,
+    };
+
+    console.log(`Sending PUT request to /api/master/courses/${targetId} with payload:`, payload);
+
+    API.put(`/api/master/courses/${targetId}`, payload)
+      .then((res) => {
+        console.log("Successfully updated course in backend:", res.data);
+        setToast("✓ Course updated successfully");
+      })
+      .catch((err) => {
+        console.error("Backend PUT /api/master/courses failed:", err);
+        setToast("✓ Course updated locally (backend unavailable)");
+      })
+      .finally(() => {
+        window.setTimeout(() => router.push("/masters/courses/course"), 1000);
+      });
   };
 
   const fieldClass = (field: keyof ValidationErrors) =>
@@ -219,6 +253,7 @@ export default function EditCoursePage() {
                 placeholder="<Enter Course>"
                 value={form.name}
                 onChange={(event) => updateField("name", event.target.value)}
+                autoComplete="off"
               />
               {errors.name && <p className="edit-user-error">{errors.name}</p>}
             </div>
@@ -232,8 +267,12 @@ export default function EditCoursePage() {
                 className={fieldClass("externals")}
                 type="text"
                 placeholder="<Enter Number of Externals>"
-                value={form.externals}
-                onChange={(event) => updateField("externals", event.target.value === "" ? "" : parseInt(event.target.value, 10))}
+                value={isNaN(form.externals) || (form.externals === 0 && errors.externals === undefined) ? "" : form.externals}
+                onChange={(event) => {
+                  const val = event.target.value.replace(/\D/g, "");
+                  updateField("externals", val === "" ? "" : parseInt(val, 10));
+                }}
+                autoComplete="off"
               />
               {errors.externals && <p className="edit-user-error">{errors.externals}</p>}
             </div>
@@ -249,6 +288,7 @@ export default function EditCoursePage() {
                 rows={4}
                 value={form.description}
                 onChange={(event) => updateField("description", event.target.value)}
+                autoComplete="off"
               />
             </div>
           </div>

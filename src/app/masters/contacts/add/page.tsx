@@ -64,7 +64,10 @@ export default function AddContactPage() {
     if (!form.designation.trim()) next.designation = "This field is required";
     if (!form.department.trim()) next.department = "This field is required";
     if (!form.mobile.trim()) next.mobile = "This field is required";
+    else if (!/^\d{10}$/.test(form.mobile.trim())) next.mobile = "Enter a valid 10-digit mobile number";
+
     if (!form.email.trim()) next.email = "This field is required";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) next.email = "Enter a valid email address";
     if (!form.address.trim()) next.address = "This field is required";
     setErrors(next);
     return Object.keys(next).length === 0;
@@ -98,12 +101,33 @@ export default function AddContactPage() {
       status: true,
     };
 
+    // Save to localStorage immediately
     const next = [...list, record];
     localStorage.setItem(CONTACTS_STORAGE_KEY, JSON.stringify(next));
-    API.post("/api/master/contacts", record).catch(() => undefined);
 
-    setToast("✓ Contact created successfully");
-    window.setTimeout(() => router.push("/masters/contacts"), 900);
+    // Send PascalCase payload to backend
+    const payload = {
+      ClientID: record.clientId,
+      Contact: record.contact,
+      Designation: record.designation,
+      Department: record.department,
+      Mobile: record.mobile,
+      Email: record.email,
+      Address: record.address,
+    };
+
+    API.post("/api/master/contacts", payload)
+      .then((res) => {
+        console.log("Contact created in backend:", res.data);
+        setToast("✓ Contact created successfully");
+      })
+      .catch((err) => {
+        console.error("Backend POST /api/master/contacts failed:", err);
+        setToast("✓ Contact saved locally (backend unavailable)");
+      })
+      .finally(() => {
+        window.setTimeout(() => router.push("/masters/contacts"), 900);
+      });
   };
 
   const fieldClass = (field: keyof FormErrors) =>
@@ -194,7 +218,7 @@ export default function AddContactPage() {
                   className={fieldClass("mobile")}
                   placeholder="<Enter Mobile #>"
                   value={form.mobile}
-                  onChange={(e) => update("mobile", e.target.value)}
+                  onChange={(e) => update("mobile", e.target.value.replace(/\D/g, '').slice(0, 10))}
                 />
                 {errors.mobile && <p className="edit-user-error">{errors.mobile}</p>}
               </div>

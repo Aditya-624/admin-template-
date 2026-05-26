@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
 import { Plus } from "lucide-react";
+import API from "@/services/api";
 import {
   Branch,
   BRANCHES_STORAGE_KEY,
@@ -83,8 +84,27 @@ export default function AddBranchPage() {
     const stored = localStorage.getItem(BRANCHES_STORAGE_KEY);
     const current = stored ? (JSON.parse(stored) as Branch[]) : initialBranches;
     localStorage.setItem(BRANCHES_STORAGE_KEY, JSON.stringify([...current, form]));
-    setToast("✓ Branch created successfully");
-    window.setTimeout(() => router.push("/masters/branches"), 1000);
+
+    const payload = {
+      CourseId: form.courseId,
+      Branch: form.name,
+      ShortForm: form.shortForm,
+      Description: form.description,
+      Status: form.status,
+    };
+
+    API.post("/api/master/branches", payload)
+      .then((res) => {
+        console.log("Branch created in backend:", res.data);
+        setToast("✓ Branch created successfully");
+      })
+      .catch((err) => {
+        console.error("Backend POST /api/master/branches failed:", err);
+        setToast("✓ Branch saved locally (backend unavailable)");
+      })
+      .finally(() => {
+        window.setTimeout(() => router.push("/masters/branches"), 1000);
+      });
   };
 
   const fieldClass = (field: keyof ValidationErrors) =>

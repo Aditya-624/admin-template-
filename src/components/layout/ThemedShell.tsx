@@ -49,6 +49,29 @@ export default function ThemedShell({ children }: ThemedShellProps) {
   }, [bg]);
 
   useEffect(() => {
+    // Purge old mock databases from localStorage to ensure browser cache is clean
+    const keysToPurge = [
+      "masters-branches-list-v1",
+      "masters-course-list-v2",
+      "masters-coursetype-list-v2",
+      "masters-clients-list-v1",
+      "masters-contacts-list-v1",
+      "masters-usertype-list-v1",
+      "masters-modules-list-v1",
+      "masters-privileges-list-v1",
+      "masters-user-list-v4"
+    ];
+    try {
+      const purged = localStorage.getItem("purge-mock-v1.1");
+      if (!purged) {
+        keysToPurge.forEach((k) => localStorage.removeItem(k));
+        localStorage.setItem("purge-mock-v1.1", "true");
+        console.log("Successfully purged stale browser cache mock databases.");
+      }
+    } catch {
+      /* ignore */
+    }
+
     // Load persisted theme configurations on mount
     const savedBg = localStorage.getItem("theme-bg");
     const savedLabel = localStorage.getItem("theme-label");

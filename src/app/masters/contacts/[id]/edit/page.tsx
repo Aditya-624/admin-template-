@@ -86,7 +86,10 @@ export default function EditContactPage() {
     if (!form.designation.trim()) next.designation = "This field is required";
     if (!form.department.trim()) next.department = "This field is required";
     if (!form.mobile.trim()) next.mobile = "This field is required";
+    else if (!/^\d{10}$/.test(form.mobile.trim())) next.mobile = "Enter a valid 10-digit mobile number";
+
     if (!form.email.trim()) next.email = "This field is required";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) next.email = "Enter a valid email address";
     if (!form.address.trim()) next.address = "This field is required";
     setErrors(next);
     return Object.keys(next).length === 0;
@@ -117,10 +120,36 @@ export default function EditContactPage() {
 
     const next = list.map((c) => (c.id === targetId ? updated : c));
     localStorage.setItem(CONTACTS_STORAGE_KEY, JSON.stringify(next));
-    API.put(`/api/master/contacts/${targetId}`, updated).catch(() => undefined);
 
-    setToast("✓ Contact updated successfully");
-    window.setTimeout(() => router.push("/masters/contacts"), 900);
+    const payload = {
+      ClientId: updated.clientId,
+      Client: updated.client,
+      Contact: updated.contact,
+      Designation: updated.designation,
+      Department: updated.department,
+      Mobile: updated.mobile,
+      Email: updated.email,
+      Website: updated.website,
+      Address: updated.address,
+      City: updated.city,
+      State: updated.state,
+      PinCode: updated.pinCode,
+      Notes: updated.notes,
+      Status: updated.status,
+    };
+
+    API.put(`/api/master/contacts/${targetId}`, payload)
+      .then((res) => {
+        console.log("Contact updated in backend:", res.data);
+        setToast("✓ Contact updated successfully");
+      })
+      .catch((err) => {
+        console.error("Backend PUT /api/master/contacts failed:", err);
+        setToast("✓ Contact updated locally (backend unavailable)");
+      })
+      .finally(() => {
+        window.setTimeout(() => router.push("/masters/contacts"), 900);
+      });
   };
 
   const fieldClass = (field: keyof FormErrors) =>
@@ -220,7 +249,7 @@ export default function EditContactPage() {
                   className={fieldClass("mobile")}
                   placeholder="Mobile #"
                   value={form.mobile}
-                  onChange={(e) => update("mobile", e.target.value)}
+                  onChange={(e) => update("mobile", e.target.value.replace(/\D/g, '').slice(0, 10))}
                 />
                 {errors.mobile && <p className="edit-user-error">{errors.mobile}</p>}
               </div>

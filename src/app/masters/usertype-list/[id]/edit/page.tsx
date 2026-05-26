@@ -3,17 +3,10 @@
 import Link from "next/link";
 import { useRouter, useParams } from "next/navigation";
 import React, { useState, useEffect } from "react";
+import API from "@/services/api";
 import { Edit } from "lucide-react";
 
-const initialUserTypes = [
-  { id: 1, name: "Super", description: "User can upload Syllabus", status: true },
-  { id: 2, name: "Admin", description: "User can review Syllabus", status: true },
-  { id: 3, name: "Associate", description: "User can Approval Syllabus", status: true },
-  { id: 4, name: "Expert", description: "User can upload Course", status: true },
-  { id: 5, name: "ClientAdmin", description: "User can review Course", status: true },
-  { id: 6, name: "Evaluator", description: "User can Aoorive Course", status: true },
-  { id: 7, name: "Student", description: "User can Aoorive Course", status: true },
-];
+const initialUserTypes: { id: number; name: string; description: string; status: boolean }[] = [];
 
 const storageKey = "masters-usertype-list-v1";
 
@@ -43,17 +36,34 @@ export default function EditUserTypePage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const storedRows = localStorage.getItem(storageKey);
-    const existingTypes = storedRows ? JSON.parse(storedRows) : initialUserTypes;
-    
-    const found = existingTypes.find((u: UserTypeItem) => u.id === targetId);
-    if (found) {
-      setForm(found);
-    } else {
-      // Not found, could redirect back or show error
-      router.push("/masters/usertype-list");
-    }
-    setLoading(false);
+    console.log(`Fetching user type details for ID: ${targetId}...`);
+    setLoading(true);
+    API.get(`/api/master/user-types/${targetId}`)
+      .then((res) => {
+        if (res.data) {
+          console.log("Successfully fetched user type details:", res.data);
+          const ut = res.data;
+          setForm({
+            id: typeof ut.id === "number" ? ut.id : targetId,
+            name: String(ut.name ?? ut.userType ?? ut.user_type ?? ""),
+            description: String(ut.description ?? ""),
+            status: ut.status === true || ut.status === "Active" || ut.status === "active" || ut.status === 1 || String(ut.status).toLowerCase() === "true"
+          });
+        }
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.warn("Backend fetch failed, trying local storage/fallback:", err);
+        const storedRows = localStorage.getItem(storageKey);
+        const existingTypes = storedRows ? JSON.parse(storedRows) : initialUserTypes;
+        const found = existingTypes.find((u: UserTypeItem) => u.id === targetId);
+        if (found) {
+          setForm(found);
+        } else {
+          router.push("/masters/usertype-list");
+        }
+        setLoading(false);
+      });
   }, [targetId, router]);
 
   const [errors, setErrors] = useState<ValidationErrors>({});
@@ -80,17 +90,36 @@ export default function EditUserTypePage() {
   const saveUserType = () => {
     if (!validateForm()) return;
 
-    const storedTypes = localStorage.getItem(storageKey);
-    const currentTypes = storedTypes ? JSON.parse(storedTypes) as UserTypeItem[] : initialUserTypes;
-    
-    const nextTypes = currentTypes.map((t) => (t.id === targetId ? form : t));
-    
-    localStorage.setItem(storageKey, JSON.stringify(nextTypes));
-    setToast("✓ User Type updated successfully");
+    const payload = {
+      UserType: form.name,
+      Description: form.description,
+      Status: form.status
+    };
 
-    window.setTimeout(() => {
-      router.push("/masters/usertype-list");
-    }, 1000);
+    console.log("Sending PATCH to /api/master/user-types/" + targetId + " with payload:", payload);
+    API.patch(`/api/master/user-types/${targetId}`, payload)
+      .then((res) => {
+        console.log("Successfully updated user type in backend:", res.data);
+        const storedTypes = localStorage.getItem(storageKey);
+        const currentTypes = storedTypes ? JSON.parse(storedTypes) as UserTypeItem[] : initialUserTypes;
+        const nextTypes = currentTypes.map((t) => (t.id === targetId ? form : t));
+        localStorage.setItem(storageKey, JSON.stringify(nextTypes));
+        setToast("✓ User Type updated successfully");
+        window.setTimeout(() => {
+          router.push("/masters/usertype-list");
+        }, 1000);
+      })
+      .catch((err) => {
+        console.error("Failed to update user type in backend, saving locally:", err);
+        const storedTypes = localStorage.getItem(storageKey);
+        const currentTypes = storedTypes ? JSON.parse(storedTypes) as UserTypeItem[] : initialUserTypes;
+        const nextTypes = currentTypes.map((t) => (t.id === targetId ? form : t));
+        localStorage.setItem(storageKey, JSON.stringify(nextTypes));
+        setToast("✓ User Type updated locally");
+        window.setTimeout(() => {
+          router.push("/masters/usertype-list");
+        }, 1000);
+      });
   };
 
   const fieldClass = (field: keyof ValidationErrors) =>

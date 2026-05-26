@@ -16,68 +16,7 @@ export type Client = {
 
 export const CLIENTS_STORAGE_KEY = "masters-clients-list-v1";
 
-export const initialClients: Client[] = [
-  {
-    id: 1,
-    clientId: 1,
-    clientName: "ABC University",
-    mobile: "899993489",
-    email: "abcuniversity@gmail.com",
-    website: "www.abcuniv.com",
-    address: "Somer Adddress 1",
-    city: "Hyderabad",
-    state: "TG",
-    pinCode: "500007",
-    gstNumber: "",
-    notes: "",
-    status: true,
-  },
-  {
-    id: 2,
-    clientId: 2,
-    clientName: "Bell Schools",
-    mobile: "988328387",
-    email: "bellschools@gmail.com",
-    website: "www.bellschools.com",
-    address: "Somer Adddress 2",
-    city: "Bangalore",
-    state: "KR",
-    pinCode: "934242",
-    gstNumber: "",
-    notes: "",
-    status: true,
-  },
-  {
-    id: 3,
-    clientId: 3,
-    clientName: "Crest International",
-    mobile: "878234773",
-    email: "crestinternational@gmail.com",
-    website: "",
-    address: "Somer Adddress 3",
-    city: "Mumbai",
-    state: "MH",
-    pinCode: "430123",
-    gstNumber: "",
-    notes: "",
-    status: true,
-  },
-  {
-    id: 4,
-    clientId: 4,
-    clientName: "DIT",
-    mobile: "987398344",
-    email: "DuneIT@gmail.com",
-    website: "www.dit.com",
-    address: "Somer Adddress 4",
-    city: "Dehradun",
-    state: "UK",
-    pinCode: "222883",
-    gstNumber: "",
-    notes: "",
-    status: true,
-  },
-];
+export const initialClients: Client[] = [];
 
 export function parseStatus(value: unknown): boolean {
   if (value === true || value === 1) return true;

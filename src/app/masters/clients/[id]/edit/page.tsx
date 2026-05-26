@@ -97,7 +97,11 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
     const next: FormErrors = {};
     if (!form.clientName.trim()) next.clientName = "This field is required";
     if (!form.mobile.trim()) next.mobile = "This field is required";
+    else if (!/^\d{10}$/.test(form.mobile.trim())) next.mobile = "Enter a valid 10-digit mobile number";
+
     if (!form.email.trim()) next.email = "This field is required";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) next.email = "Enter a valid email address";
+
     if (!form.address.trim()) next.address = "This field is required";
     if (!form.city.trim()) next.city = "This field is required";
     if (!form.state.trim()) next.state = "This field is required";
@@ -129,11 +133,37 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
         status: form.status,
       };
       localStorage.setItem(CLIENTS_STORAGE_KEY, JSON.stringify(list));
-      API.put(`/api/master/clients/${id}`, list[idx]).catch(() => undefined);
-    }
 
-    setToast("✓ Client updated successfully");
-    window.setTimeout(() => router.push("/masters/clients"), 900);
+      const payload = {
+        Client: form.clientName.trim(),
+        Mobile: form.mobile.trim(),
+        Email: form.email.trim(),
+        Website: form.website.trim(),
+        Address: form.address.trim(),
+        City: form.city.trim(),
+        State: form.state.trim(),
+        PinCode: form.pinCode.trim(),
+        GSTNumber: form.gstNumber.trim(),
+        Notes: form.notes.trim(),
+        Status: form.status,
+      };
+
+      API.put(`/api/master/clients/${id}`, payload)
+        .then((res) => {
+          console.log("Client updated in backend:", res.data);
+          setToast("✓ Client updated successfully");
+        })
+        .catch((err) => {
+          console.error("Backend PUT /api/master/clients failed:", err);
+          setToast("✓ Client updated locally (backend unavailable)");
+        })
+        .finally(() => {
+          window.setTimeout(() => router.push("/masters/clients"), 900);
+        });
+    } else {
+      setToast("✓ Client updated locally");
+      window.setTimeout(() => router.push("/masters/clients"), 900);
+    }
   };
 
   const fieldClass = (field: keyof FormErrors) =>
@@ -175,7 +205,7 @@ export default function EditClientPage({ params }: { params: { id: string } }) {
                 className={fieldClass("mobile")}
                 placeholder="<Enter Mobile #>"
                 value={form.mobile}
-                onChange={(e) => update("mobile", e.target.value)}
+                onChange={(e) => update("mobile", e.target.value.replace(/\D/g, '').slice(0, 10))}
               />
               {errors.mobile && <p className="edit-user-error">{errors.mobile}</p>}
             </div>

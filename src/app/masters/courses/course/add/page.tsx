@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
 import { Plus } from "lucide-react";
+import API from "@/services/api";
 import {
   Course,
   CourseType,
@@ -126,11 +127,29 @@ export default function AddCoursePage() {
 
     const next = [...current, form];
     localStorage.setItem(COURSE_STORAGE_KEY, JSON.stringify(next));
-    setToast("✓ Course created successfully");
 
-    window.setTimeout(() => {
-      router.push("/masters/courses/course");
-    }, 1000);
+    const payload = {
+      CourseTypeId: form.courseTypeId,
+      Course: form.name,
+      Externals: form.externals,
+      Description: form.description,
+      Status: form.status,
+    };
+
+    API.post("/api/master/courses", payload)
+      .then((res) => {
+        console.log("Course created in backend:", res.data);
+        setToast("✓ Course created successfully");
+      })
+      .catch((err) => {
+        console.error("Backend POST /api/master/courses failed:", err);
+        setToast("✓ Course saved locally (backend unavailable)");
+      })
+      .finally(() => {
+        window.setTimeout(() => {
+          router.push("/masters/courses/course");
+        }, 1000);
+      });
   };
 
   const fieldClass = (field: keyof ValidationErrors) =>
@@ -181,6 +200,7 @@ export default function AddCoursePage() {
                 placeholder="<Enter Course>"
                 value={form.name}
                 onChange={(event) => updateField("name", event.target.value)}
+                autoComplete="off"
               />
               {errors.name && <p className="edit-user-error">{errors.name}</p>}
             </div>
@@ -194,8 +214,12 @@ export default function AddCoursePage() {
                 className={fieldClass("externals")}
                 type="text"
                 placeholder="<Enter Number of Externals>"
-                value={form.externals === 0 && errors.externals === undefined ? "" : form.externals}
-                onChange={(event) => updateField("externals", event.target.value === "" ? "" : parseInt(event.target.value, 10))}
+                value={isNaN(form.externals) || (form.externals === 0 && errors.externals === undefined) ? "" : form.externals}
+                onChange={(event) => {
+                  const val = event.target.value.replace(/\D/g, "");
+                  updateField("externals", val === "" ? "" : parseInt(val, 10));
+                }}
+                autoComplete="off"
               />
               {errors.externals && <p className="edit-user-error">{errors.externals}</p>}
             </div>
@@ -211,6 +235,7 @@ export default function AddCoursePage() {
                 rows={4}
                 value={form.description}
                 onChange={(event) => updateField("description", event.target.value)}
+                autoComplete="off"
               />
             </div>
           </div>

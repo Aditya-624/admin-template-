@@ -6,14 +6,7 @@ import React, { useState, useEffect } from "react";
 import API from "@/services/api";
 import { Edit } from "lucide-react";
 
-const initialData = [
-  { id: 1, userType: "1 - Super", userName: "1 - Vamsi", privilege: "1 - SyllabusUpload", description: "User can upload Syllabus", status: true },
-  { id: 2, userType: "1 - Super", userName: "1 - Vamsi", privilege: "2 - SyllabusReview", description: "User can review Syllabus", status: true },
-  { id: 3, userType: "4 - Expert", userName: "4 - Venu", privilege: "3 - SyllabusApproval", description: "User can Approval Syllabus", status: true },
-  { id: 4, userType: "3 - Associate", userName: "3 - Sameer", privilege: "4 - CourseUpload", description: "User can upload Course", status: true },
-  { id: 5, userType: "3 - Associate", userName: "3 - Sameer", privilege: "5 - CourseReview", description: "User can review Course", status: true },
-  { id: 6, userType: "4 - Expert", userName: "4 - Venu", privilege: "6 - SyllabusApproval", description: "User can Aoorive Course", status: true },
-];
+const initialData: { id: number; userType: string; userName: string; privilege: string; description: string; status: boolean }[] = [];
 
 const storageKey = "transaction-user-access-privileges-v1";
 
@@ -82,7 +75,8 @@ export default function EditUserAccessPrivilegePage() {
     API.get("/api/user-access-privileges/user-types-dropdown")
       .then((res) => {
         const data = Array.isArray(res.data) ? res.data : [];
-        const opts: UserTypeOption[] = data.map((ut: any, idx: number) => ({
+        const activeData = data.filter((ut: any) => ut.status === undefined || ut.status === true || ut.status === "Active" || ut.status === "active" || ut.status === 1 || String(ut.status).toLowerCase() === "true");
+        const opts: UserTypeOption[] = activeData.map((ut: any, idx: number) => ({
           id: typeof ut.id === "number" ? ut.id : parseInt(ut.id ?? ut.user_type_id ?? ut.userTypeId ?? (idx + 1), 10),
           name: String(ut.name ?? ut.user_type ?? ut.userType ?? ut.label ?? ut.value ?? "N/A"),
         }));
@@ -94,7 +88,8 @@ export default function EditUserAccessPrivilegePage() {
         API.get("/api/master/user-types")
           .then((res) => {
             const data = Array.isArray(res.data) ? res.data : [];
-            const opts: UserTypeOption[] = data.map((ut: any, idx: number) => ({
+            const activeData = data.filter((ut: any) => ut.status === undefined || ut.status === true || ut.status === "Active" || ut.status === "active" || ut.status === 1 || String(ut.status).toLowerCase() === "true");
+            const opts: UserTypeOption[] = activeData.map((ut: any, idx: number) => ({
               id: typeof ut.id === "number" ? ut.id : parseInt(ut.id ?? ut.user_type_id ?? (idx + 1), 10),
               name: String(ut.name ?? ut.user_type ?? ut.userType ?? "N/A"),
             }));
@@ -109,10 +104,12 @@ export default function EditUserAccessPrivilegePage() {
               try {
                 const parsed = JSON.parse(localData);
                 if (Array.isArray(parsed)) {
-                  fallback = parsed.map((ut: any) => ({
-                    id: ut.id,
-                    name: ut.name
-                  }));
+                  fallback = parsed
+                    .filter((ut: any) => ut.status === undefined || ut.status === true || ut.status === "Active" || ut.status === "active" || ut.status === 1 || String(ut.status).toLowerCase() === "true")
+                    .map((ut: any) => ({
+                      id: ut.id,
+                      name: ut.name
+                    }));
                 }
               } catch (e) {
                 console.error("Error parsing local storage user types:", e);
@@ -140,7 +137,8 @@ export default function EditUserAccessPrivilegePage() {
     API.get("/api/user-access-privileges/access-privileges-dropdown")
       .then((res) => {
         const data = Array.isArray(res.data) ? res.data : [];
-        const opts = data.map((p: any, idx: number) => ({
+        const activeData = data.filter((p: any) => p.status === undefined || p.status === true || p.status === "Active" || p.status === "active" || p.status === 1 || String(p.status).toLowerCase() === "true");
+        const opts = activeData.map((p: any, idx: number) => ({
           id: typeof p.id === "number" ? p.id : parseInt(p.id ?? p.privilege_id ?? p.privilegeId ?? (idx + 1), 10),
           name: String(p.name ?? p.privilege ?? p.label ?? "N/A")
         }));
@@ -152,7 +150,8 @@ export default function EditUserAccessPrivilegePage() {
         API.get("/api/master/access-privileges")
           .then((res) => {
             const data = Array.isArray(res.data) ? res.data : [];
-            const opts = data.map((p: any, idx: number) => ({
+            const activeData = data.filter((p: any) => p.status === undefined || p.status === true || p.status === "Active" || p.status === "active" || p.status === 1 || String(p.status).toLowerCase() === "true");
+            const opts = activeData.map((p: any, idx: number) => ({
               id: typeof p.id === "number" ? p.id : parseInt(p.id ?? p.privilege_id ?? (idx + 1), 10),
               name: String(p.name ?? p.privilege ?? "N/A")
             }));
@@ -167,10 +166,12 @@ export default function EditUserAccessPrivilegePage() {
               try {
                 const parsed = JSON.parse(localData);
                 if (Array.isArray(parsed)) {
-                  fallback = parsed.map((p: any) => ({
-                    id: p.id,
-                    name: p.name
-                  }));
+                  fallback = parsed
+                    .filter((p: any) => p.status === undefined || p.status === true || p.status === "Active" || p.status === "active" || p.status === 1 || String(p.status).toLowerCase() === "true")
+                    .map((p: any) => ({
+                      id: p.id,
+                      name: p.name
+                    }));
                 }
               } catch (e) {
                 console.error("Error parsing local storage privileges:", e);
@@ -208,7 +209,8 @@ export default function EditUserAccessPrivilegePage() {
           const res = await API.get(`/api/user-access-privileges/users-by-type-dropdown/${typeId}`);
           const data = Array.isArray(res.data) ? res.data : [];
           if (data.length > 0) {
-            const opts = data.map((u: any, idx: number) => ({
+            const activeData = data.filter((u: any) => u.status === undefined || u.status === true || u.status === "Active" || u.status === "active" || u.status === 1 || String(u.status).toLowerCase() === "true");
+            const opts = activeData.map((u: any, idx: number) => ({
               id: typeof u.id === "number" ? u.id : parseInt(u.id ?? u.userId ?? u.user_id ?? (idx + 1), 10),
               name: String(u.name ?? u.userName ?? u.username ?? "N/A")
             }));
@@ -232,7 +234,8 @@ export default function EditUserAccessPrivilegePage() {
         const res = await API.get("/api/users");
         const data = Array.isArray(res.data) ? res.data : [];
         if (data.length > 0) {
-          const opts = data.map((u: any, idx: number) => ({
+          const activeData = data.filter((u: any) => u.status === undefined || u.status === true || u.status === "Active" || u.status === "active" || u.status === 1 || String(u.status).toLowerCase() === "true");
+          const opts = activeData.map((u: any, idx: number) => ({
             id: typeof u.id === "number" ? u.id : parseInt(u.id ?? u.userId ?? u.user_id ?? (idx + 1), 10),
             name: String(u.name ?? u.userName ?? u.username ?? "N/A")
           }));
@@ -346,6 +349,19 @@ export default function EditUserAccessPrivilegePage() {
       }
     }
 
+    const userTypeId = parseInt(form.userType.split(" - ")[0], 10) || null;
+    const userNameId = parseInt(form.userName.split(" - ")[0], 10) || null;
+    const privId = parseInt(firstPrivilege.split(" - ")[0], 10) || null;
+
+    const payload = {
+      UserTypeId: userTypeId,
+      UserId: userNameId,
+      AccessPrivilegeId: privId,
+      Description: form.description,
+      Status: form.status
+    };
+
+    API.put(`/api/user-access-privileges/${targetId}`, payload).catch(() => undefined);
     localStorage.setItem(storageKey, JSON.stringify(nextData));
     setToast("✓ Privilege access updated successfully");
 

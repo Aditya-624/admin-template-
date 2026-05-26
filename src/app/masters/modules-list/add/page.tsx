@@ -14,13 +14,7 @@ type Module = {
   status: boolean;
 };
 
-const initialData: Module[] = [
-  { id: 1, name: "Learn", description: "Saral Vidhya", shortForm: "LRN", status: true },
-  { id: 2, name: "Evaluate", description: "Saral Nirnayah", shortForm: "EVL", status: true },
-  { id: 3, name: "Teach", description: "Saral Bhodhana", shortForm: "TCH", status: true },
-  { id: 4, name: "Train", description: "Saral Shikshana", shortForm: "TRN", status: true },
-  { id: 5, name: "Compete", description: "Saral Pratiyogita", shortForm: "CMP", status: true },
-];
+const initialData: Module[] = [];
 
 const storageKey = "masters-modules-list-v1";
 
@@ -74,8 +68,15 @@ export default function AddModulePage() {
   const saveModule = () => {
     if (!validateForm()) return;
 
-    console.log("Sending POST request to create module:", form);
-    API.post("/api/master/modules", form)
+    const payload = {
+      Module: form.name,
+      Description: form.description,
+      ShortForm: form.shortForm,
+      Status: form.status
+    };
+
+    console.log("Sending POST request to create module:", payload);
+    API.post("/api/master/modules", payload)
       .then((res) => {
         console.log("Successfully created module on backend:", res.data);
         const stored = localStorage.getItem(storageKey);
@@ -89,7 +90,7 @@ export default function AddModulePage() {
       })
       .catch((err) => {
         console.warn("Backend create module failed, checking secondary endpoint /api/modules...", err);
-        API.post("/api/modules", form)
+        API.post("/api/modules", payload)
           .then((res) => {
             const stored = localStorage.getItem(storageKey);
             const current = stored ? JSON.parse(stored) as Module[] : initialData;

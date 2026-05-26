@@ -14,7 +14,6 @@ import {
 
 import { useTheme } from "@/contexts/ThemeContext";
 import { useSidebar } from "@/contexts/SidebarContext";
-import { notifications } from "@/lib/dummy-data";
 import { cn } from "@/lib/utils";
 
 const colorShifts = [
@@ -22,7 +21,7 @@ const colorShifts = [
   { label: "Sky", bg: "linear-gradient(145deg, #040f1f 0%, #0c4a6e 50%, #040f1f 100%)", orb: "radial-gradient(ellipse 80% 70% at 40% 40%, rgba(56,189,248,.9) 0%, rgba(14,165,233,.65) 45%, transparent 75%)", swatch: "#0ea5e9" },
   { label: "Smoke Dark", bg: "radial-gradient(ellipse at 50% 0%, #3b495c 0%, #263344 100%)", orb: "none", swatch: "#3b495c" },
   { label: "Periwinkle", bg: "linear-gradient(135deg, #6366f1 0%, #818cf8 50%, #a5b4fc 100%)", orb: "none", swatch: "#818cf8" },
-  { label: "Classic White", bg: "#f8fafc", orb: "none", swatch: "#64748b" },
+  { label: "Lite Sky", bg: "linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #bae6fd 100%)", orb: "none", swatch: "#0ea5e9" },
 ];
 
 
@@ -242,15 +241,6 @@ const SEARCHABLE_PAGES = [
   { label: "Access Privileges List", href: "/transaction/user-access-privileges-list", category: "Transaction" },
   { label: "User Modules", href: "/transaction/user-modules-list", category: "Transaction" },
   { label: "eCommerce Dashboard", href: "/", category: "Dashboard" },
-  { label: "Analytics Dashboard", href: "/analytics", category: "Dashboard" },
-  { label: "Students", href: "/students", category: "Apps & Pages" },
-  { label: "Teachers", href: "/teachers", category: "Apps & Pages" },
-  { label: "Courses", href: "/courses", category: "Apps & Pages" },
-  { label: "Notifications", href: "/notifications", category: "Apps & Pages" },
-  { label: "Podcasts", href: "/podcasts", category: "Apps & Pages" },
-  { label: "Quizzes", href: "/quizzes", category: "Forms" },
-  { label: "AI Control", href: "/ai-control", category: "Forms" },
-  { label: "Settings", href: "/settings", category: "Authentication" },
 ];
 
 export default function TopNav() {
@@ -344,7 +334,7 @@ export default function TopNav() {
     }));
   };
 
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  // Unread count removed (no mock notifications)
 
   return (
     <>

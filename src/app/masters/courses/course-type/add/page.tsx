@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
 import { Plus } from "lucide-react";
+import API from "@/services/api";
 import {
   CourseType,
   COURSE_TYPE_STORAGE_KEY,
@@ -65,11 +66,28 @@ export default function AddCourseTypePage() {
     
     const next = [...current, form];
     localStorage.setItem(COURSE_TYPE_STORAGE_KEY, JSON.stringify(next));
-    setToast("✓ Course Type created successfully");
 
-    window.setTimeout(() => {
-      router.push("/masters/courses/course-type");
-    }, 1000);
+    const payload = {
+      CourseType: form.name,
+      ShortForm: form.shortForm,
+      Description: form.description,
+      Status: form.status,
+    };
+
+    API.post("/api/master/course-types", payload)
+      .then((res) => {
+        console.log("Course Type created in backend:", res.data);
+        setToast("✓ Course Type created successfully");
+      })
+      .catch((err) => {
+        console.error("Backend POST /api/master/course-types failed:", err);
+        setToast("✓ Course Type saved locally (backend unavailable)");
+      })
+      .finally(() => {
+        window.setTimeout(() => {
+          router.push("/masters/courses/course-type");
+        }, 1000);
+      });
   };
 
   const fieldClass = (field: keyof ValidationErrors) =>

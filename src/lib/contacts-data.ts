@@ -18,83 +18,9 @@ export type Contact = {
 
 export const CONTACTS_STORAGE_KEY = "masters-contacts-list-v1";
 
-export const initialContacts: Contact[] = [
-  {
-    id: 1,
-    clientId: 1,
-    client: "ABC University",
-    contact: "Anand Rao",
-    designation: "COE",
-    department: "Examinations",
-    mobile: "899993489",
-    email: "abcuniversity@gmail.com",
-    website: "",
-    address: "",
-    city: "",
-    state: "",
-    pinCode: "",
-    notes: "",
-    status: true,
-  },
-  {
-    id: 2,
-    clientId: 2,
-    client: "Bell Schools",
-    contact: "Babu Rao",
-    designation: "Assistant Examiner",
-    department: "Examinations",
-    mobile: "988328387",
-    email: "bellschools@gmail.com",
-    website: "",
-    address: "",
-    city: "",
-    state: "",
-    pinCode: "",
-    notes: "",
-    status: true,
-  },
-  {
-    id: 3,
-    clientId: 3,
-    client: "Crest International",
-    contact: "Chintamani",
-    designation: "HOD",
-    department: "IT",
-    mobile: "878234773",
-    email: "crestinternational@gmail.com",
-    website: "",
-    address: "",
-    city: "",
-    state: "",
-    pinCode: "",
-    notes: "",
-    status: true,
-  },
-  {
-    id: 4,
-    clientId: 4,
-    client: "DIT",
-    contact: "Dorai Swamy",
-    designation: "COE",
-    department: "Examinations",
-    mobile: "987398344",
-    email: "DuneIT@gmail.com",
-    website: "",
-    address: "",
-    city: "",
-    state: "",
-    pinCode: "",
-    notes: "",
-    status: true,
-  },
-];
+export const initialContacts: Contact[] = [];
 
-export const clientOptions = [
-  { id: 1, name: "ABC University" },
-  { id: 2, name: "Bell Schools" },
-  { id: 3, name: "Crest International" },
-  { id: 4, name: "DIT" },
-];
+export const clientOptions: { id: number; name: string }[] = [];
 
 export function parseStatus(value: unknown): boolean {
   if (value === true || value === 1) return true;

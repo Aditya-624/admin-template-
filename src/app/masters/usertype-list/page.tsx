@@ -13,15 +13,7 @@ type UserTypeItem = {
   status: boolean;
 };
 
-const initialData: UserTypeItem[] = [
-  { id: 1, name: "Super", description: "User can upload Syllabus", status: true },
-  { id: 2, name: "Admin", description: "User can review Syllabus", status: true },
-  { id: 3, name: "Associate", description: "User can Approval Syllabus", status: true },
-  { id: 4, name: "Expert", description: "User can upload Course", status: true },
-  { id: 5, name: "ClientAdmin", description: "User can review Course", status: true },
-  { id: 6, name: "Evaluator", description: "User can Aoorive Course", status: true },
-  { id: 7, name: "Student", description: "User can Aoorive Course", status: true },
-];
+const initialData: UserTypeItem[] = [];
 
 const storageKey = "masters-usertype-list-v1";
 
@@ -39,7 +31,8 @@ export default function UserTypeListPage() {
       .then((res) => {
         console.log("Successfully fetched user types from backend:", res.data);
         if (Array.isArray(res.data)) {
-          const mapped = res.data.map((ut: any, idx: number) => ({
+          const activeOnly = res.data.filter((ut: any) => ut.status === undefined || ut.status === true || ut.status === "Active" || ut.status === "active" || ut.status === 1 || String(ut.status).toLowerCase() === "true");
+          const mapped = activeOnly.map((ut: any, idx: number) => ({
             id: typeof ut.id === "number" ? ut.id : parseInt(ut.id ?? ut.user_type_id ?? ut.userTypeId ?? (idx + 1), 10),
             name: String(ut.name ?? ut.user_type ?? ut.userType ?? "N/A"),
             description: String(ut.description ?? ""),
@@ -119,10 +112,10 @@ export default function UserTypeListPage() {
 
   const handleDeleteConfirm = () => {
     if (selectedUserType) {
-      console.log(`Sending DELETE request for user type ID: ${selectedUserType.id}`);
-      API.delete(`/api/master/user-types/${selectedUserType.id}`)
+      console.log(`Sending PATCH request for user type ID: ${selectedUserType.id} to soft-delete`);
+      API.patch(`/api/master/user-types/${selectedUserType.id}`, { Status: false })
         .then((res) => {
-          console.log(`Successfully deleted user type ${selectedUserType.id}:`, res.data);
+          console.log(`Successfully soft-deleted user type ${selectedUserType.id}:`, res.data);
           const nextTypes = userTypes.filter((p) => p.id !== selectedUserType.id);
           setUserTypes(nextTypes);
           localStorage.setItem(storageKey, JSON.stringify(nextTypes));
@@ -131,8 +124,7 @@ export default function UserTypeListPage() {
           showToast("✓ User Type deleted successfully");
         })
         .catch((err) => {
-          console.error(`Error deleting user type ${selectedUserType.id}:`, err);
-          alert("Failed to delete user type on backend. Deleting from offline list.");
+          console.error(`Error soft-deleting user type ${selectedUserType.id}:`, err);
           const nextTypes = userTypes.filter((p) => p.id !== selectedUserType.id);
           setUserTypes(nextTypes);
           localStorage.setItem(storageKey, JSON.stringify(nextTypes));
@@ -255,7 +247,7 @@ export default function UserTypeListPage() {
                   { label: "UserType", key: "name" },
                   { label: "Description", key: "description" },
                   { label: "Status", key: "status" },
-                  { label: "Action(s)", key: null }
+                  { label: "Actions", key: null }
                 ].map((col) => (
                   <th
                     key={col.label}

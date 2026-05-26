@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Edit, Trash2, ArrowUpDown, CheckCircle, Plus } from "lucide-react";
+import API from "@/services/api";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import {
@@ -29,34 +30,51 @@ export default function BranchListPage() {
     setLoading(true);
     
     // Fetch Courses (the source of truth for Course Dropdowns/Labels)
-    const storedCourses = localStorage.getItem(COURSE_STORAGE_KEY);
-    let courseList: Course[] = [];
-    if (storedCourses) {
-      try {
-        courseList = JSON.parse(storedCourses);
-      } catch {
-        courseList = initialCourses;
-      }
-    } else {
-      courseList = initialCourses;
-      localStorage.setItem(COURSE_STORAGE_KEY, JSON.stringify(initialCourses));
-    }
-    setCourses(courseList);
+    API.get("/api/master/courses")
+      .then((res) => {
+        const rawData = res.data;
+        const data = Array.isArray(rawData) ? rawData : (rawData && Array.isArray(rawData.data) ? rawData.data : []);
+        const mappedCourses: Course[] = data.map((c: any, idx: number) => ({
+          id: typeof c.id === "number" ? c.id : parseInt(c.id ?? c.course_id ?? c.courseId ?? (idx + 1), 10),
+          name: String(c.name ?? c.course ?? c.courseName ?? "N/A"),
+          courseTypeId: typeof c.courseTypeId === "number" ? c.courseTypeId : (typeof c.course_type_id === "number" ? c.course_type_id : parseInt(c.courseTypeId ?? c.course_type_id ?? 1, 10)),
+          externals: typeof c.externals === "number" ? c.externals : parseInt(c.externals ?? 0, 10),
+          description: String(c.description ?? ""),
+          status: c.status === true || c.status === "Active" || c.status === "active" || c.status === 1 || String(c.status).toLowerCase() === "true"
+        }));
+        setCourses(mappedCourses);
+        localStorage.setItem(COURSE_STORAGE_KEY, JSON.stringify(mappedCourses));
+      })
+      .catch((err) => {
+        console.error("Error fetching courses:", err);
+        const storedCourses = localStorage.getItem(COURSE_STORAGE_KEY);
+        setCourses(storedCourses ? JSON.parse(storedCourses) : []);
+      });
 
     // Fetch Branches
-    const storedBranches = localStorage.getItem(BRANCHES_STORAGE_KEY);
-    if (storedBranches) {
-      try {
-        setBranches(JSON.parse(storedBranches));
-      } catch {
-        setBranches(initialBranches);
-      }
-    } else {
-      setBranches(initialBranches);
-      localStorage.setItem(BRANCHES_STORAGE_KEY, JSON.stringify(initialBranches));
-    }
-    
-    setLoading(false);
+    API.get("/api/master/branches")
+      .then((res) => {
+        const rawData = res.data;
+        const data = Array.isArray(rawData) ? rawData : (rawData && Array.isArray(rawData.data) ? rawData.data : []);
+        const activeOnly = data.filter((b: any) => b.status === undefined || b.status === true || b.status === "Active" || b.status === "active" || b.status === 1 || String(b.status).toLowerCase() === "true");
+        const mappedBranches: Branch[] = activeOnly.map((b: any, idx: number) => ({
+          id: typeof b.id === "number" ? b.id : parseInt(b.id ?? b.branch_id ?? b.branchId ?? (idx + 1), 10),
+          courseId: typeof b.courseId === "number" ? b.courseId : (typeof b.course_id === "number" ? b.course_id : parseInt(b.courseId ?? b.course_id ?? 1, 10)),
+          name: String(b.name ?? b.branch ?? b.branchName ?? "N/A"),
+          shortForm: String(b.shortForm ?? b.short_form ?? b.shortName ?? ""),
+          description: String(b.description ?? ""),
+          status: b.status === true || b.status === "Active" || b.status === "active" || b.status === 1 || String(b.status).toLowerCase() === "true"
+        }));
+        setBranches(mappedBranches);
+        localStorage.setItem(BRANCHES_STORAGE_KEY, JSON.stringify(mappedBranches));
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Error fetching branches:", err);
+        const storedBranches = localStorage.getItem(BRANCHES_STORAGE_KEY);
+        setBranches(storedBranches ? JSON.parse(storedBranches) : []);
+        setLoading(false);
+      });
   }, []);
 
   const getCourseLabel = (courseId: number) => {
@@ -90,6 +108,7 @@ export default function BranchListPage() {
 
   const handleDeleteConfirm = () => {
     if (selectedBranch) {
+      API.patch(`/api/master/branches/${selectedBranch.id}`, { Status: false }).catch(() => undefined);
       const nextBranches = branches.filter((b) => b.id !== selectedBranch.id);
       setBranches(nextBranches);
       localStorage.setItem(BRANCHES_STORAGE_KEY, JSON.stringify(nextBranches));
@@ -189,11 +208,11 @@ export default function BranchListPage() {
             </colgroup>
             <thead>
               <tr>
-                {["Branch ID", "ID / Course", "Branch", "ShortForm", "Description", "Status", "Action(s)"].map((column) => (
+                {["Branch ID", "ID / Course", "Branch", "ShortForm", "Description", "Status", "Actions"].map((column) => (
                   <th key={column}>
                     <div className="flex items-center justify-between gap-3">
                       <span className="truncate">{column}</span>
-                      {column !== "Action(s)" && <ArrowUpDown className="sort-icon" />}
+                      {column !== "Actions" && <ArrowUpDown className="sort-icon" />}
                     </div>
                   </th>
                 ))}
@@ -229,7 +248,7 @@ export default function BranchListPage() {
                     <td><div className="datatable-cell text-slate-300" style={{ whiteSpace: "normal" }}>{b.description || "-"}</div></td>
                     <td>
                       <div className="flex justify-center">
-                        <span className="status-pill" style={{
+                        <span className="status-pill" data-status={b.status ? "Active" : "Inactive"} style={{
                           background: b.status ? "rgba(34, 197, 94, 0.15)" : "rgba(239, 68, 68, 0.15)",
                           borderColor: b.status ? "rgba(34, 197, 94, 0.3)" : "rgba(239, 68, 68, 0.3)",
                           color: b.status ? "#4ade80" : "#f87171"

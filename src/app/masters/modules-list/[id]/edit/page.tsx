@@ -14,13 +14,7 @@ type Module = {
   status: boolean;
 };
 
-const initialData: Module[] = [
-  { id: 1, name: "Learn", description: "Saral Vidhya", shortForm: "LRN", status: true },
-  { id: 2, name: "Evaluate", description: "Saral Nirnayah", shortForm: "EVL", status: true },
-  { id: 3, name: "Teach", description: "Saral Bhodhana", shortForm: "TCH", status: true },
-  { id: 4, name: "Train", description: "Saral Shikshana", shortForm: "TRN", status: true },
-  { id: 5, name: "Compete", description: "Saral Pratiyogita", shortForm: "CMP", status: true },
-];
+const initialData: Module[] = [];
 
 const storageKey = "masters-modules-list-v1";
 
@@ -114,8 +108,15 @@ export default function EditModulePage() {
   const saveModule = () => {
     if (!validateForm()) return;
 
-    console.log("Sending PUT request to update module:", form);
-    API.put(`/api/master/modules/${targetId}`, form)
+    const payload = {
+      Module: form.name,
+      Description: form.description,
+      ShortForm: form.shortForm,
+      Status: form.status
+    };
+
+    console.log("Sending PUT request to update module:", payload);
+    API.put(`/api/master/modules/${targetId}`, payload)
       .then((res) => {
         console.log("Successfully updated module on backend:", res.data);
         const stored = localStorage.getItem(storageKey);
@@ -129,7 +130,7 @@ export default function EditModulePage() {
       })
       .catch((err) => {
         console.warn("Backend update module failed, trying secondary endpoint /api/modules...", err);
-        API.put(`/api/modules/${targetId}`, form)
+        API.put(`/api/modules/${targetId}`, payload)
           .then((res) => {
             const stored = localStorage.getItem(storageKey);
             const current = stored ? JSON.parse(stored) as Module[] : initialData;

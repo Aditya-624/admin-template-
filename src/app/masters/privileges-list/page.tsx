@@ -13,14 +13,7 @@ type Privilege = {
   status: boolean;
 };
 
-const initialData: Privilege[] = [
-  { id: 1, name: "SyllabusUpload", description: "User can upload Syllabus", status: true },
-  { id: 2, name: "SyllabusReview", description: "User can review Syllabus", status: true },
-  { id: 3, name: "SyllabusApproval", description: "User can Approval Syllabus", status: true },
-  { id: 4, name: "CourseUpload", description: "User can upload Course", status: true },
-  { id: 5, name: "CourseReview", description: "User can review Course", status: true },
-  { id: 6, name: "CourseApproval", description: "User can Approve Course", status: true },
-];
+const initialData: Privilege[] = [];
 
 const storageKey = "masters-privileges-list-v1";
 
@@ -38,7 +31,8 @@ export default function PrivilegesListPage() {
       .then((res) => {
         console.log("Successfully fetched privileges from backend:", res.data);
         if (Array.isArray(res.data)) {
-          const mapped = res.data.map((p: any, idx: number) => ({
+          const activeOnly = res.data.filter((p: any) => p.status === undefined || p.status === true || p.status === "Active" || p.status === "active" || p.status === 1 || String(p.status).toLowerCase() === "true");
+          const mapped = activeOnly.map((p: any, idx: number) => ({
             id: typeof p.id === "number" ? p.id : parseInt(p.id ?? p.privilege_id ?? p.privilegeId ?? (idx + 1), 10),
             name: String(p.name ?? p.privilege ?? p.access_privilege ?? "N/A"),
             description: String(p.description ?? ""),
@@ -48,14 +42,16 @@ export default function PrivilegesListPage() {
         } else {
           console.warn("Unexpected privileges response format, using local storage/placeholder fallback");
           const storedRows = localStorage.getItem(storageKey);
-          setPrivileges(storedRows ? JSON.parse(storedRows) : initialData);
+          const rawList = storedRows ? JSON.parse(storedRows) : initialData;
+          setPrivileges(rawList.filter((p: any) => p.status === undefined || p.status === true || p.status === "Active" || p.status === "active"));
         }
         setLoading(false);
       })
       .catch((err) => {
         console.error("Error fetching privileges from backend:", err);
         const storedRows = localStorage.getItem(storageKey);
-        setPrivileges(storedRows ? JSON.parse(storedRows) : initialData);
+        const rawList = storedRows ? JSON.parse(storedRows) : initialData;
+        setPrivileges(rawList.filter((p: any) => p.status === undefined || p.status === true || p.status === "Active" || p.status === "active"));
         setLoading(false);
       });
   }, []);
@@ -118,10 +114,10 @@ export default function PrivilegesListPage() {
 
   const handleDeleteConfirm = () => {
     if (selectedPrivilege) {
-      console.log(`Sending DELETE request for privilege ID: ${selectedPrivilege.id}`);
-      API.delete(`/api/master/access-privileges/${selectedPrivilege.id}`)
+      console.log(`Sending PATCH request for privilege ID: ${selectedPrivilege.id} to soft-delete`);
+      API.patch(`/api/master/access-privileges/${selectedPrivilege.id}`, { Status: false })
         .then((res) => {
-          console.log(`Successfully deleted privilege ${selectedPrivilege.id}:`, res.data);
+          console.log(`Successfully soft-deleted privilege ${selectedPrivilege.id}:`, res.data);
           const nextPrivileges = privileges.filter((p) => p.id !== selectedPrivilege.id);
           setPrivileges(nextPrivileges);
           localStorage.setItem(storageKey, JSON.stringify(nextPrivileges));
@@ -130,8 +126,7 @@ export default function PrivilegesListPage() {
           showToast("✓ Privilege deleted successfully");
         })
         .catch((err) => {
-          console.error(`Error deleting privilege ${selectedPrivilege.id}:`, err);
-          alert("Failed to delete privilege on backend. Deleting from offline list.");
+          console.error(`Error soft-deleting privilege ${selectedPrivilege.id}:`, err);
           const nextPrivileges = privileges.filter((p) => p.id !== selectedPrivilege.id);
           setPrivileges(nextPrivileges);
           localStorage.setItem(storageKey, JSON.stringify(nextPrivileges));
@@ -254,7 +249,7 @@ export default function PrivilegesListPage() {
                   { label: "Privilege", key: "name" },
                   { label: "Description", key: "description" },
                   { label: "Status", key: "status" },
-                  { label: "Action(s)", key: null }
+                  { label: "Actions", key: null }
                 ].map((col) => (
                   <th
                     key={col.label}
