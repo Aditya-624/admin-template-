@@ -50,6 +50,14 @@ const navItems = [
         subItems: [
           { href: "/transaction/user-modules-list", label: "User Modules" },
         ]
+      },
+      {
+        label: "Material Meta",
+        desc: "Manage material metadata",
+        subItems: [
+          { href: "/transaction/material-meta-1-list", label: "Material Meta 1" },
+          { href: "/transaction/material-meta-2-list", label: "Material Meta 2" },
+        ]
       }
     ],
   },
@@ -257,6 +265,7 @@ const SEARCHABLE_PAGES = [
   { label: "Contacts", href: "/masters/contacts", category: "Masters" },
   { label: "Access Privileges List", href: "/transaction/user-access-privileges-list", category: "Transaction" },
   { label: "User Modules", href: "/transaction/user-modules-list", category: "Transaction" },
+  { label: "Material Meta 1", href: "/transaction/material-meta-1-list", category: "Transaction" },
   { label: "eCommerce Dashboard", href: "/", category: "Dashboard" },
 ];
 
