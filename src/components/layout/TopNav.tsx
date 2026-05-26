@@ -91,6 +91,13 @@ const navItems = [
         { href: "/masters/subjects/add", label: "Add Subject" },
       ],
     },
+{
+  label: "Materials",
+  desc: "Manage educational materials and types.",
+  subItems: [
+    { href: "/masters/materials/material-types", label: "Material Types" },
+  ],
+},
       {
         label: "Branches",
         desc: "Manage academic branches",
@@ -245,6 +252,7 @@ const SEARCHABLE_PAGES = [
   { label: "Privileges List", href: "/masters/privileges-list", category: "Masters" },
   { label: "Modules List", href: "/masters/modules-list", category: "Masters" },
   { label: "Subjects", href: "/masters/subjects", category: "Masters" },
+  { label: "Material Types", href: "/masters/materials/material-types", category: "Masters" },
   { label: "Clients", href: "/masters/clients", category: "Masters" },
   { label: "Contacts", href: "/masters/contacts", category: "Masters" },
   { label: "Access Privileges List", href: "/transaction/user-access-privileges-list", category: "Transaction" },
