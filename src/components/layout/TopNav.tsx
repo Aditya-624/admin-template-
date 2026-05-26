@@ -84,6 +84,14 @@ const navItems = [
         ]
       },
       {
+      label: "Subjects",
+      desc: "Create and manage academic subjects and curricula.",
+      subItems: [
+        { href: "/masters/subjects", label: "Subject List" },
+        { href: "/masters/subjects/add", label: "Add Subject" },
+      ],
+    },
+      {
         label: "Branches",
         desc: "Manage academic branches",
         subItems: [
@@ -236,6 +244,7 @@ const SEARCHABLE_PAGES = [
   { label: "Users List", href: "/masters/user-list", category: "Masters" },
   { label: "Privileges List", href: "/masters/privileges-list", category: "Masters" },
   { label: "Modules List", href: "/masters/modules-list", category: "Masters" },
+  { label: "Subjects", href: "/masters/subjects", category: "Masters" },
   { label: "Clients", href: "/masters/clients", category: "Masters" },
   { label: "Contacts", href: "/masters/contacts", category: "Masters" },
   { label: "Access Privileges List", href: "/transaction/user-access-privileges-list", category: "Transaction" },

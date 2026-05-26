@@ -97,6 +97,15 @@ const masterModules = [
     iconColor: "text-rose-400",
     badge: "Locations",
   },
+  {
+    href: "/masters/subjects",
+    label: "Subjects",
+    desc: "Create and manage academic subjects and curricula.",
+    icon: BookOpen,
+    color: "from-green-500/20 to-emerald-500/20",
+    iconColor: "text-green-400",
+    badge: "Academic",
+  },
 ];
 
 export default function MastersDirectoryPage() {
